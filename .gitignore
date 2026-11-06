@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env*
+!.env.example
+.dev.vars*
+.wrangler/
+coverage/
+*.pbjvault
+*.pem
+*.key
+*.log
+.DS_Store

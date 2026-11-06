@@ -1,0 +1,14 @@
+{
+  "name": "pbj-prior-authorization",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local server/local.mjs --preview",
+    "start": "node --env-file-if-exists=.env.local server/local.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs"
+  }
+}

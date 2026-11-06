@@ -1,0 +1,30 @@
+{
+  "reviewed": "2026-11-06",
+  "scope": "Public policy snapshots only; no patient records",
+  "snapshots": [
+    {
+      "document": "hmsa-evenity-commercial-quest.pdf",
+      "sha256": "f37a5031021f12e6d12dc78234ec5768c8733f3cd8ccead59401d84c21a87bdf"
+    },
+    {
+      "document": "hmsa-evenity-ma.pdf",
+      "sha256": "dbfc5b1a4a2990c13a24ed9852ad05fb0ffc7492d59d60fbc4ba5f5f794f9175"
+    },
+    {
+      "document": "hmsa-prolia-commercial-quest.pdf",
+      "sha256": "0f8ab9692533c9f170241f5b4c60ba1b5fe365c13825b4de10ae2ae8d9fb0c4f"
+    },
+    {
+      "document": "hmsa-prolia-ma.pdf",
+      "sha256": "83cd86c7d690b9d58bb56325c44bdca99e75c5d152c8567e50681a8f9840e9d3"
+    },
+    {
+      "document": "hmaa-formulary.pdf",
+      "sha256": "ca224c9f6a0b95ea4c50a6c32300aeb45f6451b54f7322ed409893cf0b953785"
+    },
+    {
+      "document": "mdx-drug-list.pdf",
+      "sha256": "3d1082b4cdec6ec952c170d135aa4d869039c42423b3e2d537656d2b7dfa71e3"
+    }
+  ]
+}
