@@ -1,4 +1,4 @@
-import {orthoCategories,orthoPayers,orthoLines,orthoSettings,orthoRequestTypes,orthoProcedures,orthoGelProducts,orthoSourceKinds,getOrthoProcedure,orthoAuthorizationSnapshot} from '/shared/orthopedic-procedures.mjs';
+import {orthoCategories,orthoPayers,orthoLines,orthoSettings,orthoRequestTypes,orthoProcedures,orthoGelProducts,orthoSourceKinds,getOrthoProcedure,orthoAuthorizationSnapshot} from '../shared/orthopedic-procedures.mjs';
 const escapeHtml=function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));};
 const selectionOptions=function selectionOptions(list,current){return list.map(v=>`<option value="${escapeHtml(v)}" ${v===current?'selected':''}>${escapeHtml(v)}</option>`).join('');};
 export function renderOrthopedicPage(selection,category='injections'){
