@@ -70,6 +70,8 @@ npx wrangler@4 login
 npx wrangler@4 deploy
 ```
 
+A manual, fictional-data-only GitHub Actions deploy workflow is included in [the Cloudflare trial runbook](docs/CLOUDFLARE-TRIAL.md). It requires Cloudflare credentials in protected GitHub secrets and explicit acknowledgment. The workflow does not configure Cloudflare Access or prevent a public `workers.dev` hostname.
+
 Deploying with the checked-in configuration leaves AI disabled. For a provider connection, set `AI_PROVIDER`, `AI_MODEL`, `AI_TRIAL_ENABLED` and the exact HTTPS `APP_ORIGIN` in the Worker environment. Set `TRIAL_ACCESS_TOKEN` and provider credentials with **Wrangler secrets** or the Cloudflare dashboard, never in tracked `vars`. All asset requests pass through the Worker for security headers. `dist/` contains public client/shared modules only; it contains no server credentials.
 
 Use Cloudflare Access and disable alternate unprotected origins for a staff-only trial. This is not a PHI deployment: Cloudflare currently states that BAAs are available only to enterprise customers, and the exact product/service coverage must be confirmed contractually. No D1, R2, KV or Workers AI service is used for clinical records. See [Cloudflare’s compliance FAQ](https://www.cloudflare.com/trust-hub/us-privacy-compliance/).
