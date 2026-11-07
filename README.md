@@ -1,9 +1,10 @@
 # Coverage Desk — Pacific Bone & Joint
 
-A working **synthetic-data trial** for two clinical workflows:
+A working **synthetic-data trial** for three clinical workflows:
 
 1. Inspect a medication’s plan-specific formulary record and the separately scoped medical-necessity policy.
 2. Build a clinician-reviewed authorization-support attachment using exact passages from the source note, with missing evidence clearly identified.
+3. Prepare orthopedic **medical procedure** authorization reviews for knee gel injections, primary/revision hip or knee replacement, two-stage MACI, and carpal tunnel release. The procedure module contains candidate codes, public payer sources, record-location checklists and synthetic-only outline exports — not a coverage/PA determination or patient-ready authorization letter.
 
 **This version is not cleared for PHI or patient submission.** No configuration flag enables patient-data processing. Local storage, a cloud account, encryption, or an AI vendor’s BAA alone does not make the application HIPAA compliant. See [the production release requirements](docs/HIPAA-RELEASE.md).
 
@@ -23,6 +24,7 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 
 ## What is implemented
 
+- **Orthopedic procedures** sidebar workspace: knee hyaluronic-acid gel products (brand-specific J-code + 20610/20611), TKA/THA/partial/revisions, MACI harvest and implant, open/endoscopic/balloon-assisted CTR, distinct *non-balloon* ultrasound-guided CTR coding review, ACL and meniscus repair. Select payer, benefit line and setting; review scoped public policy/routing sources; download a **synthetic-only** documentation gaps checklist and packet outline. PA/eligibility/coverage remains **unverified** regardless of checked items. See [procedure workflow and official sources](docs/ORTHOPEDIC-PROCEDURES.md).
 - Responsive medication explorer with brand/generic search and explicit coverage unknowns.
 - **Hawaiʻi coverage navigator** with public source pathways across commercial HMO/PPO, Marketplace, QUEST Medicaid, MA/D-SNP, Part D, original Medicare, FEHB/Postal, VA, TRICARE, Curative, UHA/HMAA, and self-funded or delegated administrators. Sources carry explicit live/partial/official/unknown states; this is not blanket formulary ingestion. See [coverage navigator details](docs/HAWAII-COVERAGE-NAVIGATOR.md).
 - **Public formulary lookup:** select one of four exact-plan 2026 public pharmacy files: HMSA QUEST (`22780AA1111111`), UHC Hawaiʻi QUEST (`UCSHIQ1`), Kaiser Hawaiʻi QUEST (`KP-HI-QUEST Medicaid`), or Kaiser Hawaiʻi Marketplace Platinum 0/5 Plus CAM (`60612HI0110006`). Search by name or RxNorm; view plan-specific tiers and PA/ST/QL flags. This is published-source data, not member eligibility. Public files are cached for up to six hours, and the internal 90-day source-review warning is not a payer-defined expiration.
