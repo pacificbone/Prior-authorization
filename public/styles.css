@@ -11,3 +11,5 @@
 
 /* Public-source-only comparison; scrolls horizontally on narrow screens. */
 .comparison-panel{margin-top:23px}.comparison-panel .panel-content{padding-top:17px}.compare-table{min-width:740px}.compare-table th small{font-size:10px;font-weight:400;color:#879783}.compare-table td,.compare-table th{min-width:150px}.compare-table td strong{text-transform:capitalize;color:#38583b}.compare-table .source-link{display:inline-flex;margin-top:6px}.compare-table .tiny{display:inline-block;max-width:220px;font-size:10px;line-height:1.5;color:#77846f}.comparison-panel .helper{line-height:1.8}
+
+@media(max-width:650px){.page-heading .heading-actions{flex-wrap:wrap;justify-content:flex-start}.page-heading .heading-actions .button{white-space:normal}.compare-table{min-width:720px}}
