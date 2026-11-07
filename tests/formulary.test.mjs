@@ -59,7 +59,7 @@ test('server searches the official allowlisted source only, caches it, and retur
   assert.equal(result.matches.length,2);
   assert.equal(result.source.id,QUEST_FORMULARY.id);
   assert.equal(result.source.line,'QUEST / Medicaid');
-  assert.equal(result.historical,false);
+  assert.equal(result.reviewOverdue,false);
   assert.match(result.limitations,/Not member-specific eligibility/);
   assert.equal(seenUrl,QUEST_FORMULARY.sourceUrl);
   assert.equal(seenOptions.redirect,'error');
@@ -96,7 +96,7 @@ test('malformed or failed official source must not be reported as verified formu
   }
 });
 
-test('historical published source is flagged, not silently treated as current after year end',async()=>{
+test('source review age is flagged without inventing a payer expiration date',async()=>{
   const service=createPublishedFormularyService({fetcher:async()=>Response.json(rows),now:()=>Date.parse('2027-01-08T12:00:00Z')});
-  assert.equal((await service(input('alendronate'))).historical,true);
+  assert.equal((await service(input('alendronate'))).reviewOverdue,true);
 });
