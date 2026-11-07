@@ -47,7 +47,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0017-2026',
-    label:"KP HI Standard Platinum 0/10",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110017 · 2026 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
@@ -62,7 +62,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0018-2026',
-    label:"KP HI Standard Gold 2000/30",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110018 · 2026 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
@@ -77,7 +77,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0019-2026',
-    label:"KP HI Standard Silver 6000/40",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110019 · 2026 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
@@ -92,7 +92,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0020-2026',
-    label:"KP HI Standard Bronze 7500/50",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110020 · 2026 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
@@ -107,7 +107,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0017-2027',
-    label:"Kaiser Hawaiʻi Standard Platinum · HIOS 60612HI0110017 · 2027 (confirm marketing name)",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110017 · 2027 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
@@ -122,7 +122,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0018-2027',
-    label:"Kaiser Hawaiʻi Standard Gold · HIOS 60612HI0110018 · 2027 (confirm marketing name)",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110018 · 2027 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
@@ -137,7 +137,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0019-2027',
-    label:"Kaiser Hawaiʻi Standard Silver · HIOS 60612HI0110019 · 2027 (confirm marketing name)",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110019 · 2027 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
@@ -152,7 +152,7 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
   }),
   Object.freeze({
     id:'kaiser-hi-standard-0020-2027',
-    label:"Kaiser Hawaiʻi Standard Bronze · HIOS 60612HI0110020 · 2027 (confirm marketing name)",
+    label:'Kaiser Hawaiʻi Standard HIOS 60612HI0110020 · 2027 (verify marketing name)',
     payer:'Kaiser Permanente',
     line:'Individual Exchange',
     benefit:'Pharmacy',
