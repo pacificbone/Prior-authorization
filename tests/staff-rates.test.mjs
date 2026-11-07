@@ -4,6 +4,7 @@ import {verifyStaffAccess} from '../server/access.mjs';
 import {validateStaffRateRequest,createStaffRateBridge} from '../server/pricing.mjs';
 import {createApi} from '../server/api.mjs';
 import {renderStaffPage} from '../public/staff-page.mjs';
+import {newCostCase} from '../shared/patient-cost.mjs';
 
 const scoped={payer:'HMSA',planId:'hmsa-select-choice',year:2026,
  serviceId:'total-knee',benefit:'Medical',facilityId:'queens-honolulu',
@@ -102,7 +103,8 @@ test('staff page exposes a lookup, but displays no rate before authenticated que
   payer:'HMSA',planId:'hmsa-select-choice',year:2026,serviceId:'total-knee',
   benefit:'Medical',setting:'Hospital outpatient',requestType:'Initial',
   gelProductId:'',guidance:'without-ultrasound',docs:{},search:'',
-  cost:null,lookup:{sourceId:null,term:'',busy:false,result:null,error:''}
+  cost:newCostCase({procedureId:'total-knee',payer:'HMSA',line:'Commercial',setting:'Hospital outpatient'}),
+  lookup:{sourceId:null,term:'',busy:false,result:null,error:''}
  });
  assert.match(html,/not a patient quote/);
 });
