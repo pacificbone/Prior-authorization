@@ -294,6 +294,16 @@ document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='coverage'){setPage('coverage');return;}
+  if(action==='cost-from-ortho'){
+    const scope=state.ortho;
+    state.costCategory=getOrthoProcedure(scope.procedureId)?.category||'arthroplasty';
+    state.cost=newCostCase({
+      procedureId:scope.procedureId,payer:scope.payer,line:scope.line,setting:scope.setting,
+      gelProductId:scope.gelProductId,guidance:scope.guidance
+    });
+    state.cost.planLabel=scope.planLabel||'';
+    setPage('costs');return;
+  }
   if(action==='cost-clear'){state.cost=newCostCase();state.costCategory='arthroplasty';renderCosts();return;}
   if(action==='cost-export'){
     try {download('pbj-synthetic-cost-scenario-'+dateToday()+'.txt',costWorksheet(state.cost,{generated:dateToday()}));log('Synthetic out-of-pocket scenario downloaded');toast('Fictional, unverified cost worksheet exported.');}
