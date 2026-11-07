@@ -35,7 +35,8 @@ test('non-balloon ultrasound CTR page does not suggest 64728 and blocks coding',
   },'hand');
   assert.match(html,/No verified CPT\/HCPCS code/);
   assert.match(html,/No validated code for this technique/);
-  assert.doesNotMatch(html,/64728/);
+  assert.doesNotMatch(html,/<strong>64728<\/strong>/);
+  assert.match(html,/Do not automatically assign 64728/);
   assert.match(html,/Not verified/);
 });
 test('MACI implant page lists product and procedure codes without claiming coverage',()=>{
