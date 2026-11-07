@@ -6,6 +6,8 @@ import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverag
 import {PUBLISHED_FORMULARIES} from '/shared/live-formularies.mjs';
 import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
+import {newCostCase,validateCostCase,costWorksheet,getCostService,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
+import {renderCostPage} from './cost-page.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -34,8 +36,8 @@ const paths={
 const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.info}</svg>`;
 const sourceLink=(url,label='Open source')=>`<a class="source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ${icon('external')}</a>`;
 const options=(values,current)=>values.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join('');
-const nav=[['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
-const state={page:'formulary',orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
+const nav=[['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['costs','Patient costs','pill'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
+const state={page:'formulary',costCategory:'arthroplasty',cost:newCostCase(),orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
 let toastTimer,idleTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),6000);}
 function log(action){state.events.unshift({action,time:new Date().toISOString()});state.events=state.events.slice(0,50);}
@@ -56,7 +58,7 @@ function renderNav(){
 function render(){
   renderNav();
   if(state.locked){$('#page').innerHTML=`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. Restore an encrypted file or start a new fictional case.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`;return;}
-  ({formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderExplorer)();
+  ({formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,costs:renderCosts,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderExplorer)();
 }
 function setPage(page){if(!nav.some(n=>n[0]===page))return;state.page=page;history.replaceState(null,'',`#${page}`);render();window.scrollTo({top:0});}
 function drugStatus(drug){
@@ -148,6 +150,7 @@ function renderCoverage(){
   <div class="notice coverage-footer"><strong>Important distinctions:</strong> Original Medicare Part B is not a pharmacy formulary. Traditional Medicare outpatient prescriptions use the member's separate Part D plan. VA and TRICARE have their own formularies. Medicare Advantage, D-SNP and commercial HMO/PPO network labels do not uniquely identify the applicable pharmacy list.</div>`;
 }
 function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ortho,state.orthoCategory);}
+function renderCosts(){$('#page').innerHTML=renderCostPage(state.cost,state.costCategory);}
 function renderExplorer(){
   const applicable=policies.concat(state.custom).filter(p=>p.payer===state.scope.payer&&p.lines.includes(state.scope.line)&&p.benefit===state.scope.benefit).length;
   $('#page').innerHTML=heading('PRESCRIBE WITH CONTEXT','The right medication starts here.','Look up plan-specific coverage, understand policy requirements, and bring the supporting evidence into your note.',`<button class="button secondary" data-action="coverage">Hawaiʻi plans</button><button class="button secondary" data-action="sample">${icon('spark')} Try sample case</button><button class="button secondary" data-action="compare">${icon('grid')} ${state.compareVisible?'Hide comparison':'Compare medications'}</button><button class="button primary" data-action="authorization">New authorization ${icon('plus')}</button>`)+
@@ -220,7 +223,7 @@ async function runAi(){
   finally{state.aiBusy=false;if(state.page==='authorization'&&!state.locked)renderAuthorization();}
 }
 function lockSession(){
-  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.orthoCategory='injections';state.ortho=defaultOrthoCase();state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
+  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.costCategory='arthroplasty';state.cost=newCostCase();state.orthoCategory='injections';state.ortho=defaultOrthoCase();state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
   $('#vault-passphrase').value='';$('#vault-confirm').value='';$('#vault-dialog').close();$('#source-dialog')?.close();$('#source-form')?.reset();$('#print-region').textContent='';render();
 }
 function resetIdle(){clearTimeout(idleTimer);if(!state.locked)idleTimer=setTimeout(()=>{lockSession();toast('Session locked after 10 minutes without interaction.');},10*60*1000);}
@@ -291,6 +294,12 @@ document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='coverage'){setPage('coverage');return;}
+  if(action==='cost-clear'){state.cost=newCostCase();state.costCategory='arthroplasty';renderCosts();return;}
+  if(action==='cost-export'){
+    try {download('pbj-synthetic-cost-scenario-'+dateToday()+'.txt',costWorksheet(state.cost,{generated:dateToday()}));log('Synthetic out-of-pocket scenario downloaded');toast('Fictional, unverified cost worksheet exported.');}
+    catch(error){toast(error.message||'Cost worksheet cannot be exported.');}
+    return;
+  }
   if(action==='ortho-gaps'||action==='ortho-outline'){
     try {const text=createOrthoWorksheet(state.ortho,{today:dateToday(),mode:action==='ortho-gaps'?'gaps':'outline'});
       download(`pbj-synthetic-orthopedic-${action==='ortho-gaps'?'gaps':'outline'}-${dateToday()}.txt`,text);
@@ -332,6 +341,7 @@ document.addEventListener('input',event=>{
   const target=event.target;
   if(target.id==='drug-search'){state.search=target.value;$('#drug-list').innerHTML=drugListMarkup();return;}
   if(target.id==='ortho-plan-label'){state.ortho.planLabel=target.value;return;}
+  if(target.id==='cost-plan'){state.cost.planLabel=target.value;return;}
   if(target.id==='coverage-query'){state.coverage.query=target.value;const result=$('#coverage-results');if(result)result.innerHTML=coverageCardsMarkup();return;}
   if(target.id==='coverage-drug'){state.coverage.drug=target.value;return;}
   if(target.id==='public-drug-query'){state.publicLookup.term=target.value;if(state.publicLookup.busy)state.aiEpoch++;state.publicLookup.busy=false;state.publicLookup.result=null;state.publicLookup.error='';return;}
@@ -343,6 +353,59 @@ document.addEventListener('input',event=>{
 document.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
+  if(target.id==='cost-plan'){
+    try{validateCostCase({...state.cost,planLabel:target.value});state.cost.planLabel=target.value;}
+    catch{state.cost.planLabel='';toast('Enter only a plan product name. Do not enter member numbers or patient information.');}
+    renderCosts();return;
+  }
+  if(target.id==='cost-category'){
+    state.costCategory=target.value;
+    const procedures=target.value==='medication'?COST_MEDICATIONS:orthoProcedures.filter(x=>x.category===target.value);
+    state.cost=newCostCase({...state.cost,procedureId:procedures[0]?.id||'total-knee',benefit:target.value==='medication'?'Unverified':'Medical',gelProductId:'',planLabel:'',network:'unknown'});
+    state.cost.facilityId='none';state.cost.coverage='unverified';state.cost.deductibleRemaining=null;state.cost.oopRemaining=null;
+    renderCosts();return;
+  }
+  if(target.id==='cost-service'||target.id==='cost-payer'||target.id==='cost-line'||target.id==='cost-year'||target.id==='cost-setting'||target.id==='cost-facility'||
+     target.id==='cost-gel'||target.id==='cost-guidance'||target.id==='cost-benefit'||target.id==='cost-network'){
+    const keys={'cost-service':'procedureId','cost-payer':'payer','cost-line':'line','cost-year':'year','cost-setting':'setting','cost-facility':'facilityId',
+      'cost-gel':'gelProductId','cost-guidance':'guidance','cost-benefit':'benefit','cost-network':'network'};
+    const key=keys[target.id];
+    const previous=state.cost;
+    const next={...previous,[key]:key==='year'?Number(target.value):target.value};
+    if(target.id==='cost-service'){
+      const service=getCostService(next.procedureId);state.costCategory=service?.category||'arthroplasty';
+      next.gelProductId='';next.benefit=service?.category==='medication'?'Unverified':'Medical';
+    }
+    if(target.id==='cost-payer'){
+      const defaults={'Traditional Medicare':'Traditional Medicare','Veterans Affairs':'VA / Community Care','TRICARE':'TRICARE','Workers compensation':'Workers compensation','AlohaCare':'QUEST / Medicaid','Self-pay':'Uninsured / self-pay'};
+      next.line=defaults[next.payer]||(['Traditional Medicare','VA / Community Care','TRICARE','Workers compensation','Uninsured / self-pay'].includes(next.line)?'Commercial':next.line);
+      next.planLabel='';
+    }
+    next.items=[];
+    state.cost={...newCostCase(next),facilityId:next.facilityId||'none',planLabel:next.planLabel||'',
+      coverage:'unverified',secondary:'unknown',deductibleRemaining:null,oopRemaining:null};
+    renderCosts();
+    toast('Changed price/plan context: charges and cost sharing must be reverified.');
+    return;
+  }
+  if(target.id==='cost-coverage'||target.id==='cost-secondary'||target.id==='cost-deductible'||target.id==='cost-oop'){
+    const names={'cost-coverage':'coverage','cost-secondary':'secondary','cost-deductible':'deductibleRemaining','cost-oop':'oopRemaining'};
+    const key=names[target.id],next=target.value===''?null:(key==='deductibleRemaining'||key==='oopRemaining'?Number(target.value):target.value);
+    const candidate={...state.cost,[key]:next};
+    try{validateCostCase(candidate);state.cost=candidate;}catch{toast('Invalid benefit amount or status. Keep unknown values blank.');}
+    renderCosts();return;
+  }
+  if(target.dataset.costItem){
+    const line=state.cost.items.find(x=>x.id===target.dataset.costItem);
+    if(!line)return;
+    const key=target.dataset.costField;
+    if(!['allowed','source','method','percentage','copay','deductibleApplies','oopEligible'].includes(key))return;
+    const value=target.type==='checkbox'?target.checked:
+      ['allowed','percentage','copay'].includes(key)?(target.value===''?null:Number(target.value)):target.value;
+    const candidate={...state.cost,items:state.cost.items.map(x=>x.id===line.id?{...x,[key]:value}:x)};
+    try{validateCostCase(candidate);state.cost=candidate;}catch{toast('Invalid component cost or benefit input.');}
+    renderCosts();return;
+  }
   if(target.id==='coverage-payer'){state.coverage.payer=target.value;renderCoverage();return;}
   if(target.dataset.orthoCheck){state.ortho.checks[target.dataset.orthoCheck]=target.checked;renderOrthopedics();return;}
   if(target.id==='ortho-category'){state.orthoCategory=target.value;state.ortho.procedureId=orthoProcedures.find(p=>p.category===target.value)?.id||'knee-gel';state.ortho.checks={};state.ortho.gelProductId='';renderOrthopedics();return;}
