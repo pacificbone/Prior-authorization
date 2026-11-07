@@ -70,6 +70,19 @@ export function staffGetPlan(payer,planId,year=2026) {
  if(!planId)return null;
  return staffPlansForPayer(payer,year).find(x=>x.id===planId)||null;
 }
+export function staffPlanPrecision(plan,year=2026) {
+ if(!plan)return {level:'unselected',label:'No plan selected'};
+ if(plan.liveSourceId){
+   const source=PUBLISHED_FORMULARIES.find(x=>x.id===plan.liveSourceId&&x.year===year&&x.payer===plan.payer);
+   if(source&&source.planId&&source.planIdType)
+     return {level:'published-plan-id',label:'Exact published pharmacy plan ID',planId:source.planId,planIdType:source.planIdType};
+ }
+ if(plan.program==='delegated')return {level:'administrator',label:'Administrator / claim routing, not a member plan'};
+ if(plan.program==='original-medicare')return {level:'benefit-program',label:'Original Medicare medical benefit (not a PDP)'};
+ if(plan.program==='veterans'||plan.program==='military')return {level:'benefit-program',label:'Program source; eligibility and referrals must be verified'};
+ return {level:'plan-family',label:'Plan family / formulary resource only — exact member product not confirmed'};
+}
+
 export function staffPlanProgramLine(plan) {
  if(!plan)return null;
  return ({
@@ -119,6 +132,11 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  if(plan?.payer==='Medigap')restrictions.push('Medigap is supplemental; identify original Medicare and separate pharmacy coverage before deciding treatment benefits.');
  if(plan?.year&&!plan.year.includes(String(year)))restrictions.push('Plan source year requires current-year verification.');
  if(plan&&plan.status!=='live-drug-search')restrictions.push('This plan does not yet have complete in-app drug-level formulary records; use its official source.');
+ const precision=staffPlanPrecision(plan,year);
+ if(precision.level==='plan-family')restrictions.push('This is a published plan family or source directory, NOT a member-specific plan match. Verify exact contract, plan, employer group, coverage code and PBM before applying formulary, PA criteria or cost sharing.');
+ if(precision.level==='administrator')restrictions.push('Administrator is not a direct health-plan benefit. Identify the underwriting/underlying primary carrier and claim-specific authorization delegate.');
+ if(precision.level==='published-plan-id')restrictions.push('Published HIOS/plan identifier does not establish that the member is enrolled in that product.');
+ 
  let liveSource=null;
  if(plan?.liveSourceId&&service?.type==='medication'&&benefit==='Pharmacy') {
    liveSource=PUBLISHED_FORMULARIES.find(x=>x.id===plan.liveSourceId&&x.year===year&&x.payer===plan.payer)||null;
@@ -154,7 +172,7 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  const possibleCodes=service?.type==='procedure'?
     (orthoProcedures.some(x=>x.id===service.id)?getOrthoProcedureCodes({procedureId:service.id,gelProductId,guidance}):service.codes||[]):[];
  return {
-   plan,service,planLine,liveSource,primaryPolicy,
+   plan,service,planLine,planPrecision:precision,liveSource,primaryPolicy,
    policyConflict:matchedPolicies.length>1,matchedPolicies,supplementaryPA,
    criteria,sourceLinks:[
      ...(plan?[{name:plan.name,url:plan.sourceUrl,status:plan.status,note:plan.notes}]:[]),
@@ -183,6 +201,7 @@ export function staffAuthorizePacket(input) {
    '',
    'TO: '+plan.payer+' — exact authorization department must be verified',
    'PLAN: '+plan.name+' (source '+plan.id+', year '+year+')',
+   'PLAN IDENTIFICATION: '+ctx.planPrecision.label+(ctx.planPrecision.planId?' / '+ctx.planPrecision.planId:'')+'.',
    'SERVICE: '+service.name+' ('+service.type+')',
    'BENEFIT: '+benefit+' | '+ctx.planLine+' | '+setting+' | '+requestType,
    'CANDIDATE CODES: '+(ctx.possibleCodes.length?ctx.possibleCodes.map(x=>x.code+' ('+x.type+')').join(', '):'No verified code — obtain payer/device-specific coding determination'),
