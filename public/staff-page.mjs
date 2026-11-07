@@ -19,7 +19,7 @@ export function renderStaffPage(state){
  const servicesMarkup=grouped.map(({cat,items})=>`<optgroup label="${h(STAFF_CATEGORY_LABELS[cat]||cat)}">${opts(items,serviceId,'',x=>({v:x.id,label:x.name}))}</optgroup>`).join('');
  const needPlan=!plan,needService=!service;
  const linked=ctx.sourceLinks.filter(x=>x.url);
- const costShown=!!plan&&!!service;
+ const costShown=!!plan&&!!service&&!!cost;
  const med=service?.type==='medication';
  const live=ctx.liveSource;
  const drugLookup=state.lookup||{};
@@ -41,11 +41,18 @@ export function renderStaffPage(state){
      <div class="staff-cost-foot"><label><input type="checkbox" data-staff-cost="${h(line.id)}" data-staff-price="deductibleApplies" ${line.deductibleApplies?'checked':''}> Deductible applies</label><label><input type="checkbox" data-staff-cost="${h(line.id)}" data-staff-price="oopEligible" ${line.oopEligible?'checked':''}> Counts toward medical OOP max</label><span>${calc?.patientShare!==null?money(calc.patientShare):'Cannot calculate yet'}</span></div>
    </div>`;
  }).join('')||'';
+ const paRouteMarkup=(ctx.authorizationResources||[]).length?
+  `<div class="staff-pa-route"><strong>Where staff verify / request authorization</strong>
+   <div class="staff-pa-actions">${ctx.authorizationResources.map(x=>`<a href="${h(x.url)}" target="_blank" rel="noopener noreferrer" class="staff-pa-action">
+   <span>${x.role==='check'?'Verify PA requirement':'Open submission instructions'}</span>
+   <small>${h(x.name)}</small></a>`).join('')}</div>
+   <p class="helper">Opens the payer's site. Check the exact plan and CPT/NDC/HCPCS before using it. No member data is sent from this trial.</p>
+  </div>`:'';
  const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(x.status)}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
  const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages].slice(0,9):[];
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
    ${!costShown?`<p class="helper">Choose the insurer, plan and treatment above to begin. No price will be invented.</p>`:`
-   <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${estimate?.totalRequired===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${estimate?.totalRequired===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Separate billing estimates</strong>
+   <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${(estimate?.totalRequired??null)===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${(estimate?.totalRequired??null)===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Separate billing estimates</strong>
   <small>Surgeon: ${money(estimate?.components?.find(x=>x.id==='surgeon')?.patientShare)}</small>
   <small>Facility: ${money(estimate?.components?.find(x=>x.id==='facility')?.patientShare)}</small>
   <small>Anesthesia: ${money(estimate?.components?.find(x=>x.id==='anesthesia')?.patientShare)}</small>
@@ -61,7 +68,7 @@ export function renderStaffPage(state){
    </div>
    <p class="helper">Prices below are **not** pulled from your insurers. Enter the correct allowed amount or a documented quote for each billing entity. Select the applicable patient cost-sharing rule.</p>
    <div class="staff-price-lines">${rows}</div>
-   ${estimateWarnings.length?`<details class="staff-checks" ${estimate?.totalRequired===null?'open':''}><summary>Missing rates and benefit checks (${estimateWarnings.length})</summary><ul>${estimateWarnings.map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>`:''}
+   ${estimateWarnings.length?`<details class="staff-checks" ${(estimate?.totalRequired??null)===null?'open':''}><summary>Missing rates and benefit checks (${estimateWarnings.length})</summary><ul>${estimateWarnings.map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>`:''}
    <p class="helper">Never substitute a hospital chargemaster amount for an insurer's negotiated facility charge. Original Medicare inpatient Part A facility estimates require a separate benefit-period calculation.</p>
    <div class="local-buttons"><button class="button secondary" data-action="staff-cost-export">Download conditional cost worksheet</button><button class="button secondary" data-action="staff-advanced-cost">Advanced cost details</button></div>
    `}
@@ -69,12 +76,12 @@ export function renderStaffPage(state){
  return `<div class="page-heading"><div><span class="eyebrow">PACIFIC BONE & JOINT · FRONT DESK / AUTHORIZATION TEAM</span><h1>Coverage, prior auth & patient costs</h1>
  <p class="subtitle">One workflow: insurer → exact plan → medication or procedure → requirements → costs → documentation.</p></div></div>
  <div class="notice amber staff-banner"><strong>Synthetic trial — not cleared for patient records.</strong> Use only plan names and fictional figures. Medical necessity, patient eligibility, PA approvals, member-specific quotes and completed submissions require approved clinical systems.</div>
- <section class="panel staff-stage" id="staff-plan"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">1</span> Insurance and exact plan</h2><span class="pill neutral">Only plans owned by selected insurer</span></div><div class="panel-content">
+ <section class="panel staff-stage" id="staff-plan"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">1</span> Insurance and plan identity</h2><span class="pill neutral">No cross-insurer plans</span></div><div class="panel-content">
  <div class="staff-main-grid"><label>Insurance company<select id="staff-payer">${opts(STAFF_PAYERS,payer,'Choose insurance company',x=>({v:x.name,label:x.name}))}</select></label>
  <label>Coverage year<select id="staff-year">${opts(STAFF_YEARS.map(String),String(year))}</select></label>
- <label>Plan / product<select id="staff-plan-select" ${!payer?'disabled':''}>${opts(plans,planId,payer?'Choose this insurer’s plan':'Select insurer first',x=>({v:x.id,label:x.name}))}</select></label></div>
+ <label>Plan / product or official source<select id="staff-plan-select" ${!payer?'disabled':''}>${opts(plans,planId,payer?'Choose this insurer’s plan':'Select insurer first',x=>({v:x.id,label:x.name}))}</select></label></div>
  ${payer&&plans.length===0?'<p class="notice amber">No verified plan sources for this insurer and year. Do not substitute another insurer’s formulary; confirm the plan with the payer.</p>':''}
- ${plan?`<p class="staff-plan-identified"><strong>${h(plan.payer)} · ${h(plan.name)}</strong> <span>${h(plan.network)} · ${h(staffPlanProgramLine(plan))}</span><br><small>${h(planStatus)}. Actual group and eligibility must still be verified.</small></p>`:''}
+ ${plan?`<p class="staff-plan-identified"><strong>${h(plan.payer)} · ${h(plan.name)}</strong> <span>${h(plan.network)} · ${h(staffPlanProgramLine(plan))}</span><br><small>${h(ctx.planPrecision.label)} · ${h(planStatus)}. Actual group and eligibility must still be verified.</small></p>`:''}
  </div></section>
  <section class="panel staff-stage" id="staff-service"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">2</span> Medication or procedure</h2></div><div class="panel-content">
  <div class="staff-main-grid"><label>Search by drug, generic, condition or procedure<input id="staff-service-query" type="search" maxlength="80" placeholder="e.g., Prolia, TKA, MACI, gel, carpal tunnel" value="${h(search||'')}" autocomplete="off"></label>
@@ -93,6 +100,7 @@ export function renderStaffPage(state){
  <div class="staff-answer"><strong>Formulary / coverage</strong><span>${med?(benefit==='Medical'?'Medical-benefit drug — pharmacy formulary alone is not coverage':(live?'Exact-plan public pharmacy search available':'Drug formulary for this plan is not imported; not verified')):'Procedure medical benefit — confirm current plan coverage and any exclusions'}</span></div>
  <div class="staff-answer"><strong>Prior authorization</strong><span>${ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
  ${ctx.policyConflict?'<p class="notice amber">Conflicting medical policies were found; no automatic authorization conclusion can be made.</p>':''}
+ ${paRouteMarkup}
  ${med&&benefit==='Pharmacy'&&live?`
  <div class="staff-lookup"><h3>Search this insurer’s published formulary</h3><p class="helper">${h(live.label)} · exact plan ID ${h(live.planId)} · ${h(live.year)}. Look up each strength and route. A row is not an eligibility approval.</p><div class="staff-lookup-search"><input id="staff-drug-lookup" value="${h(drugLookup.term||service.name)}" maxlength="70" autocomplete="off" placeholder="Brand / generic / RxNorm"><button class="button primary" data-action="staff-check-formulary" ${querying?'disabled':''}>${querying?'Checking…':'Check published drug list'}</button></div>
  ${drugLookup.error?`<p class="notice amber">${h(drugLookup.error)}</p>`:''}
@@ -100,7 +108,7 @@ export function renderStaffPage(state){
  </div>`:''}
  ${ctx.preferredProducts.length?`<p class="staff-note"><strong>Policy-listed product preference:</strong> ${h(ctx.preferredProducts.join(', '))}. This does NOT establish the selected plan’s pharmacy formulary or exception eligibility.</p>`:''}
  ${ctx.restrictions.length?`<ul class="staff-unresolved">${ctx.restrictions.map(x=>`<li>${h(x)}</li>`).join('')}</ul>`:''}
- <details class="staff-sources" open><summary>Official sources relevant to this plan and request (${linked.length})</summary>${sourceRows||'<p class="helper">No reviewed exact-policy URL available; check insurer provider resources.</p>'}</details>
+ <details class="staff-sources"><summary>Official sources relevant to this plan and request (${linked.length})</summary>${sourceRows||'<p class="helper">No reviewed exact-policy URL available; check insurer provider resources.</p>'}</details>
  `}
  </div></section>
  ${pricesMarkup}

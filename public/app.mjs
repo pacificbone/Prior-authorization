@@ -308,6 +308,39 @@ function openSourceDialog(){
   }
   const form=$('#source-form');form.elements.payer.value=state.scope.payer;form.elements.line.value=state.scope.line;form.elements.benefit.value=state.scope.benefit;form.elements.drugId.value=state.drugId;form.elements.carrier.value=state.scope.carrier||'';$('#source-error').textContent='';$('#source-dialog').showModal();
 }
+async function runStaffFormularyLookup({automatic=false}={}){
+  const ctx=staffContext(state.staff);
+  const source=ctx.liveSource;
+  if(!source){
+    if(!automatic)toast('This selected plan has no validated in-app pharmacy file. Use the official payer source.');
+    return;
+  }
+  const term=(automatic?ctx.service?.name:($('#staff-drug-lookup')?.value||ctx.service?.name)||'').trim();
+  if(term.length<2||term.length>70){
+    if(!automatic)toast('Enter a drug name or RxNorm identifier (2–70 characters).');
+    return;
+  }
+  const {serviceId,planId,year,benefit}=state.staff;
+  const epoch=++state.aiEpoch;
+  state.staff.lookup={sourceId:source.id,term,busy:true,result:null,error:''};
+  renderStaff();
+  try{
+    const response=await fetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({source:source.id,drug:term}),credentials:'same-origin',cache:'no-store'});
+    const data=await response.json();
+    if(epoch!==state.aiEpoch||state.locked||state.page!=='workup')return;
+    const current=staffContext(state.staff);
+    if(current.liveSource?.id!==source.id||current.service?.id!==serviceId||
+       current.plan?.id!==planId||state.staff.year!==year||state.staff.benefit!==benefit)return;
+    if(!response.ok)throw Error(data.error||'Official public formulary file could not be verified.');
+    state.staff.lookup={sourceId:source.id,term,busy:false,result:data,error:''};
+  }catch(error){
+    if(epoch!==state.aiEpoch||state.locked)return;
+    state.staff.lookup={sourceId:source.id,term,busy:false,result:null,error:error.message||'Source could not be validated.'};
+  }
+  if(state.page==='workup')renderStaff();
+}
+
 document.addEventListener('click',async event=>{
   const close=event.target.closest('.close-dialog');if(close){close.closest('dialog').close();return;}
   const navButton=event.target.closest('[data-page]');if(navButton){setPage(navButton.dataset.page);return;}
@@ -317,31 +350,7 @@ document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='coverage'){setPage('coverage');return;}
-  if(action==='staff-check-formulary'){
-    const ctx=staffContext(state.staff);
-    const source=ctx.liveSource;
-    if(!source){toast('This exact plan has no validated in-app pharmacy file. Open its official payer formulary.');return;}
-    const term=($('#staff-drug-lookup')?.value||ctx.service?.name||'').trim();
-    if(term.length<2||term.length>70){toast('Enter a drug name or RxNorm identifier (2–70 characters).');return;}
-    const epoch=++state.aiEpoch;
-    state.staff.lookup={sourceId:source.id,term,busy:true,result:null,error:''};
-    renderStaff();
-    try{
-      const response=await fetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({source:source.id,drug:term}),credentials:'same-origin',cache:'no-store'});
-      const data=await response.json();
-      if(epoch!==state.aiEpoch||state.locked||state.page!=='workup')return;
-      const current=staffContext(state.staff);
-      if(current.liveSource?.id!==source.id)return;
-      if(!response.ok)throw Error(data.error||'Public formulary lookup unavailable.');
-      state.staff.lookup={sourceId:source.id,term,busy:false,result:data,error:''};
-    }catch(error){
-      if(epoch!==state.aiEpoch||state.locked)return;
-      state.staff.lookup={sourceId:source.id,term,busy:false,result:null,error:error.message||'Source could not be validated.'};
-    }
-    if(state.page==='workup')renderStaff();
-    return;
-  }
+  if(action==='staff-check-formulary'){await runStaffFormularyLookup();return;}
   if(action==='staff-export-packet'){
     try{
       const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,docs}=state.staff;
@@ -470,7 +479,11 @@ document.addEventListener('change',event=>{
     if(id==='staff-plan-select'&&st.planId&&!staffPlansForPayer(st.payer,st.year).some(x=>x.id===st.planId)){
       st.planId='';toast('Plan does not belong to that insurer.');}
     state.aiEpoch++;
-    resetStaffPrice();renderStaff();return;
+    resetStaffPrice();renderStaff();
+    // Public plan ID and drug name only. No patient information is sent.
+    if(['staff-payer','staff-year','staff-plan-select','staff-service-select','staff-benefit'].includes(id))
+      void runStaffFormularyLookup({automatic:true});
+    return;
   }
   if(target.id==='staff-facility'||target.id==='staff-network'||target.id==='staff-coverage'||
     target.id==='staff-deductible'||target.id==='staff-oop'||target.id==='staff-secondary'||target.dataset.staffCost){
@@ -574,7 +587,16 @@ document.addEventListener('change',event=>{
   if(target.id==='review-facts'||target.id==='review-scope'){state.review[target.id==='review-facts'?'facts':'scope']=target.checked;$('#packet-content').innerHTML=packetMarkup();}
 });
 document.addEventListener('keydown',event=>{if(event.target.id==='public-drug-query'&&event.key==='Enter'){event.preventDefault();runPublicFormularyLookup();}});
-$('#sidebar-sample').addEventListener('click',loadSample);$('#review-security').addEventListener('click',()=>setPage('security'));$('#lock').addEventListener('click',lockSession);
+function loadStaffSample(){
+  state.staff={payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'alendronate',
+    benefit:'Pharmacy',requestType:'Initial',setting:'Office',
+    gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,
+    lookup:{sourceId:null,term:'',busy:false,result:null,error:''}};
+  resetStaffPrice();
+  setPage('workup');
+  void runStaffFormularyLookup({automatic:true});
+}
+$('#sidebar-sample').addEventListener('click',loadStaffSample);$('#review-security').addEventListener('click',()=>setPage('security'));$('#lock').addEventListener('click',lockSession);
 for(const event of ['pointerdown','keydown','input','scroll'])document.addEventListener(event,resetIdle,{passive:true});
 window.addEventListener('afterprint',()=>{$('#print-region').textContent='';});
 window.addEventListener('pageshow',event=>{if(event.persisted)lockSession();});

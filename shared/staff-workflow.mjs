@@ -9,6 +9,7 @@ import {drugs,policies,formularyLists} from './catalog.mjs';
 import {matchingPolicies,applyPolicyPathway,formularyResult} from './domain.mjs';
 import {orthoProcedures,getOrthoActiveCriteria,getOrthoPayerSources,getOrthoProcedureCodes} from './orthopedic-procedures.mjs';
 import {EXTRA_PROCEDURES,EXTRA_DRUGS} from './staff-service-catalog.mjs';
+import {staffAuthResources} from './staff-auth-resources.mjs';
 
 const NON_PLANS=new Set(['uha-medical-pa','aloha-wrap','va-cfuses','original-d','other-ma']);
 const PAYER_ROLES=Object.freeze({
@@ -70,6 +71,19 @@ export function staffGetPlan(payer,planId,year=2026) {
  if(!planId)return null;
  return staffPlansForPayer(payer,year).find(x=>x.id===planId)||null;
 }
+export function staffPlanPrecision(plan,year=2026) {
+ if(!plan)return {level:'unselected',label:'No plan selected'};
+ if(plan.liveSourceId){
+   const source=PUBLISHED_FORMULARIES.find(x=>x.id===plan.liveSourceId&&x.year===year&&x.payer===plan.payer);
+   if(source&&source.planId&&source.planIdType)
+     return {level:'published-plan-id',label:'Exact published pharmacy plan ID',planId:source.planId,planIdType:source.planIdType};
+ }
+ if(plan.program==='delegated')return {level:'administrator',label:'Administrator / claim routing, not a member plan'};
+ if(plan.program==='original-medicare')return {level:'benefit-program',label:'Original Medicare medical benefit (not a PDP)'};
+ if(plan.program==='veterans'||plan.program==='military')return {level:'benefit-program',label:'Program source; eligibility and referrals must be verified'};
+ return {level:'plan-family',label:'Plan family / formulary resource only — exact member product not confirmed'};
+}
+
 export function staffPlanProgramLine(plan) {
  if(!plan)return null;
  return ({
@@ -118,7 +132,12 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  if(plan?.program==='original-medicare'&&service?.type==='medication'&&benefit==='Pharmacy')restrictions.push('Choose the member’s actual PDP, not original Part B.');
  if(plan?.payer==='Medigap')restrictions.push('Medigap is supplemental; identify original Medicare and separate pharmacy coverage before deciding treatment benefits.');
  if(plan?.year&&!plan.year.includes(String(year)))restrictions.push('Plan source year requires current-year verification.');
- if(plan&&plan.status!=='live-drug-search')restrictions.push('This plan does not yet have complete in-app drug-level formulary records; use its official source.');
+ if(plan&&service?.type==='medication'&&benefit==='Pharmacy'&&plan.status!=='live-drug-search')restrictions.push('This plan does not yet have complete in-app drug-level formulary records; use its official source.');
+ const precision=staffPlanPrecision(plan,year);
+ if(precision.level==='plan-family')restrictions.push('This is a published plan family or source directory, NOT a member-specific plan match. Verify exact contract, plan, employer group, coverage code and PBM before applying formulary, PA criteria or cost sharing.');
+ if(precision.level==='administrator')restrictions.push('Administrator is not a direct health-plan benefit. Identify the underwriting/underlying primary carrier and claim-specific authorization delegate.');
+ if(precision.level==='published-plan-id')restrictions.push('Published HIOS/plan identifier does not establish that the member is enrolled in that product.');
+ 
  let liveSource=null;
  if(plan?.liveSourceId&&service?.type==='medication'&&benefit==='Pharmacy') {
    liveSource=PUBLISHED_FORMULARIES.find(x=>x.id===plan.liveSourceId&&x.year===year&&x.payer===plan.payer)||null;
@@ -150,17 +169,21 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  const planLine=staffPlanProgramLine(plan);
  const sources=service?.type==='procedure'&&orthoProcedures.some(x=>x.id===service.id)&&plan
   ?getOrthoPayerSources({procedureId:service.id,payer:plan.payer,line:planLine}):[];
+ const authorizationResources=plan&&service?
+  staffAuthResources({payer:plan.payer,program:plan.program,benefit,
+    serviceType:service.type}):[];
  const potentialNames=(primaryPolicy?primaryPolicy.preferred:[])||[];
  const possibleCodes=service?.type==='procedure'?
     (orthoProcedures.some(x=>x.id===service.id)?getOrthoProcedureCodes({procedureId:service.id,gelProductId,guidance}):service.codes||[]):[];
  return {
-   plan,service,planLine,liveSource,primaryPolicy,
+   plan,service,planLine,planPrecision:precision,liveSource,primaryPolicy,authorizationResources,
    policyConflict:matchedPolicies.length>1,matchedPolicies,supplementaryPA,
    criteria,sourceLinks:[
      ...(plan?[{name:plan.name,url:plan.sourceUrl,status:plan.status,note:plan.notes}]:[]),
      ...matchedPolicies.map(p=>({name:p.title,url:p.url,status:'medical-policy-review',note:p.limitations})),
      ...supplementaryPA.map(p=>({name:p.title,url:p.url,status:'authorization-list',note:p.limitations})),
-     ...sources.map(x=>({name:x.title,url:x.url,status:x.kind,note:x.note}))
+     ...sources.map(x=>({name:x.title,url:x.url,status:x.kind,note:x.note})),
+     ...authorizationResources.map(x=>({name:x.name,url:x.url,status:x.role==='check'?'Official PA code/benefit lookup':'Authorization routing instructions',note:x.note}))
    ],
    possibleCodes,preferredProducts:potentialNames,restrictions,
    assurance:{planOwnedByPayer:!!plan,formulary:'not determined',priorAuthorization:'not determined',
@@ -183,6 +206,7 @@ export function staffAuthorizePacket(input) {
    '',
    'TO: '+plan.payer+' — exact authorization department must be verified',
    'PLAN: '+plan.name+' (source '+plan.id+', year '+year+')',
+   'PLAN IDENTIFICATION: '+ctx.planPrecision.label+(ctx.planPrecision.planId?' / '+ctx.planPrecision.planId:'')+'.',
    'SERVICE: '+service.name+' ('+service.type+')',
    'BENEFIT: '+benefit+' | '+ctx.planLine+' | '+setting+' | '+requestType,
    'CANDIDATE CODES: '+(ctx.possibleCodes.length?ctx.possibleCodes.map(x=>x.code+' ('+x.type+')').join(', '):'No verified code — obtain payer/device-specific coding determination'),
@@ -198,6 +222,9 @@ export function staffAuthorizePacket(input) {
    ...ctx.criteria.map(x=>(checks[x.id]===true?'[RECORD LOCATED] ':'[NOT YET LOCATED] ')+x.label+' — '+x.help),
    '',
    'CURRENT PAYER POLICY / FORMULARY VERIFICATION STILL REQUIRED',
+   'OFFICIAL SUBMISSION ROUTE: [Staff to confirm code, plan, delegate and correct provider portal; this app does not submit]',
+   ...ctx.authorizationResources.map(x=>('Route: '+x.name+' ['+x.role+'] — '+x.url)),
+  
    'Payer source: '+plan.sourceUrl,
    ...ctx.sourceLinks.filter(x=>x.url!==plan.sourceUrl).map(x=>x.name+': '+x.url),
    ...ctx.restrictions.map(x=>'UNRESOLVED: '+x),

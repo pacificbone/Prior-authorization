@@ -21,7 +21,7 @@ function state(payer='',planId='',serviceId='',benefit='Medical'){
 }
 test('a single staff workflow includes five steps and advanced tools are secondary',()=>{
  const page=renderStaffPage(state());
- for(const phrase of ['Insurance and exact plan','Medication or procedure','Formulary, coverage and PA requirements',
+ for(const phrase of ['Insurance and plan identity','Medication or procedure','Formulary, coverage and PA requirements',
      'Patient cost estimate','Supporting documentation & staff communication']){
   assert.ok(page.includes(phrase),phrase);
  }
