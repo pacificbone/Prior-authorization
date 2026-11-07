@@ -1,4 +1,5 @@
 import {getOrthoProcedure,getOrthoProcedureCodes} from './orthopedic-procedures.mjs';
+import {drugs} from './catalog.mjs';
 export const COST_YEARS=Object.freeze([
   2026,
   2027
@@ -358,18 +359,26 @@ export const COST_PAYER_TOOLS=Object.freeze([
   }
 ]);
 
+export const COST_MEDICATIONS=Object.freeze([
+  {id:'drug-evenity',name:'Evenity (romosozumab)',category:'medication',drugId:'evenity',settingNote:'Office-administered or specialty-pharmacy billing varies by payer.'},
+  {id:'drug-prolia',name:'Prolia (denosumab)',category:'medication',drugId:'prolia',settingNote:'Medical versus pharmacy benefit and preferred biosimilar need verification.'},
+  {id:'drug-zoledronic-acid',name:'Zoledronic acid (Reclast)',category:'medication',drugId:'zoledronic-acid',settingNote:'Infusion and medication may be billed separately.'},
+  {id:'drug-teriparatide',name:'Teriparatide (Forteo/generic)',category:'medication',drugId:'teriparatide',settingNote:'Self-administered prescription: pharmacy formulary/PBM and quantity matter.'}
+]);
+export function getCostService(id){return getOrthoProcedure(id)||COST_MEDICATIONS.find(x=>x.id===id)||null;}
 export function createCostItems(selection){
- const service=getOrthoProcedure(selection.procedureId);
- if(!service)throw new Error('Unknown procedure.');
- const procedureCodes=getOrthoProcedureCodes(selection);
+ const service=getCostService(selection.procedureId);
+ if(!service)throw new Error('Unknown service.');
+ const procedureCodes=service.category==='medication'?[]:getOrthoProcedureCodes(selection);
  const coded=procedureCodes.filter(x=>x.type==='CPT'||x.type==='HCPCS');
  const surgicalCode=coded.find(x=>!x.code.startsWith('J'))?.code||'';
  const gelCode=coded.find(x=>x.code.startsWith('J'))?.code||'';
  const items=[];
+ const medication=service.category==='medication';
  function item(id,label,code,kind,required=true){
    const medicare=selection.payer==='Traditional Medicare' && selection.year===2026;
    const partA=medicare&&kind==='facility'&&selection.setting==='Hospital inpatient';
-   const usesPartB=medicare&&!partA;
+   const usesPartB=medicare&&!partA&&selection.benefit==='Medical';
    items.push({
      id,label,code,kind,required,
      allowed:null,
@@ -380,6 +389,13 @@ export function createCostItems(selection){
      deductibleApplies:usesPartB,
      oopEligible:!partA
    });
+ }
+ if(medication){
+   item('drug-product',service.name+' medication product (per planned course)', '', 'medical-drug');
+   if(service.drugId==='evenity'||service.drugId==='prolia'||service.drugId==='zoledronic-acid')
+     item('administration','Injection / infusion administration (if separately billed)','', 'professional',false);
+   item('related-visit','Office/infusion visit if separately billed','', 'other',false);
+   return items;
  }
  item('surgeon','Surgeon / professional procedure fee',surgicalCode,'professional');
  if(selection.procedureId==='knee-gel'){
@@ -407,6 +423,7 @@ export function newCostCase(input={}){
    year:input.year||2026,
    network:input.network||'unknown',
    coverage:'unverified',
+   benefit:input.procedureId?.startsWith('drug-')?'Unverified':'Medical',
    planLabel:'',
    facilityId:'none',
    deductibleRemaining:null,
@@ -420,11 +437,11 @@ export function newCostCase(input={}){
 
 export function validateCostCase(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid cost estimate.');
- const keys=['procedureId','gelProductId','guidance','payer','line','setting','year','network','coverage','planLabel','facilityId','deductibleRemaining','oopRemaining','secondary','items'];
+ const keys=['procedureId','gelProductId','guidance','payer','line','setting','year','network','coverage','benefit','planLabel','facilityId','deductibleRemaining','oopRemaining','secondary','items'];
  if(Object.keys(value).some(k=>!keys.includes(k)))throw Error('Unsupported data. Do not enter patient identifiers.');
- if(!getOrthoProcedure(value.procedureId)||!COST_PAYERS.includes(value.payer)||!COST_LINES.includes(value.line)||
+ if(!getCostService(value.procedureId)||!COST_PAYERS.includes(value.payer)||!COST_LINES.includes(value.line)||
     !COST_SETTINGS.includes(value.setting)||!COST_YEARS.includes(value.year)||!COST_NETWORKS.includes(value.network)||
-    !COST_COVERAGE.includes(value.coverage)||!COST_SECONDARY.includes(value.secondary)||
+    !COST_COVERAGE.includes(value.coverage)||!['Medical','Pharmacy','Unverified'].includes(value.benefit)||!COST_SECONDARY.includes(value.secondary)||
     !COST_FACILITIES.some(f=>f.id===value.facilityId))
    throw Error('Invalid payer, service, facility or coverage context.');
  if(typeof value.planLabel!=='string'||value.planLabel.length>80||!(/^[\p{L}\p{N} /&+().,'’ʻ_-]*$/u).test(value.planLabel)||/\d{7,}/.test(value.planLabel))
@@ -457,7 +474,7 @@ export function validateCostCase(value){
 export function estimatePatientCost(data){
  validateCostCase(data);
  const messages=[],components=[],missingRequired=[],missingOptional=[];
- const service=getOrthoProcedure(data.procedureId);
+ const service=getCostService(data.procedureId);
  const originalMedicare=data.payer==='Traditional Medicare'&&data.line==='Traditional Medicare';
  const selfPay=data.payer==='Self-pay'&&data.line==='Uninsured / self-pay';
  if(!data.planLabel)messages.push('Exact plan product or employer group is not identified.');
@@ -466,13 +483,18 @@ export function estimatePatientCost(data){
     messages.push(data.coverage==='staff-verified-not-covered'?'Staff marked the service not covered; a covered-service share is not a cash price.':'Coverage / eligibility / medical necessity have not been confirmed for this benefit and setting.');
  if(data.secondary!=='none'&&!selfPay)messages.push('Secondary insurance, Medicaid dual coverage or Medigap is unresolved or unmodeled; primary-plan estimate may overstate eventual patient liability.');
  if(data.year===2027)messages.push('2027 benefit terms and Medicare statutory amounts require separate verification; do not reuse 2026 rates.');
+ if(service.category==='medication'&&data.benefit==='Unverified')messages.push('Medication billing is not classified as Medical vs Pharmacy. The correct plan benefit, billing route and specialty pharmacy must be established.');
+ if(service.category==='medication'&&data.benefit==='Pharmacy'&&originalMedicare)messages.push('Original Medicare does not provide a standalone pharmacy formulary. Enter the actual Part D PDP and its pharmacy cost-sharing to estimate this prescription.');
+ if(service.category==='medication'&&data.benefit==='Pharmacy'&&data.line==='Medicare Advantage')messages.push('For Medicare Advantage Part D medicines, confirm formulary/tier, LIS/Extra Help and the separate annual Part D out-of-pocket threshold.');
+ if(service.category==='medication')messages.push('This is one treatment course: course length, dose, units and authorization period affect total cost. Manufacturer assistance was not modeled.');
+
  if(originalMedicare&&data.network==='in-network')messages.push('Original Medicare has no annual medical out-of-pocket maximum; Medicare assignment and supplemental coverage must be confirmed.');
  if(service.id==='carpal-ultrasound-other')messages.push('Coding for this non-balloon ultrasound technique is not verified; no billable CPT should be inferred.');
  if(service.id==='knee-gel'&&!data.gelProductId)messages.push('Gel product, units and billable HCPCS code are not selected.');
  if(data.facilityId==='none'&&data.items.some(x=>x.id==='facility'))messages.push('Specific surgical facility / contracted payer rate is not identified.');
  if(data.setting==='Hospital inpatient')messages.push('Inpatient facility billing may require MS-DRG, Part A benefit period, length of stay and separate admission rules; a per-CPT outpatient price is not a reliable inpatient estimate.');
  let remainingDed=data.deductibleRemaining===null?null:Math.round(data.deductibleRemaining*100);
- let remainingOop=(data.network==='in-network'&&!originalMedicare&&!selfPay&&data.oopRemaining!==null)?Math.round(data.oopRemaining*100):null;
+ let remainingOop=(data.network==='in-network'&&!originalMedicare&&!selfPay&&data.benefit==='Medical'&&data.oopRemaining!==null)?Math.round(data.oopRemaining*100):null;
  let total=0,priced=0,pricedRequired=0,knownShare=0;
  for(const line of data.items){
    let missingReason='';
@@ -518,8 +540,9 @@ export function estimatePatientCost(data){
    });
  }
  const requiredComplete=missingRequired.length===0;
- const isScenario=requiredComplete&&data.coverage==='staff-verified-covered'&&data.network==='in-network'&&data.secondary==='none'&&data.planLabel.trim()!==''&&!selfPay;
+ const isScenario=requiredComplete&&data.coverage==='staff-verified-covered'&&data.network==='in-network'&&data.secondary==='none'&&data.planLabel.trim()!==''&&data.benefit!=='Unverified'&&!selfPay;
  const sourceMissing=data.items.filter(x=>x.required&&x.source==='unverified').map(x=>x.label);
+ if(data.benefit==='Unverified')messages.push('Exact benefit channel has not been identified; do not interpret modeled shares as payable amounts.');
  if(sourceMissing.length)messages.push('At least one required price lacks a verified source; amounts are assumptions, not validated contracted prices.');
  if(missingOptional.length)messages.push('Optional or separately billed services remain unpriced; shown core costs exclude them.');
  if(selfPay)messages.push('For uninsured/self-pay, this modeled cash quote is NOT a formal No Surprises Act Good Faith Estimate. Request facility and surgeon estimates separately.');
@@ -551,7 +574,8 @@ export function selectCostGuidance(value){
    value.line==='Individual Exchange'?'marketplace':
    'none'
  ) && (x.year===null||x.year===value.year));
- if(value.payer==='HMSA'&&value.line==='Medicare Advantage'&&value.year===2026) special.push(COST_FACTS.find(x=>x.id==='hmsa-akamai-standard-2026'));
+ // Do not include a specific Akamai-plan example unless the plan can be positively matched.
+ // A shared payer label is insufficient to identify actual plan benefits.
  return {tools:related,facts:special,facility:COST_FACILITIES.find(f=>f.id===value.facilityId)};
 }
 
@@ -561,11 +585,12 @@ export function costWorksheet(value,{generated='2026-11-07'}={}){
  'PACIFIC BONE & JOINT — SYNTHETIC PATIENT COST SCENARIO',
  'NOT A PATIENT QUOTE, CLAIM, ELIGIBILITY OR COVERAGE DETERMINATION',
  'Date: '+generated,
- 'Service: '+getOrthoProcedure(value.procedureId).name,
+ 'Service: '+getCostService(value.procedureId).name,
  'Payer: '+value.payer+' / '+value.line+' / '+value.year,
  'Plan product label: '+(value.planLabel||'[unverified]'),
  'Location: '+value.setting+' / '+(COST_FACILITIES.find(f=>f.id===value.facilityId)?.name||'Not selected'),
  'Network: '+value.network+' / Coverage: '+value.coverage,
+ 'Claimed benefit channel (verify): '+value.benefit,
  'Known remaining deductible (staff-entered): '+(value.deductibleRemaining===null?'unknown':value.deductibleRemaining),
  'Known in-network remaining out-of-pocket limit (staff-entered): '+(value.oopRemaining===null?'unknown':value.oopRemaining),
  'Secondary coverage: '+value.secondary,
