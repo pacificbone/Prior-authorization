@@ -52,19 +52,20 @@ export function normalizeQuestRows(payload,{minimum=100,source=QUEST_FORMULARY}=
        typeof item.rxnorm_id!=='string' || !/^[0-9]{1,15}$/.test(item.rxnorm_id) ||
        !Array.isArray(item.plans))throw new Error('Published formulary schema changed.');
     for(const plan of item.plans){
-      if(!plan||!['PLAN-ID','HIOS-PLAN-ID'].includes(plan.plan_id_type)||typeof plan.plan_id!=='string'||
-         !Array.isArray(plan.years)||typeof plan.drug_tier!=='string')
+      if(!plan||!['PLAN-ID','HIOS-PLAN-ID','QUEST Medicaid-CHIP Plan Description'].includes(plan.plan_id_type)||typeof plan.plan_id!=='string'||
+         !(Array.isArray(plan.years)||typeof plan.years==='string')||typeof plan.drug_tier!=='string')
         throw new Error('Published plan schema changed.');
       // All records must match the explicitly verified source's plan and year.
-      if(plan.plan_id_type!==source.planIdType||plan.plan_id!==source.planId||!plan.years.includes(source.year))continue;
+      const years=Array.isArray(plan.years)?plan.years.map(String):[plan.years];
+      if(plan.plan_id_type!==source.planIdType||plan.plan_id!==source.planId||!years.includes(String(source.year)))continue;
       if(!/^[a-zA-Z0-9 _()/+-]{1,70}$/.test(plan.drug_tier))
         throw new Error('Published plan tier format changed.');
-      const flag=key=>typeof plan[key]==='boolean'?plan[key]:null;
+      const flag=(key,alias)=>typeof plan[key]==='boolean'?plan[key]:(typeof plan[alias]==='boolean'?plan[alias]:null);
       rows.push({
         rxnorm:item.rxnorm_id,name:item.drug_name.trim(),
         planId:plan.plan_id,planIdType:plan.plan_id_type,
-        tier:plan.drug_tier.trim(),priorAuthorization:flag('prior_authorization'),
-        stepTherapy:flag('step_therapy'),quantityLimit:flag('quantity_limit')
+        tier:plan.drug_tier.trim(),priorAuthorization:flag('prior_authorization','PA'),
+        stepTherapy:flag('step_therapy','ST'),quantityLimit:flag('quantity_limit','QL')
       });
     }
   }
@@ -97,7 +98,7 @@ export function createPublishedFormularyService({fetcher=fetch,now=()=>Date.now(
     return {
       source:{...source},sourceType:'public-plan-formulary',
       checkedAt:cached.checkedAt,
-      reviewOverdue:(now()-Date.parse(source.effective+'T00:00:00Z'))/86400000>source.reviewAfterDays,
+      reviewOverdue:(now()-Date.parse((source.effective||source.reviewed)+'T00:00:00Z'))/86400000>source.reviewAfterDays,
       searched:input.drug.trim(),totalMatches:matches.length,
       truncated:matches.length>MAX_MATCHES,
       matches:matches.slice(0,MAX_MATCHES),

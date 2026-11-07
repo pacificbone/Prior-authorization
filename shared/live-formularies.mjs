@@ -29,6 +29,36 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
     sourceUrl:'https://legacy.providerlookuponline.com/mrf/optumrx/drugs/2877216/JSON_Drugs_UHCCPHI.json',
     planIdType:'PLAN-ID',
     planId:'UCSHIQ1'
+  }),
+  Object.freeze({
+    id:'kaiser-hi-quest-2026',
+    label:'Kaiser Permanente Hawaiʻi QUEST Medicaid · 2026',
+    payer:'Kaiser Permanente',
+    line:'QUEST / Medicaid',
+    benefit:'Pharmacy',
+    effective:null,
+    reviewed:'2026-11-07',
+    year:2026,
+    reviewAfterDays:90,
+    sourcePage:'https://healthy.kaiserpermanente.org/hawaii/pages/technical-information',
+    sourceUrl:'https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs-medicaid.json',
+    planIdType:'QUEST Medicaid-CHIP Plan Description',
+    planId:'KP-HI-QUEST Medicaid'
+  }),
+  Object.freeze({
+    id:'kaiser-hi-marketplace-platinum-2026',
+    label:'Kaiser Hawaiʻi Platinum 0/5 Plus CAM · individual 2026',
+    payer:'Kaiser Permanente',
+    line:'Individual Exchange',
+    benefit:'Pharmacy',
+    effective:null,
+    reviewed:'2026-11-07',
+    year:2026,
+    reviewAfterDays:90,
+    sourcePage:'https://healthy.kaiserpermanente.org/hawaii/pages/technical-information',
+    sourceUrl:'https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs.json',
+    planIdType:'HIOS-PLAN-ID',
+    planId:'60612HI0110006'
   })
 ]);
 export const QUEST_FORMULARY=PUBLISHED_FORMULARIES[0];
