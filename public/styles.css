@@ -84,3 +84,43 @@
 .ortho-gaps .local-buttons{flex-wrap:wrap}
 @media(max-width:950px){.ortho-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ortho-summary-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.ortho-form-grid,.ortho-gel-fields{grid-template-columns:1fr}.ortho-source-entry div{align-items:flex-start}.ortho-gaps .local-buttons .button{width:100%}}
+
+/* Transparent staff-entered OOP scenarios, not a live benefits determination. */
+.cost-banner{margin-bottom:20px;line-height:1.75}
+.cost-setup{margin-bottom:20px}
+.cost-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 17px}
+.cost-controls label{min-width:0}
+.cost-controls label input,.cost-controls label select{width:100%;margin-top:6px}
+.cost-plan-label{display:block;margin:15px 0}
+.cost-plan-label input{display:block;width:100%;margin-top:7px}
+.cost-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}
+.cost-summary .panel{min-width:0}
+.cost-summary .panel-content{padding-bottom:22px}
+.cost-total-label{display:block;color:#647b6a;font-size:11px;font-weight:600}
+.cost-total{font-size:34px;line-height:1.5;letter-spacing:-.7px;font-weight:700;color:#2c593b}
+.cost-tiny{font-size:10.5px;color:#5d7164;line-height:1.75;margin:9px 0}
+.cost-stat{font-size:11px;line-height:1.7;margin:8px 0}
+.cost-item{border:1px solid #dfe8e1;border-radius:12px;padding:17px;margin:0 0 16px}
+.cost-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.cost-item-head strong{font-size:12px;color:#315a42;display:block;line-height:1.45}
+.cost-item-head span:not(.pill){font-size:10px;line-height:1.65;color:#7a8b7d;display:block;margin-top:5px}
+.cost-item-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 15px}
+.cost-item-grid label{min-width:0}
+.cost-item-grid label input,.cost-item-grid label select{display:block;width:100%;margin-top:6px}
+.cost-item-flags{display:flex;flex-wrap:wrap;gap:10px 24px;margin:15px 0}
+.cost-item-flags label{display:flex;align-items:center;gap:7px;font-size:11px;color:#516c5b}
+.cost-item-flags input{width:16px;height:16px;margin:0}
+.cost-item .helper{margin-top:9px}
+.cost-sources,.cost-gaps,.cost-components{margin-bottom:20px}
+.cost-source-row{padding:13px 0;border-bottom:1px solid #e3eae4}
+.cost-source-row:last-child{border-bottom:0}
+.cost-source-row strong{font-size:12px;color:#365b41;display:block}
+.cost-source-row p{font-size:11px;line-height:1.7;color:#697e6e;margin:7px 0}
+.cost-source-row a{font-size:11px}
+.cost-additional{margin-top:15px;padding:13px 0}
+.cost-additional summary{cursor:pointer;color:#315c47;font-weight:650}
+.cost-gaps h3{font-size:13px;color:#385541}
+.cost-gaps ul{padding-left:20px;font-size:11px;line-height:1.8;margin:13px 0}
+@media(max-width:1100px){.cost-controls,.cost-item-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:740px){.cost-controls,.cost-item-grid,.cost-summary{grid-template-columns:1fr}.cost-total{font-size:30px}}
+@media(max-width:620px){.cost-item{padding:12px}.cost-item-flags{display:block}.cost-item-flags label{margin:10px 0}.cost-setup .panel-content{padding:17px}}

@@ -15,6 +15,7 @@ test('orthopedic page shows medical procedure scope and explicitly unverified au
   assert.match(html,/id="ortho-line"/);
   assert.match(html,/id="ortho-category"/);
   assert.match(html,/id="ortho-gel"/);
+  assert.match(html,/data-action="cost-from-ortho"/);
   assert.match(html,/Download gap checklist/);
   assert.match(html,/Download synthetic packet outline/);
   assert.doesNotMatch(html,/Patient name|Member identifier|Member ID:/i);
