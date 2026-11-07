@@ -161,11 +161,30 @@ export const COST_FACTS=Object.freeze([
   },
   {
     "id": "quest-hawaii",
+    "payer": "Kaiser Permanente",
     "year": null,
     "kind": "quest",
     "title": "Hawaiʻi QUEST cost-sharing — official Kaiser member information",
     "url": "https://healthy.kaiserpermanente.org/hawaii/shop-plans/medicaid/faqs",
     "note": "Kaiser says most covered QUEST services have no copay for most eligible members, but a monthly cost share can apply based on financial eligibility. Verify the actual plan, authorized service, and any secondary coverage; never assume $0."
+  },
+  {
+    "id": "quest-hmsa",
+    "year": null,
+    "kind": "quest",
+    "payer": "HMSA",
+    "title": "HMSA QUEST Member Handbook — cost sharing",
+    "url": "https://hmsa.com/content/assets/member-handbook-quest.pdf",
+    "note": "Most covered HMSA QUEST benefits are at no cost, but monthly financial-eligibility-based cost sharing may apply; if the member has Medicare, secondary coverage and prescription drugs differ."
+  },
+  {
+    "id": "quest-alohacare",
+    "year": null,
+    "kind": "quest",
+    "payer": "AlohaCare",
+    "title": "AlohaCare QUEST medical coverage and cost sharing",
+    "url": "https://www.xns1.alohacare.org/QUEST/MedicalCoverage",
+    "note": "AlohaCare says no copayment for covered services and drugs except certain Medicare-drug arrangements, with possible eligibility-based cost sharing. Confirm current plan and authorization."
   },
   {
     "id": "wc-hawaii",
@@ -522,6 +541,12 @@ export function estimatePatientCost(data){
     messages.push(data.coverage==='staff-verified-not-covered'?'Staff marked the service not covered; a covered-service share is not a cash price.':'Coverage / eligibility / medical necessity have not been confirmed for this benefit and setting.');
  if(data.secondary!=='none'&&!selfPay)messages.push('Secondary insurance, Medicaid dual coverage or Medigap is unresolved or unmodeled; primary-plan estimate may overstate eventual patient liability.');
  if(data.year===2027)messages.push('2027 benefit terms and Medicare statutory amounts require separate verification; do not reuse 2026 rates.');
+ if(data.line==='QUEST / Medicaid')messages.push('QUEST generally has little or no copay for most authorized covered services, but financial-eligibility cost sharing and plan exclusions exist. Never enter $0 without verifying the actual plan.');
+ if(data.payer==='Workers compensation')messages.push('An accepted and authorized Hawaiʻi work injury may have no patient share for covered related treatment; claim acceptance and carrier authorization must be verified.');
+ if(data.payer==='Veterans Affairs')messages.push('VA care may be exempt or subject to priority-group/service-based copays; VA Community Care requires referral and authorization, not a commercial coinsurance assumption.');
+ if(data.payer==='TRICARE')messages.push('Verify Prime/Select, beneficiary category, Group A/B, network and annual catastrophic cap before computing cost share.');
+ if(data.line==='Medicare Advantage')messages.push('Verify exact MA plan and medical OOP limit; surgery copays and ASC/hospital facility costs may differ from Original Medicare.');
+
  if(service.category==='medication'&&data.benefit==='Unverified')messages.push('Medication billing is not classified as Medical vs Pharmacy. The correct plan benefit, billing route and specialty pharmacy must be established.');
  if(service.category==='medication'&&data.benefit==='Pharmacy'&&originalMedicare)messages.push('Original Medicare does not provide a standalone pharmacy formulary. Enter the actual Part D PDP and its pharmacy cost-sharing to estimate this prescription.');
  if(service.category==='medication'&&data.benefit==='Pharmacy'&&data.line==='Medicare Advantage')messages.push('For Medicare Advantage Part D medicines, confirm formulary/tier, LIS/Extra Help and the separate annual Part D out-of-pocket threshold.');
@@ -613,7 +638,7 @@ export function selectCostGuidance(value){
    value.line==='QUEST / Medicaid'?'quest':
    value.line==='Individual Exchange'?'marketplace':
    'none'
- ) && (x.year===null||x.year===value.year));
+ ) && (x.year===null||x.year===value.year) && (!x.payer||x.payer===value.payer));
  if(value.benefit==='Pharmacy'&&['Medicare Advantage','Traditional Medicare'].includes(value.line)) {
    const partD=COST_FACTS.find(x=>x.id==='part-d-'+value.year);
    if(partD)special.push(partD);
