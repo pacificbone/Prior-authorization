@@ -86,7 +86,7 @@ function publicFormularyMarkup(){
 }
 async function runPublicFormularyLookup(){
   const field=$('#public-drug-query');
-  if(!field)return;
+  if(!field||state.publicLookup.busy)return;
   const term=field.value.trim();
   if(term.length<2||term.length>70){toast('Enter a drug name or RxNorm identifier (2–70 characters).');return;}
   state.publicLookup={term,busy:true,result:null,error:''};
@@ -278,7 +278,7 @@ document.addEventListener('click',async event=>{
 document.addEventListener('input',event=>{
   const target=event.target;
   if(target.id==='drug-search'){state.search=target.value;$('#drug-list').innerHTML=drugListMarkup();return;}
-  if(target.id==='public-drug-query'){state.publicLookup.term=target.value;return;}
+  if(target.id==='public-drug-query'){state.publicLookup.term=target.value;if(state.publicLookup.busy)state.aiEpoch++;state.publicLookup.busy=false;state.publicLookup.result=null;state.publicLookup.error='';return;}
   if(target.id==='trial-token'){state.token=target.value;return;}
   if(target.id==='clinical-note'){state.case.note=target.value;invalidate();$('#note-count').textContent=`${target.value.length.toLocaleString()} / ${MAX_NOTE.toLocaleString()}`;refreshEvidence();return;}
   if(target.dataset.case){state.case[target.dataset.case]=target.value;if(target.dataset.case==='plan')state.scope.plan=target.value;invalidate();if($('#packet-content'))$('#packet-content').innerHTML=packetMarkup();return;}
@@ -295,6 +295,7 @@ document.addEventListener('change',event=>{
   if(target.dataset.evidenceQuote){refreshEvidence();return;}
   if(target.id==='review-facts'||target.id==='review-scope'){state.review[target.id==='review-facts'?'facts':'scope']=target.checked;$('#packet-content').innerHTML=packetMarkup();}
 });
+document.addEventListener('keydown',event=>{if(event.target.id==='public-drug-query'&&event.key==='Enter'){event.preventDefault();runPublicFormularyLookup();}});
 $('#sidebar-sample').addEventListener('click',loadSample);$('#review-security').addEventListener('click',()=>setPage('security'));$('#lock').addEventListener('click',lockSession);
 for(const event of ['pointerdown','keydown','input','scroll'])document.addEventListener(event,resetIdle,{passive:true});
 window.addEventListener('afterprint',()=>{$('#print-region').textContent='';});
