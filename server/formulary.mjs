@@ -52,7 +52,7 @@ export function normalizeQuestRows(payload,{minimum=100,source=QUEST_FORMULARY}=
        typeof item.rxnorm_id!=='string' || !/^[0-9]{1,15}$/.test(item.rxnorm_id) ||
        !Array.isArray(item.plans))throw new Error('Published formulary schema changed.');
     for(const plan of item.plans){
-      if(!plan||typeof plan.plan_id_type!=='string'||typeof plan.plan_id!=='string'||
+      if(!plan||!['PLAN-ID','HIOS-PLAN-ID'].includes(plan.plan_id_type)||typeof plan.plan_id!=='string'||
          !Array.isArray(plan.years)||typeof plan.drug_tier!=='string')
         throw new Error('Published plan schema changed.');
       // All records must match the explicitly verified source's plan and year.
