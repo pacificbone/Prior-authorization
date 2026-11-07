@@ -60,12 +60,12 @@ export function normalizeQuestRows(payload,{minimum=100,source=QUEST_FORMULARY}=
       if(plan.plan_id_type!==source.planIdType||plan.plan_id!==source.planId||!years.includes(String(source.year)))continue;
       if(!/^[a-zA-Z0-9 _()/+-]{1,70}$/.test(plan.drug_tier))
         throw new Error('Published plan tier format changed.');
-      const flag=key=>typeof plan[key]==='boolean'?plan[key]:null;
+      const flag=(key,alias)=>typeof plan[key]==='boolean'?plan[key]:(typeof plan[alias]==='boolean'?plan[alias]:null);
       rows.push({
         rxnorm:item.rxnorm_id,name:item.drug_name.trim(),
         planId:plan.plan_id,planIdType:plan.plan_id_type,
-        tier:plan.drug_tier.trim(),priorAuthorization:flag('prior_authorization'),
-        stepTherapy:flag('step_therapy'),quantityLimit:flag('quantity_limit')
+        tier:plan.drug_tier.trim(),priorAuthorization:flag('prior_authorization','PA'),
+        stepTherapy:flag('step_therapy','ST'),quantityLimit:flag('quantity_limit','QL')
       });
     }
   }
