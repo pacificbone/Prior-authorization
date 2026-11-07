@@ -97,6 +97,6 @@ test('malformed or failed official source must not be reported as verified formu
 });
 
 test('source review age is flagged without inventing a payer expiration date',async()=>{
-  const service=createPublishedFormularyService({fetcher:async()=>Response.json(rows),now:()=>Date.parse('2027-01-08T12:00:00Z')});
+  const service=createPublishedFormularyService({fetcher:async()=>Response.json(rows),now:()=>Date.parse('2027-02-05T12:00:00Z')});
   assert.equal((await service(input('alendronate'))).reviewOverdue,true);
 });
