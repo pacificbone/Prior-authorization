@@ -1,5 +1,6 @@
 import {COST_YEARS,COST_PAYERS,COST_LINES,COST_SETTINGS,COST_NETWORKS,COST_COVERAGE,COST_SECONDARY,COST_RATE_SOURCES,COST_METHODS,COST_FACILITIES,COST_MEDICATIONS,estimatePatientCost,getCostService,selectCostGuidance} from '../shared/patient-cost.mjs';
 import {orthoCategories,orthoProcedures,orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
+import {STAFF_SERVICES,STAFF_CATEGORY_LABELS} from '../shared/staff-workflow.mjs';
 const escapeCost=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const costOpt=function costOpt(options,current){
  return options.map(x=>`<option value="${escapeCost(typeof x==='string'?x:x.id)}" ${(typeof x==='string'?x:x.id)===current?'selected':''}>${escapeCost(typeof x==='string'?x:x.name||x.label)}</option>`).join('');
@@ -8,11 +9,10 @@ const dollarValue=function dollarValue(value){return value===null||value===undef
 export function renderCostPage(value,selectedCategory='arthroplasty'){
  const result=estimatePatientCost(value);
  const service=getCostService(value.procedureId);
- const categories=[
-   ...orthoCategories.map(x=>({id:x.id,name:x.label})),
-   {id:'medication',name:'Osteoporosis medications'}
- ];
- const services=[...orthoProcedures,...COST_MEDICATIONS].filter(x=>x.category===selectedCategory);
+ const categories=Object.entries(STAFF_CATEGORY_LABELS).map(([id,name])=>({id,name}));
+ const services=STAFF_SERVICES.filter(x=>x.category===selectedCategory).map(x=>({
+   ...x,id:x.type==='medication'?'drug-'+x.id:x.id
+ }));
  const external=selectCostGuidance(value);
  const itemInputs=value.items.map((line,index)=>{
    const r=result.components[index];
