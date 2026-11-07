@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {policies,defaultScope} from '../shared/catalog.mjs';
 import {samples} from '../shared/fixtures.mjs';
-import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,compareMedications,validateAiEvidence,validatePolicy,validateWorkspace,policyFreshness} from '../shared/domain.mjs';
+import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,buildDocumentationChecklist,compareMedications,validateAiEvidence,validatePolicy,validateWorkspace,policyFreshness} from '../shared/domain.mjs';
 const today='2026-11-06',p=policies[0],sample=samples['osteoporosis-evenity'];
 const uhcScope={...defaultScope,payer:'UnitedHealthcare'};
 const formulary=(extra={})=>({id:'custom-test',title:'Test exact-plan extract',payer:'HMSA',lines:['Commercial'],benefit:'Pharmacy',kind:'formulary',drugIds:['alendronate'],planCode:'ABC123',effective:'2026-10-01',reviewed:today,expires:null,url:'https://example.org/formulary.pdf',locator:'Version 1, page 4',summary:'Synthetic test source only.',formularyStatus:'preferred',criteria:[],...extra});
@@ -93,4 +93,19 @@ test('same-plan policy conflicts remain explicitly blocked in comparisons',()=>{
   const row=compareMedications(uhcScope,[other],today).find(x=>x.drug.id==='evenity');
   assert.equal(row.medicalPolicy,null);
   assert.equal(row.medicalPolicyConflict,true);
+});
+
+test('staff gap checklist lists missing criteria without copying clinical notes or quotes',()=>{
+  const noGaps=buildDocumentationChecklist(sample,p,{today});
+  assert.match(noGaps,/EVIDENCE GAPS \(0\)/);
+  assert.match(noGaps,/SYNTHETIC TRIAL/);
+  assert.ok(!noGaps.includes(sample.note));
+  assert.ok(!noGaps.includes(sample.evidence.diagnosis.quote));
+  const incomplete={...sample,note:'',evidence:{risk:{status:'not_met',quote:''}}};
+  const list=buildDocumentationChecklist(incomplete,p,{today});
+  assert.match(list,/EVIDENCE GAPS \(4\)/);
+  assert.match(list,/Criterion marked not met/);
+  assert.match(list,/RELEASE BLOCKERS/);
+  assert.match(list,/Add the source clinical note/);
+  assert.doesNotMatch(list,/SOURCE CLINICAL NOTE\n/);
 });
