@@ -1,6 +1,12 @@
 # Coverage Desk — Pacific Bone & Joint
 
-A working **synthetic-data trial** for four clinical workflows:
+## Staff-facing experience: one workflow
+
+The default **Staff workup** screen now follows **insurer → insurer-owned plan → medication or procedure → formulary/PA source → itemized patient costs → tailored documentation and patient explanation**. The old modules are preserved as **Advanced reference tools**, not competing primary tabs. Payers cannot display other carriers' plans or use a different insurer's formulary. Unverified plans, medical-necessity rules, billable prices and patient benefits stay explicitly unverified.
+
+See the [staff workflow operating guide](docs/STAFF-WORKFLOW.md), the [patient cost source guide](docs/PATIENT-COSTS.md) and the [orthopedic procedure reference](docs/ORTHOPEDIC-PROCEDURES.md).
+
+A working **synthetic-data trial** with four underlying reference workflows:
 
 1. Inspect a medication’s plan-specific formulary record and the separately scoped medical-necessity policy.
 2. Build a clinician-reviewed authorization-support attachment using exact passages from the source note, with missing evidence clearly identified.
@@ -21,7 +27,7 @@ npm start
 
 Open **http://localhost:3000**. The normal server binds only to `127.0.0.1`. `npm run dev` binds to all interfaces for isolated preview environments; do not use that command on an untrusted network. The app runs without AI credentials.
 
-Start in **Formulary explorer**, select payer, line of business and benefit, then choose a medication. **Try sample case** opens a completely fictional HMSA Evenity case with a selected qualifying pathway and linked evidence (or the UHC example when UHC is selected). Build a draft, review the facts and scope, then download text or use **Print / PDF**. Every trial export is marked synthetic and unsigned.
+Start in **Staff workup** and select the insurer, its actual plan/year and desired medication or procedure. The app keeps cost and authorization information on that one screen. The legacy **Formulary explorer** is under Advanced reference tools. **Try sample case** opens a completely fictional HMSA Evenity case with a selected qualifying pathway and linked evidence (or the UHC example when UHC is selected). Build a draft, review the facts and scope, then download text or use **Print / PDF**. Every trial export is marked synthetic and unsigned.
 
 ## What is implemented
 
