@@ -176,7 +176,7 @@ async function runAi(){
   finally{state.aiBusy=false;if(state.page==='authorization'&&!state.locked)renderAuthorization();}
 }
 function lockSession(){
-  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.locked=true;state.vaultEnvelope=null;
+  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.publicLookup={term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
   $('#vault-passphrase').value='';$('#vault-confirm').value='';$('#vault-dialog').close();$('#source-dialog')?.close();$('#source-form')?.reset();$('#print-region').textContent='';render();
 }
 function resetIdle(){clearTimeout(idleTimer);if(!state.locked)idleTimer=setTimeout(()=>{lockSession();toast('Session locked after 10 minutes without interaction.');},10*60*1000);}
