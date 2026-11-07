@@ -80,6 +80,11 @@ export function staffPlanProgramLine(plan) {
  })[plan.program]||null;
 }
 export function staffGetService(id) {return STAFF_SERVICES.find(x=>x.id===id)||null;}
+const OFFICE_ADMINISTERED_DRUGS=new Set(['evenity','prolia','bildyos','enoby','stoboclo','jubbonti','zoledronic-acid','exparel','lidocaine','bupivacaine','tranexamic-acid']);
+export function staffDefaultBenefit(service){
+ if(!service||service.type==='procedure')return 'Medical';
+ return OFFICE_ADMINISTERED_DRUGS.has(service.id)?'Medical':'Pharmacy';
+}
 export function staffServices({type='all',category='all',query=''}={}) {
  const q=String(query).toLowerCase().trim().slice(0,80);
  return STAFF_SERVICES.filter(x=>(type==='all'||x.type===type) &&
@@ -212,7 +217,7 @@ export function staffPatientScript({payer,planId,year,serviceId,benefit='Medical
    'The insurance plan must verify whether the service is covered, whether an authorization is required, and whether any medications or products are preferred.',
    'Your estimated portion may include a professional fee, facility charge and other separately billed services, depending on your plan and remaining deductible.'
  ];
- if(cost&&Number.isFinite(cost.totalRequired)&&cost.totalRequired>=0)
+ if(cost?.quoteReady===true&&Number.isFinite(cost.totalRequired)&&cost.totalRequired>=0)
     pieces.push('Our preliminary cost scenario is $'+cost.totalRequired.toFixed(2)+' based on assumptions that still require verification; this is not a guaranteed bill.');
  else pieces.push('We do not yet have enough verified information to provide a complete dollar estimate.');
  pieces.push('We will confirm the benefits and authorization before giving a personalized estimate. Actual charges may change with the services provided and claim processing.');
