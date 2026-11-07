@@ -344,7 +344,8 @@ document.addEventListener('click',async event=>{
   }
   if(action==='staff-export-packet'){
     try{
-      const text=staffAuthorizePacket({...state.staff,checks:state.staff.docs});
+      const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,docs}=state.staff;
+      const text=staffAuthorizePacket({payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,checks:docs});
       download('pbj-synthetic-auth-documentation-'+dateToday()+'.txt',text);
       toast('Authorization documentation template exported. Complete only in approved clinical system.');
     }catch(error){toast(error.message||'Choose a valid plan and service.');}
