@@ -52,7 +52,7 @@ export function renderStaffPage(state){
  const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages].slice(0,9):[];
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
    ${!costShown?`<p class="helper">Choose the insurer, plan and treatment above to begin. No price will be invented.</p>`:`
-   <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${estimate?.totalRequired===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${estimate?.totalRequired===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Separate billing estimates</strong>
+   <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${(estimate?.totalRequired??null)===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${(estimate?.totalRequired??null)===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Separate billing estimates</strong>
   <small>Surgeon: ${money(estimate?.components?.find(x=>x.id==='surgeon')?.patientShare)}</small>
   <small>Facility: ${money(estimate?.components?.find(x=>x.id==='facility')?.patientShare)}</small>
   <small>Anesthesia: ${money(estimate?.components?.find(x=>x.id==='anesthesia')?.patientShare)}</small>
@@ -68,7 +68,7 @@ export function renderStaffPage(state){
    </div>
    <p class="helper">Prices below are **not** pulled from your insurers. Enter the correct allowed amount or a documented quote for each billing entity. Select the applicable patient cost-sharing rule.</p>
    <div class="staff-price-lines">${rows}</div>
-   ${estimateWarnings.length?`<details class="staff-checks" ${estimate?.totalRequired===null?'open':''}><summary>Missing rates and benefit checks (${estimateWarnings.length})</summary><ul>${estimateWarnings.map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>`:''}
+   ${estimateWarnings.length?`<details class="staff-checks" ${(estimate?.totalRequired??null)===null?'open':''}><summary>Missing rates and benefit checks (${estimateWarnings.length})</summary><ul>${estimateWarnings.map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>`:''}
    <p class="helper">Never substitute a hospital chargemaster amount for an insurer's negotiated facility charge. Original Medicare inpatient Part A facility estimates require a separate benefit-period calculation.</p>
    <div class="local-buttons"><button class="button secondary" data-action="staff-cost-export">Download conditional cost worksheet</button><button class="button secondary" data-action="staff-advanced-cost">Advanced cost details</button></div>
    `}
