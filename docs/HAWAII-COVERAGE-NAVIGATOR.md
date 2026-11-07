@@ -22,22 +22,24 @@ Reviewed for the synthetic trial on **November 7, 2026**. This is a directory of
 
 **Never** present `no match` as `excluded`. A covered-drug entry may refer to only a particular strength, route, dose form, benefit type, location or date; confirm latest payer documents and member eligibility.
 
-## Two integrated 2026 public QUEST pharmacy feeds
+## Four integrated 2026 public pharmacy plan feeds
 
 | Official published payer file | Server source ID | Exact plan ID | Plan ID type |
 | --- | --- | --- | --- |
 | [HMSA QUEST](https://www.hmsa.com/prc/pharmacy/hmsa-quest-drug-formulary/) ([published JSON](https://assets.contentstack.io/v3/assets/blt731834369e6b995a/blt1cfd921ba2fdcc8d/6ae4050ff59c3f1d3bce71fc/hmsa-quest-formulary-2026.json)) | `hmsa-quest-2026-11` | `22780AA1111111` | `HIOS-PLAN-ID` |
 | [UHC Community Plan Hawaiʻi QUEST](https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans/hi-comm-plan-home/hi-cp-pharmacy.html) ([published JSON](https://legacy.providerlookuponline.com/mrf/optumrx/drugs/2877216/JSON_Drugs_UHCCPHI.json)) | `uhc-quest-2026-10` | `UCSHIQ1` | `PLAN-ID` |
+| [Kaiser Hawaiʻi QUEST](https://healthy.kaiserpermanente.org/hawaii/pages/technical-information) ([published Medicaid JSON](https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs-medicaid.json)) | `kaiser-hi-quest-2026` | `KP-HI-QUEST Medicaid` | `QUEST Medicaid-CHIP Plan Description` |
+| [Kaiser Hawaiʻi individual Platinum 0/5 Plus CAM](https://healthy.kaiserpermanente.org/hawaii/pages/technical-information) ([published drug JSON](https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs.json)) | `kaiser-hi-marketplace-platinum-2026` | `60612HI0110006` | `HIOS-PLAN-ID` |
 
 The API is limited to the **allowlisted public source IDs**, accepts only a bounded drug search string and an ID, and does not accept notes, member IDs, URLs or other arbitrary fields. Each upstream response is schema-checked and normalized independently, filtered to its exact plan ID and **2026** year, limited to 40 displayed results and cached up to six hours per running Node/Worker instance. Mixed-plan rows, especially UHC's separate `PART D` records, are excluded. A failed source returns **unverified**, not a fabricated result. Tests use fictional/mocked public sources; live runtime lookup and particular listed drug results require separate deployed-environment verification.
 
-The internal 90-day warning is a **review reminder**; it does not invent a payer-defined expiration date. Current formularies and the 2027 plan year will need source version checks.
+The internal 90-day warning is a **review reminder**; it does not invent a payer-defined expiration date. For Kaiser drug files, an official precise effective date was not verified; the app displays an internal source-review date instead of inventing one. Kaiser QUEST publishes the year as a string (e.g., `"2026"`), while individual-plan records can use `[2026, 2027]` and uppercase `PA` / `ST` / `QL` flags. The importer handles both formats with exact-plan guards. Current formularies and the 2027 plan year will need source version checks.
 
 ## Coverage programs represented
 
 - **Commercial HMO / PPO**: distinct HMSA Select/Choice, Essential, Optimal, and employer variants; Kaiser employer HMO versus KPIC Added Choice PPO; UHC employer and UHA, HMAA/OptumRx, Curative and other employer/PBM programs. **HMO vs PPO is insufficient to identify the pharmacy formulary.** Group, network, benefit channel, coverage code and year can matter.
-- **Marketplace / individual**: HMSA Metallic, Kaiser individual Marketplace, applicable UHC exchange variants. Individual plans must not silently borrow employer coverage.
-- **QUEST Medicaid**: HMSA and UHC have the two integrated public pharmacy lists above. AlohaCare, Kaiser, and ʻOhana have separately linked official QUEST resources. AlohaCare lists separate primary pharmacy and wrapping/secondary benefits. Review the announced ʻOhana end-of-2026 QUEST plan transition before using a 2026 document for 2027.
+- **Marketplace / individual**: HMSA Metallic, one exact Kaiser individual Platinum 0/5 Plus CAM HIOS plan (`60612HI0110006`) with published 2026 drug-level search, other Kaiser individual plans requiring separate verification, and applicable UHC exchange variants. Individual plans must not borrow employer or Medicaid rules.
+- **QUEST Medicaid**: HMSA, UnitedHealthcare Community Plan, and Kaiser have integrated exact-plan 2026 public pharmacy lookups. AlohaCare and ʻOhana retain separately linked official QUEST resources. AlohaCare lists separate primary pharmacy and wrapping/secondary benefits. Review the announced ʻOhana end-of-2026 QUEST plan transition before using a 2026 document for 2027.
 - **Medicare Advantage HMO/PPO and D-SNP**: HMSA Akamai individual/group/Dual Care, Kaiser Senior Advantage/Dual, UHC MA/Dual, Humana, AlohaCare Advantage, Devoted if locally offered, and other contracts. Pharmacy Part D coverage requires the exact **contract/plan/segment/year**; physician-administered drugs may be medical-benefit items instead.
 - **Traditional Medicare / Medigap**: Original Medicare **Part B** has drug benefit categories and separate CMS/MAC/NCD/LCD and prior-authorization rules, **not a single outpatient pharmacy formulary**. For ordinary outpatient prescriptions select the beneficiary's separate **Part D PDP**. Medigap does not itself supply Part D.
 - **VA**: use the [VA National Formulary Advisor](https://www.va.gov/formularyadvisor/) and [VA Pharmacy Benefits Management (PBM) formulary/criteria-for-use documents](https://www.pbm.va.gov/PBM/NationalFormulary.asp). VA formulary status and VA Community Care authorization are distinct.
@@ -47,7 +49,7 @@ The internal 90-day warning is a **review reminder**; it does not invent a payer
 
 ## What is not yet ingested
 
-Full searchable drug rows for **HMSA Select/Choice, Essential, Optimal, Metallic, Medicare Advantage, commercial UHC, Kaiser variants, AlohaCare, ʻOhana, UHA, Curative, VA, TRICARE, Humana, Devoted, and other PDPs** are **not** in the app's indexed database yet. Those cards link to official payer sources only. The HMAA Premium extract remains explicitly **partial**, not a complete plan import. Connected payer eligibility, member ID lookups, credentialed formulary APIs and automatic claim submission are not active.
+Full searchable drug rows for **HMSA Select/Choice, Essential, Optimal, Metallic, Medicare Advantage, commercial UHC, Kaiser variants other than the two exact products listed above, AlohaCare, ʻOhana, UHA, Curative, VA, TRICARE, Humana, Devoted, and other PDPs** are **not** in the app's indexed database yet. Those cards link to official payer sources only. The HMAA Premium extract remains explicitly **partial**, not a complete plan import. Connected payer eligibility, member ID lookups, credentialed formulary APIs and automatic claim submission are not active.
 
 Recommended later imports: verify the exact PDF/JSON schema, published plan identifier, plan year, source license, and correct benefit; add a separate allowlisted importer and regression tests per payer. Never blanket-import without preventing cross-plan contamination.
 
