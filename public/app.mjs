@@ -505,7 +505,7 @@ document.addEventListener('change',event=>{
   }
   if(target.id==='cost-category'){
     state.costCategory=target.value;
-    const procedures=target.value==='medication'?COST_MEDICATIONS:orthoProcedures.filter(x=>x.category===target.value);
+    const procedures=staffServices({category:target.value}).map(x=>({...x,id:x.type==='medication'?'drug-'+x.id:x.id}));
     state.cost=newCostCase({...state.cost,procedureId:procedures[0]?.id||'total-knee',benefit:target.value==='medication'?'Unverified':'Medical',gelProductId:'',planLabel:'',network:'unknown'});
     state.cost.facilityId='none';state.cost.coverage='unverified';state.cost.deductibleRemaining=null;state.cost.oopRemaining=null;
     renderCosts();return;
