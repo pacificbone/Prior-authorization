@@ -8,6 +8,9 @@ import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,cre
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
 import {newCostCase,validateCostCase,costWorksheet,getCostService,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
 import {renderCostPage} from './cost-page.mjs';
+import {staffContext,staffPlansForPayer,staffGetService,staffServices,STAFF_CATEGORY_LABELS,staffAuthorizePacket,staffPatientScript} from '/shared/staff-workflow.mjs';
+import {renderStaffPage} from './staff-page.mjs';
+import {COST_PAYERS} from '/shared/patient-cost.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -36,8 +39,8 @@ const paths={
 const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.info}</svg>`;
 const sourceLink=(url,label='Open source')=>`<a class="source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ${icon('external')}</a>`;
 const options=(values,current)=>values.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join('');
-const nav=[['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['costs','Patient costs','pill'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
-const state={page:'formulary',costCategory:'arthroplasty',cost:newCostCase(),orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
+const nav=[['workup','Staff workup','file'],['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['costs','Patient costs','pill'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
+const state={page:'workup',staff:{payer:'',planId:'',year:2026,serviceId:'',benefit:'Medical',requestType:'Initial',setting:'Office',gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,lookup:{sourceId:null,term:'',busy:false,result:null,error:''}},costCategory:'arthroplasty',cost:newCostCase(),orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
 let toastTimer,idleTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),6000);}
 function log(action){state.events.unshift({action,time:new Date().toISOString()});state.events=state.events.slice(0,50);}
@@ -51,14 +54,14 @@ function scopeMarkup(){
   return `<section class="panel scope-panel" aria-label="Coverage scope"><div class="panel-kicker">${icon('filter')} Start with the right coverage context</div><div class="scope-grid"><label>Payer / administrator<select data-scope="payer" aria-label="Payer">${options(payers,state.scope.payer)}</select></label><label>Plan type<select data-scope="line" aria-label="Plan type">${options(lines,state.scope.line)}</select></label><label>Benefit<select data-scope="benefit" aria-label="Benefit">${options(['Medical','Pharmacy'],state.scope.benefit)}</select></label><label>Plan / formulary code<input data-scope="planCode" aria-label="Plan or formulary code" value="${esc(state.scope.planCode)}" placeholder="${profile?.requiresCarrier?'Exact employer/group plan':'Optional · not member ID'}" maxlength="100"></label></div>${profile?.requiresCarrier?`<div class="scope-extra"><label>Underlying carrier / employer plan<select data-scope="carrier" aria-label="Underlying carrier">${carrierChoices.map(c=>`<option value="${esc(c)}" ${state.scope.carrier===c?'selected':''}>${esc(c||'Select the actual health plan')}</option>`).join('')}</select></label></div>`:''}${lists.length?`<div class="scope-extra"><label>Published formulary to inspect · confirm plan adoption<select id="formulary-list"><option value="">No published list selected</option>${lists.map(f=>`<option value="${esc(f.code)}" ${state.scope.planCode===f.code?'selected':''}>${esc(f.label)}</option>`).join('')}</select></label></div>`:''}<p class="scope-hint">${icon('info')} A formulary/list match does not verify member eligibility. HMA and MDX require the underlying plan; medical and pharmacy benefits stay separate.</p>${profile?`<details class="routing-details"><summary>${esc(profile.name)} · coverage and authorization routing</summary><div class="routing-content"><div class="key-value"><div><dt>ORGANIZATION ROLE</dt><dd>${esc(profile.role)}</dd></div><div><dt>PHARMACY BENEFIT</dt><dd>${esc(profile.pbm)}</dd></div></div><p><strong>Medical:</strong> ${esc(profile.medical)}<br><strong>Pharmacy:</strong> ${esc(profile.pharmacy)}</p><p>${esc(profile.note)}</p><div class="routing-links">${profile.urls.map(([label,url])=>sourceLink(url,label)).join('')}</div></div></details>`:'<p class="scope-hint">No verified routing profile loaded yet. Use exact plan documents and add reviewed public sources.</p>'}</section>`;
 }
 function renderNav(){
-  $('#navigation').innerHTML=nav.map(([id,label,glyph])=>`<button class="nav-item ${state.page===id?'active':''}" data-page="${id}" ${state.page===id?'aria-current="page"':''}>${icon(glyph)}<span>${label}</span>${id==='policies'?`<span class="count">${policies.length+state.custom.length}</span>`:''}</button>`).join('');
+  $('#navigation').innerHTML=nav.filter(([id])=>id==='workup'||id==='security').map(([id,label,glyph])=>`<button class="nav-item ${state.page===id?'active':''}" data-page="${id}" ${state.page===id?'aria-current="page"':''}>${icon(glyph)}<span>${label}</span>${id==='policies'?`<span class="count">${policies.length+state.custom.length}</span>`:''}</button>`).join('');
   $('#breadcrumb').textContent=nav.find(n=>n[0]===state.page)?.[1]||'Workspace';
   $('#lock').innerHTML=icon('lock');$('#trial-icon').innerHTML=icon('shield');
 }
 function render(){
   renderNav();
   if(state.locked){$('#page').innerHTML=`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. Restore an encrypted file or start a new fictional case.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`;return;}
-  ({formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,costs:renderCosts,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderExplorer)();
+  ({workup:renderStaff,formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,costs:renderCosts,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderStaff)();
 }
 function setPage(page){if(!nav.some(n=>n[0]===page))return;state.page=page;history.replaceState(null,'',`#${page}`);render();window.scrollTo({top:0});}
 function drugStatus(drug){
@@ -150,6 +153,26 @@ function renderCoverage(){
   <div class="notice coverage-footer"><strong>Important distinctions:</strong> Original Medicare Part B is not a pharmacy formulary. Traditional Medicare outpatient prescriptions use the member's separate Part D plan. VA and TRICARE have their own formularies. Medicare Advantage, D-SNP and commercial HMO/PPO network labels do not uniquely identify the applicable pharmacy list.</div>`;
 }
 function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ortho,state.orthoCategory);}
+function renderStaff(){$('#page').innerHTML=renderStaffPage(state.staff);}
+function resetStaffPrice(){
+  const st=state.staff;
+  const ctx=staffContext(st);
+  st.docs={};
+  st.lookup={sourceId:null,term:'',busy:false,result:null,error:''};
+  if(!ctx.plan||!ctx.service){st.cost=null;return;}
+  const payer=COST_PAYERS.includes(ctx.plan.payer)?ctx.plan.payer:'Other';
+  const lines={'Commercial':'Commercial','Individual Exchange':'Individual Exchange',
+    'QUEST / Medicaid':'QUEST / Medicaid','Medicare Advantage':'Medicare Advantage',
+    'Traditional Medicare':'Traditional Medicare','Medicare Part D':'Traditional Medicare',
+    'VA / Community Care':'VA / Community Care','TRICARE':'TRICARE',
+    'Federal employee / postal':'Commercial','Delegated / claim-specific':'Commercial'};
+  const line=lines[ctx.planLine]||'Commercial';
+  const procedureId=ctx.service.type==='medication'?'drug-'+ctx.service.id:ctx.service.id;
+  const benefit=ctx.service.type==='procedure'?'Medical':st.benefit;
+  st.cost=newCostCase({procedureId,payer,line,year:st.year,setting:st.setting,
+    gelProductId:st.gelProductId,guidance:st.guidance,benefit});
+  st.cost.planLabel=ctx.plan.payer+' '+ctx.plan.id;
+}
 function renderCosts(){$('#page').innerHTML=renderCostPage(state.cost,state.costCategory);}
 function renderExplorer(){
   const applicable=policies.concat(state.custom).filter(p=>p.payer===state.scope.payer&&p.lines.includes(state.scope.line)&&p.benefit===state.scope.benefit).length;
@@ -223,7 +246,7 @@ async function runAi(){
   finally{state.aiBusy=false;if(state.page==='authorization'&&!state.locked)renderAuthorization();}
 }
 function lockSession(){
-  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.costCategory='arthroplasty';state.cost=newCostCase();state.orthoCategory='injections';state.ortho=defaultOrthoCase();state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
+  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.staff={payer:'',planId:'',year:2026,serviceId:'',benefit:'Medical',requestType:'Initial',setting:'Office',gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,lookup:{sourceId:null,term:'',busy:false,result:null,error:''}};state.costCategory='arthroplasty';state.cost=newCostCase();state.orthoCategory='injections';state.ortho=defaultOrthoCase();state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
   $('#vault-passphrase').value='';$('#vault-confirm').value='';$('#vault-dialog').close();$('#source-dialog')?.close();$('#source-form')?.reset();$('#print-region').textContent='';render();
 }
 function resetIdle(){clearTimeout(idleTimer);if(!state.locked)idleTimer=setTimeout(()=>{lockSession();toast('Session locked after 10 minutes without interaction.');},10*60*1000);}
@@ -294,6 +317,60 @@ document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='coverage'){setPage('coverage');return;}
+  if(action==='staff-check-formulary'){
+    const ctx=staffContext(state.staff);
+    const source=ctx.liveSource;
+    if(!source){toast('This exact plan has no validated in-app pharmacy file. Open its official payer formulary.');return;}
+    const term=($('#staff-drug-lookup')?.value||ctx.service?.name||'').trim();
+    if(term.length<2||term.length>70){toast('Enter a drug name or RxNorm identifier (2–70 characters).');return;}
+    const epoch=++state.aiEpoch;
+    state.staff.lookup={sourceId:source.id,term,busy:true,result:null,error:''};
+    renderStaff();
+    try{
+      const response=await fetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({source:source.id,drug:term}),credentials:'same-origin',cache:'no-store'});
+      const data=await response.json();
+      if(epoch!==state.aiEpoch||state.locked||state.page!=='workup')return;
+      const current=staffContext(state.staff);
+      if(current.liveSource?.id!==source.id)return;
+      if(!response.ok)throw Error(data.error||'Public formulary lookup unavailable.');
+      state.staff.lookup={sourceId:source.id,term,busy:false,result:data,error:''};
+    }catch(error){
+      if(epoch!==state.aiEpoch||state.locked)return;
+      state.staff.lookup={sourceId:source.id,term,busy:false,result:null,error:error.message||'Source could not be validated.'};
+    }
+    if(state.page==='workup')renderStaff();
+    return;
+  }
+  if(action==='staff-export-packet'){
+    try{
+      const text=staffAuthorizePacket({...state.staff,checks:state.staff.docs});
+      download('pbj-synthetic-auth-documentation-'+dateToday()+'.txt',text);
+      toast('Authorization documentation template exported. Complete only in approved clinical system.');
+    }catch(error){toast(error.message||'Choose a valid plan and service.');}
+    return;
+  }
+  if(action==='staff-patient-script'){
+    try{
+      const cost=state.staff.cost?estimatePatientCost(state.staff.cost):null;
+      const text=staffPatientScript({...state.staff,cost});
+      navigator.clipboard.writeText(text).then(()=>toast('Fictional patient explanation copied.'),()=>{
+        download('pbj-synthetic-patient-explanation.txt',text);toast('Explanation downloaded.');
+      });
+    }catch(error){toast(error.message||'Select plan and service first.');}return;
+  }
+  if(action==='staff-cost-export'){
+    if(!state.staff.cost){toast('Choose a plan and service first.');return;}
+    try{download('pbj-synthetic-patient-costs-'+dateToday()+'.txt',costWorksheet(state.staff.cost,{generated:dateToday()}));toast('Conditional scenario worksheet downloaded.');}
+    catch(error){toast(error.message||'Cost assumptions invalid.');}
+    return;
+  }
+  if(action==='staff-advanced-cost'){
+    if(!state.staff.cost){toast('Choose plan and treatment first.');return;}
+    state.cost=structuredClone(state.staff.cost);
+    state.costCategory=staffGetService(state.staff.serviceId)?.category||'arthroplasty';
+    setPage('costs');return;
+  }
   if(action==='cost-from-ortho'){
     const scope=state.ortho;
     state.costCategory=getOrthoProcedure(scope.procedureId)?.category||'arthroplasty';
@@ -350,6 +427,14 @@ document.addEventListener('click',async event=>{
 document.addEventListener('input',event=>{
   const target=event.target;
   if(target.id==='drug-search'){state.search=target.value;$('#drug-list').innerHTML=drugListMarkup();return;}
+  if(target.id==='staff-service-query'){
+    state.staff.search=target.value;
+    renderStaff();
+    const field=$('#staff-service-query');
+    field?.focus();
+    field?.setSelectionRange(target.selectionStart??state.staff.search.length,target.selectionStart??state.staff.search.length);
+    return;
+  }
   if(target.id==='ortho-plan-label'){state.ortho.planLabel=target.value;return;}
   if(target.id==='cost-plan'){state.cost.planLabel=target.value;return;}
   if(target.id==='coverage-query'){state.coverage.query=target.value;const result=$('#coverage-results');if(result)result.innerHTML=coverageCardsMarkup();return;}
@@ -363,6 +448,55 @@ document.addEventListener('input',event=>{
 document.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
+  if(target.dataset.staffCheck){
+    state.staff.docs[target.dataset.staffCheck]=target.checked;
+    renderStaff();return;
+  }
+  if(target.id==='staff-payer'||target.id==='staff-year'||target.id==='staff-plan-select'||
+    target.id==='staff-service-select'||target.id==='staff-benefit'||target.id==='staff-request-type'||
+    target.id==='staff-setting'||target.id==='staff-gel'||target.id==='staff-guidance'){
+    const st=state.staff;
+    const id=target.id;
+    if(id==='staff-payer'){st.payer=target.value;st.planId='';}
+    else if(id==='staff-year'){st.year=Number(target.value);st.planId='';}
+    else if(id==='staff-plan-select'){st.planId=target.value;}
+    else if(id==='staff-service-select'){st.serviceId=target.value;st.search='';st.gelProductId='';st.benefit='Medical';}
+    else if(id==='staff-benefit'){st.benefit=target.value;}
+    else if(id==='staff-request-type'){st.requestType=target.value;}
+    else if(id==='staff-setting'){st.setting=target.value;}
+    else if(id==='staff-gel'){st.gelProductId=target.value;}
+    else if(id==='staff-guidance'){st.guidance=target.value;}
+    if(id==='staff-plan-select'&&st.planId&&!staffPlansForPayer(st.payer,st.year).some(x=>x.id===st.planId)){
+      st.planId='';toast('Plan does not belong to that insurer.');}
+    state.aiEpoch++;
+    resetStaffPrice();renderStaff();return;
+  }
+  if(target.id==='staff-facility'||target.id==='staff-network'||target.id==='staff-coverage'||
+    target.id==='staff-deductible'||target.id==='staff-oop'||target.id==='staff-secondary'||target.dataset.staffCost){
+    const cost=state.staff.cost;
+    if(!cost)return;
+    let candidate={...cost,items:cost.items.map(x=>({...x}))};
+    if(target.dataset.staffCost){
+      const key=target.dataset.staffPrice;
+      if(!['allowed','source','method','percentage','copay','deductibleApplies','oopEligible'].includes(key))return;
+      const item=candidate.items.find(x=>x.id===target.dataset.staffCost);
+      if(!item)return;
+      item[key]=target.type==='checkbox'?target.checked:['allowed','percentage','copay'].includes(key)?(target.value===''?null:Number(target.value)):target.value;
+    }else{
+      const map={'staff-facility':'facilityId','staff-network':'network','staff-coverage':'coverage',
+        'staff-deductible':'deductibleRemaining','staff-oop':'oopRemaining','staff-secondary':'secondary'};
+      const key=map[target.id];
+      candidate[key]=['deductibleRemaining','oopRemaining'].includes(key)?(target.value===''?null:Number(target.value)):target.value;
+      if(key==='facilityId'||key==='network'){
+        candidate.items=candidate.items.map(line=>({...line,allowed:null,source:'unverified'}));
+        candidate.coverage='unverified';
+        candidate.deductibleRemaining=null;candidate.oopRemaining=null;
+      }
+    }
+    try{validateCostCase(candidate);state.staff.cost=candidate;}
+    catch(error){toast(error.message||'Invalid cost data.');}
+    renderStaff();return;
+  }
   if(target.id==='cost-plan'){
     try{validateCostCase({...state.cost,planLabel:target.value});state.cost.planLabel=target.value;}
     catch{state.cost.planLabel='';toast('Enter only a plan product name. Do not enter member numbers or patient information.');}
