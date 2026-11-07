@@ -24,6 +24,7 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 ## What is implemented
 
 - Responsive medication explorer with brand/generic search and explicit coverage unknowns.
+- **Public formulary lookup:** server fetches HMSA’s official November 1, 2026 machine-readable QUEST pharmacy formulary, validates its RxNorm records, plan identifier, tier and PA/ST/QL flags, and searches all published formulations by drug name or RxNorm ID. Results are kept separate from clinical policies and other HMSA plans. Refreshes the server's public-file cache every six hours, and flags source review after 90 days. Real patient identifiers are never required or accepted as request fields; live eligibility is unavailable.
 - Separate medical-policy and exact-plan formulary records. No coverage inferred from a medical-necessity policy.
 - Hawaiʻi payer/administrator profiles for HMSA, HMAA, HMA/Verdegard, MDX, UHA, UHC and Humana; separate carrier and benefit context for delegated or employer-specific rules.
 - Four reviewed HMSA initial osteoporosis medical-policy records: Evenity and denosumab, with separate Commercial/QUEST and Medicare Advantage versions, alternative clinical pathways and drug-specific exception requirements.
@@ -39,6 +40,8 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 - Browser memory by default. Explicit encrypted local file or browser copy using AES-256-GCM, random salt/IV and PBKDF2-SHA256 with 600,000 iterations. Passphrases/keys are not persisted. Ten-minute inactivity lock clears active app state and DOM content; this is not a forensic memory erasure guarantee.
 - No analytics, remote fonts, session replay, patient upload API, automatic claim submission or automatic email/fax.
 - Local Node server, Cloudflare Worker configuration and an AWS Lambda API Gateway v2 adapter sharing the same application logic.
+
+This public formulary search has a fixed allowlisted public URL and needs no AI key. It performs **a live source read at runtime**, not a bundled copy of the complete list; access and deployment network connectivity must be tested in the actual environment. The fetch may fail and will then report no verified result rather than infer status. The feature is limited to HMSA QUEST pharmacy benefits, not all HMSA plans or medical-benefit injectables.
 
 ## Connect AI for the fictional trial
 
