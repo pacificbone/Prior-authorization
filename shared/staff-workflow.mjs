@@ -9,6 +9,7 @@ import {drugs,policies,formularyLists} from './catalog.mjs';
 import {matchingPolicies,applyPolicyPathway,formularyResult} from './domain.mjs';
 import {orthoProcedures,getOrthoActiveCriteria,getOrthoPayerSources,getOrthoProcedureCodes} from './orthopedic-procedures.mjs';
 import {EXTRA_PROCEDURES,EXTRA_DRUGS} from './staff-service-catalog.mjs';
+import {staffAuthResources} from './staff-auth-resources.mjs';
 
 const NON_PLANS=new Set(['uha-medical-pa','aloha-wrap','va-cfuses','original-d','other-ma']);
 const PAYER_ROLES=Object.freeze({
@@ -168,17 +169,21 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  const planLine=staffPlanProgramLine(plan);
  const sources=service?.type==='procedure'&&orthoProcedures.some(x=>x.id===service.id)&&plan
   ?getOrthoPayerSources({procedureId:service.id,payer:plan.payer,line:planLine}):[];
+ const authorizationResources=plan&&service?
+  staffAuthResources({payer:plan.payer,program:plan.program,benefit,
+    serviceType:service.type}):[];
  const potentialNames=(primaryPolicy?primaryPolicy.preferred:[])||[];
  const possibleCodes=service?.type==='procedure'?
     (orthoProcedures.some(x=>x.id===service.id)?getOrthoProcedureCodes({procedureId:service.id,gelProductId,guidance}):service.codes||[]):[];
  return {
-   plan,service,planLine,planPrecision:precision,liveSource,primaryPolicy,
+   plan,service,planLine,planPrecision:precision,liveSource,primaryPolicy,authorizationResources,
    policyConflict:matchedPolicies.length>1,matchedPolicies,supplementaryPA,
    criteria,sourceLinks:[
      ...(plan?[{name:plan.name,url:plan.sourceUrl,status:plan.status,note:plan.notes}]:[]),
      ...matchedPolicies.map(p=>({name:p.title,url:p.url,status:'medical-policy-review',note:p.limitations})),
      ...supplementaryPA.map(p=>({name:p.title,url:p.url,status:'authorization-list',note:p.limitations})),
-     ...sources.map(x=>({name:x.title,url:x.url,status:x.kind,note:x.note}))
+     ...sources.map(x=>({name:x.title,url:x.url,status:x.kind,note:x.note})),
+     ...authorizationResources.map(x=>({name:x.name,url:x.url,status:x.role==='check'?'Official PA code/benefit lookup':'Authorization routing instructions',note:x.note}))
    ],
    possibleCodes,preferredProducts:potentialNames,restrictions,
    assurance:{planOwnedByPayer:!!plan,formulary:'not determined',priorAuthorization:'not determined',
@@ -217,6 +222,9 @@ export function staffAuthorizePacket(input) {
    ...ctx.criteria.map(x=>(checks[x.id]===true?'[RECORD LOCATED] ':'[NOT YET LOCATED] ')+x.label+' — '+x.help),
    '',
    'CURRENT PAYER POLICY / FORMULARY VERIFICATION STILL REQUIRED',
+   'OFFICIAL SUBMISSION ROUTE: [Staff to confirm code, plan, delegate and correct provider portal; this app does not submit]',
+   ...ctx.authorizationResources.map(x=>('Route: '+x.name+' ['+x.role+'] — '+x.url)),
+  
    'Payer source: '+plan.sourceUrl,
    ...ctx.sourceLinks.filter(x=>x.url!==plan.sourceUrl).map(x=>x.name+': '+x.url),
    ...ctx.restrictions.map(x=>'UNRESOLVED: '+x),
