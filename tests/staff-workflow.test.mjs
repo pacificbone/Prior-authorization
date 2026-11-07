@@ -25,6 +25,21 @@ test('directory owner invariant: no unrelated insurer plans in payer dropdown',(
  assert.deepEqual(staffPlansForPayer('Unknown',2026),[]);
 });
 
+test('staff plan precision distinguishes exact pharmacy ID from plan-family source or administrator',()=>{
+ const hmsa=staffGetPlan('HMSA','hmsa-select-choice',2026);
+ const quest=staffGetPlan('HMSA','hmsa-quest',2026);
+ const mdx=staffGetPlan('MDX Hawaiʻi','mdx',2026);
+ const a=staffContext({payer:'HMSA',planId:hmsa.id,year:2026,serviceId:'evenity',benefit:'Medical'});
+ assert.equal(a.planPrecision.level,'plan-family');
+ assert.ok(a.restrictions.some(x=>x.includes('NOT a member-specific plan match')));
+ const b=staffContext({payer:'HMSA',planId:quest.id,year:2026,serviceId:'evenity',benefit:'Pharmacy'});
+ assert.equal(b.planPrecision.level,'published-plan-id');
+ assert.equal(b.planPrecision.planId,'22780AA1111111');
+ const c=staffContext({payer:'MDX Hawaiʻi',planId:mdx.id,year:2026,serviceId:'evenity'});
+ assert.equal(c.planPrecision.level,'administrator');
+ const d=staffAuthorizePacket({payer:'HMSA',planId:hmsa.id,year:2026,serviceId:'total-knee',benefit:'Medical',checks:{}});
+ assert.match(d,/PLAN IDENTIFICATION: Plan family/);
+});
 test('Medicare Part D and VA cannot appear as an HMSA medical plan',()=>{
  assert.equal(staffGetPlan('HMSA','original-b',2026),null);
  assert.equal(staffGetPlan('Traditional Medicare','hmsa-quest',2026),null);
