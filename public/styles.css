@@ -45,3 +45,9 @@
 .no-coverage-results{padding:25px;font-size:12px;line-height:1.8}
 @media(max-width:1000px){.coverage-source-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.coverage-filter-grid{grid-template-columns:1fr}.coverage-source-card{padding:18px}.coverage-source-actions{align-items:flex-start}.coverage-source-card h3{font-size:18px}}
+
+/* Exact-plan QUEST formulary selector */
+.lookup-source-label{flex:0 1 325px;max-width:100%;min-width:220px}
+.lookup-source-label select{width:100%;margin-top:6px}
+@media(max-width:1250px){.lookup-actions{flex-wrap:wrap}.lookup-actions .lookup-label{flex:1 1 260px}}
+@media(max-width:650px){.lookup-source-label{flex:1 1 100%;min-width:0}.lookup-label{width:100%}.lookup-actions .button{width:100%}}
