@@ -4,7 +4,7 @@ import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,b
 import {sealWorkspace,openWorkspace} from '/shared/vault.mjs';
 import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverageDirectoryStats} from '/shared/hawaii-plan-sources.mjs';
 import {PUBLISHED_FORMULARIES} from '/shared/live-formularies.mjs';
-import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
+import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
@@ -348,7 +348,12 @@ document.addEventListener('change',event=>{
   if(target.id==='ortho-category'){state.orthoCategory=target.value;state.ortho.procedureId=orthoProcedures.find(p=>p.category===target.value)?.id||'knee-gel';state.ortho.checks={};state.ortho.gelProductId='';renderOrthopedics();return;}
   if(target.id==='ortho-procedure'){const next=getOrthoProcedure(target.value);if(!next)return;state.ortho.procedureId=next.id;state.orthoCategory=next.category;state.ortho.checks={};state.ortho.gelProductId='';renderOrthopedics();return;}
   if(target.id==='ortho-payer'){state.ortho.payer=target.value;const defaults={'Traditional Medicare':'Traditional Medicare','Veterans Affairs':'VA / Community Care','TRICARE':'TRICARE','Workers compensation':'Workers compensation','AlohaCare':'QUEST / Medicaid'};state.ortho.line=defaults[target.value]||(['Traditional Medicare','VA / Community Care','TRICARE','Workers compensation'].includes(state.ortho.line)?'Commercial':state.ortho.line);renderOrthopedics();return;}
-  if(target.id==='ortho-line'||target.id==='ortho-setting'||target.id==='ortho-request-type'||target.id==='ortho-gel'||target.id==='ortho-guidance'||target.id==='ortho-plan-label'){
+  if(target.id==='ortho-plan-label'){
+    try{validateOrthoCase({...state.ortho,planLabel:target.value});state.ortho.planLabel=target.value;}
+    catch{state.ortho.planLabel='';toast('Only a plan product name is allowed here — no member numbers, personal details, or clinical notes.');}
+    renderOrthopedics();return;
+  }
+  if(target.id==='ortho-line'||target.id==='ortho-setting'||target.id==='ortho-request-type'||target.id==='ortho-gel'||target.id==='ortho-guidance'){
     const key={'ortho-line':'line','ortho-setting':'setting','ortho-request-type':'requestType','ortho-gel':'gelProductId','ortho-guidance':'guidance','ortho-plan-label':'planLabel'}[target.id];state.ortho[key]=target.value;renderOrthopedics();return;}
   if(target.dataset.scope){if(target.dataset.scope==='payer'){state.scope.carrier='';state.scope.planCode='';state.scope.plan='';}if(['line','benefit'].includes(target.dataset.scope))state.scope.planCode='';state.scope[target.dataset.scope]=target.value;syncCaseScope();render();return;}
   if(target.id==='public-source-picker'){state.aiEpoch++;state.publicLookup={sourceId:target.value,term:state.publicLookup.term,busy:false,result:null,error:''};renderExplorer();return;}
