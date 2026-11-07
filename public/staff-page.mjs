@@ -41,6 +41,13 @@ export function renderStaffPage(state){
      <div class="staff-cost-foot"><label><input type="checkbox" data-staff-cost="${h(line.id)}" data-staff-price="deductibleApplies" ${line.deductibleApplies?'checked':''}> Deductible applies</label><label><input type="checkbox" data-staff-cost="${h(line.id)}" data-staff-price="oopEligible" ${line.oopEligible?'checked':''}> Counts toward medical OOP max</label><span>${calc?.patientShare!==null?money(calc.patientShare):'Cannot calculate yet'}</span></div>
    </div>`;
  }).join('')||'';
+ const paRouteMarkup=(ctx.authorizationResources||[]).length?
+  `<div class="staff-pa-route"><strong>Where staff verify / request authorization</strong>
+   <div class="staff-pa-actions">${ctx.authorizationResources.map(x=>`<a href="${h(x.url)}" target="_blank" rel="noopener noreferrer" class="staff-pa-action">
+   <span>${x.role==='check'?'Verify PA requirement':'Open submission instructions'}</span>
+   <small>${h(x.name)}</small></a>`).join('')}</div>
+   <p class="helper">Opens the payer's site. Check the exact plan and CPT/NDC/HCPCS before using it. No member data is sent from this trial.</p>
+  </div>`:'';
  const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(x.status)}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
  const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages].slice(0,9):[];
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
@@ -93,6 +100,7 @@ export function renderStaffPage(state){
  <div class="staff-answer"><strong>Formulary / coverage</strong><span>${med?(benefit==='Medical'?'Medical-benefit drug — pharmacy formulary alone is not coverage':(live?'Exact-plan public pharmacy search available':'Drug formulary for this plan is not imported; not verified')):'Procedure medical benefit — confirm current plan coverage and any exclusions'}</span></div>
  <div class="staff-answer"><strong>Prior authorization</strong><span>${ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
  ${ctx.policyConflict?'<p class="notice amber">Conflicting medical policies were found; no automatic authorization conclusion can be made.</p>':''}
+ ${paRouteMarkup}
  ${med&&benefit==='Pharmacy'&&live?`
  <div class="staff-lookup"><h3>Search this insurer’s published formulary</h3><p class="helper">${h(live.label)} · exact plan ID ${h(live.planId)} · ${h(live.year)}. Look up each strength and route. A row is not an eligibility approval.</p><div class="staff-lookup-search"><input id="staff-drug-lookup" value="${h(drugLookup.term||service.name)}" maxlength="70" autocomplete="off" placeholder="Brand / generic / RxNorm"><button class="button primary" data-action="staff-check-formulary" ${querying?'disabled':''}>${querying?'Checking…':'Check published drug list'}</button></div>
  ${drugLookup.error?`<p class="notice amber">${h(drugLookup.error)}</p>`:''}
@@ -100,7 +108,7 @@ export function renderStaffPage(state){
  </div>`:''}
  ${ctx.preferredProducts.length?`<p class="staff-note"><strong>Policy-listed product preference:</strong> ${h(ctx.preferredProducts.join(', '))}. This does NOT establish the selected plan’s pharmacy formulary or exception eligibility.</p>`:''}
  ${ctx.restrictions.length?`<ul class="staff-unresolved">${ctx.restrictions.map(x=>`<li>${h(x)}</li>`).join('')}</ul>`:''}
- <details class="staff-sources" open><summary>Official sources relevant to this plan and request (${linked.length})</summary>${sourceRows||'<p class="helper">No reviewed exact-policy URL available; check insurer provider resources.</p>'}</details>
+ <details class="staff-sources"><summary>Official sources relevant to this plan and request (${linked.length})</summary>${sourceRows||'<p class="helper">No reviewed exact-policy URL available; check insurer provider resources.</p>'}</details>
  `}
  </div></section>
  ${pricesMarkup}
