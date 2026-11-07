@@ -7,7 +7,7 @@ export function renderOrthopedicPage(selection,category='injections'){
  const activeCriteria=getOrthoActiveCriteria(selection);
  const filtered=orthoProcedures.filter(p=>p.category===category);
  const gel=selected.id==='knee-gel';
- return `<div class="page-heading"><div><span class="eyebrow">ORTHOPEDIC MEDICAL PROCEDURES</span><h1>Procedure authorizations</h1><p class="subtitle">Gel injections, joint replacements, MACI, carpal tunnel and sports surgery: find coding, documentation and payer policy.</p></div></div>
+ return `<div class="page-heading"><div><span class="eyebrow">ORTHOPEDIC MEDICAL PROCEDURES</span><h1>Procedure authorizations</h1><p class="subtitle">Gel injections, joint replacements, MACI, carpal tunnel and sports surgery: find coding, documentation and payer policy.</p></div><div class="heading-actions"><button class="button secondary" data-action="cost-from-ortho">Estimate patient out-of-pocket</button></div></div>
  <div class="notice amber ortho-banner"><strong>Synthetic trial only.</strong> No patient data, prior authorization submission, approval or eligibility checks. Checklists are a preparation aid, not a payer coverage determination.</div>
  <section class="panel ortho-selector"><div class="panel-title-row"><h2 class="section-title">Choose procedure and coverage</h2><span class="pill neutral">Medical benefit</span></div><div class="panel-content">
  <div class="ortho-form-grid">
