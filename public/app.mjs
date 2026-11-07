@@ -587,7 +587,16 @@ document.addEventListener('change',event=>{
   if(target.id==='review-facts'||target.id==='review-scope'){state.review[target.id==='review-facts'?'facts':'scope']=target.checked;$('#packet-content').innerHTML=packetMarkup();}
 });
 document.addEventListener('keydown',event=>{if(event.target.id==='public-drug-query'&&event.key==='Enter'){event.preventDefault();runPublicFormularyLookup();}});
-$('#sidebar-sample').addEventListener('click',loadSample);$('#review-security').addEventListener('click',()=>setPage('security'));$('#lock').addEventListener('click',lockSession);
+function loadStaffSample(){
+  state.staff={payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'alendronate',
+    benefit:'Pharmacy',requestType:'Initial',setting:'Office',
+    gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,
+    lookup:{sourceId:null,term:'',busy:false,result:null,error:''}};
+  resetStaffPrice();
+  setPage('workup');
+  void runStaffFormularyLookup({automatic:true});
+}
+$('#sidebar-sample').addEventListener('click',loadStaffSample);$('#review-security').addEventListener('click',()=>setPage('security'));$('#lock').addEventListener('click',lockSession);
 for(const event of ['pointerdown','keydown','input','scroll'])document.addEventListener(event,resetIdle,{passive:true});
 window.addEventListener('afterprint',()=>{$('#print-region').textContent='';});
 window.addEventListener('pageshow',event=>{if(event.persisted)lockSession();});
