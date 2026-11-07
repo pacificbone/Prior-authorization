@@ -2,6 +2,7 @@ import {drugs,payers,lines,policies,sourceDirectory,defaultScope,coverageProfile
 import {samples,blankCase} from '/shared/fixtures.mjs';
 import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,buildDocumentationChecklist,policyFreshness,compareMedications,validatePolicy,validateWorkspace,dateToday,MAX_NOTE,applyPolicyPathway} from '/shared/domain.mjs';
 import {sealWorkspace,openWorkspace} from '/shared/vault.mjs';
+import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverageDirectoryStats} from '/shared/hawaii-plan-sources.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -30,8 +31,8 @@ const paths={
 const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.info}</svg>`;
 const sourceLink=(url,label='Open source')=>`<a class="source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ${icon('external')}</a>`;
 const options=(values,current)=>values.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join('');
-const nav=[['formulary','Formulary explorer','grid'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
-const state={page:'formulary',compareVisible:false,publicLookup:{term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
+const nav=[['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
+const state={page:'formulary',coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
 let toastTimer,idleTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),6000);}
 function log(action){state.events.unshift({action,time:new Date().toISOString()});state.events=state.events.slice(0,50);}
@@ -52,7 +53,7 @@ function renderNav(){
 function render(){
   renderNav();
   if(state.locked){$('#page').innerHTML=`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. Restore an encrypted file or start a new fictional case.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`;return;}
-  ({formulary:renderExplorer,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderExplorer)();
+  ({formulary:renderExplorer,coverage:renderCoverage,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderExplorer)();
 }
 function setPage(page){if(!nav.some(n=>n[0]===page))return;state.page=page;history.replaceState(null,'',`#${page}`);render();window.scrollTo({top:0});}
 function drugStatus(drug){
@@ -104,9 +105,42 @@ async function runPublicFormularyLookup(){
   }
   if(state.page==='formulary')renderExplorer();
 }
+const coverageStatusLabels={
+  'live-drug-search':'Live published formulary lookup',
+  'partial-verified-entries':'Limited verified extracts',
+  'payer-search':'Official payer drug search / list',
+  'public-source':'Official published source',
+  'no-single-formulary':'Exact benefit / plan required'
+};
+
+function coverageCardsMarkup(){
+  const records=findHawaiiCoverageSources({program:state.coverage.program,payer:state.coverage.payer,text:state.coverage.query});
+  return records.length?`<div class="coverage-source-grid">${records.map(item=>`
+    <article class="panel coverage-source-card">
+      <div class="coverage-source-top"><span class="category">${esc(coveragePrograms.find(p=>p.id===item.program)?.label||item.program)}</span>
+        <span class="pill ${item.status==='live-drug-search'?'':item.status==='no-single-formulary'?'amber':'neutral'}">${esc(coverageStatusLabels[item.status])}</span></div>
+      <h3>${esc(item.name)}</h3><p><strong>${esc(item.payer)}</strong> · ${esc(item.network)} · ${esc(item.year)}</p>
+      <p>${esc(item.notes)}</p>
+      <div class="coverage-source-actions">${sourceLink(item.sourceUrl,'Official payer source')}${item.liveSourceId?`<button class="button small primary" data-action="coverage-to-lookup">${icon('search')} Search published drugs</button>`:''}</div>
+    </article>`).join('')}</div>`:'<div class="panel no-coverage-results">No source matches those filters. Try a different coverage program or carrier. An absent directory entry does not mean a plan or drug is excluded.</div>';
+}
+function renderCoverage(){
+  const stats=coverageDirectoryStats();
+  const insurers=[...new Set(hawaiiCoverageSources.map(p=>p.payer))].sort();
+  $('#page').innerHTML=heading('PLAN-SPECIFIC PHARMACY COVERAGE','Hawaiʻi coverage navigator','Find the correct official drug list across HMO, PPO, QUEST, Medicare, VA and employer coverage. A linked source is not proof that a medication is covered.',`<button class="button secondary" data-action="authorization">${icon('file')} Authorization letters</button>`)+
+  `<div class="metrics"><div class="metric"><div><span class="metric-value">${stats.sources}</span><span class="metric-label">Distinct source pathways</span></div></div><div class="metric"><div><span class="metric-value">${stats.imported}</span><span class="metric-label">Live drug-search feeds</span></div></div><div class="metric"><div><span class="metric-value">${stats.partial}</span><span class="metric-label">Partial verified extracts</span></div></div></div>
+  <section class="panel coverage-controls"><div class="panel-title-row"><h2 class="section-title">Find the actual plan and benefit</h2><span class="pill neutral">Public sources only</span></div><div class="panel-content"><div class="coverage-filter-grid">
+  <label>Coverage program<select id="coverage-program"><option value="all">All coverage programs</option>${coveragePrograms.map(p=>`<option value="${esc(p.id)}" ${state.coverage.program===p.id?'selected':''}>${esc(p.label)}</option>`).join('')}</select></label>
+  <label>Payer / administrator<select id="coverage-payer"><option value="all">All payers</option>${insurers.map(p=>`<option value="${esc(p)}" ${state.coverage.payer===p?'selected':''}>${esc(p)}</option>`).join('')}</select></label>
+  <label>Search insurer, plan or category<input type="search" id="coverage-query" value="${esc(state.coverage.query)}" placeholder="E.g., Kaiser PPO, QUEST, postal" maxlength="120" autocomplete="off"></label>
+  <label>Optional drug name for live-source lookups<input type="search" id="coverage-drug" value="${esc(state.coverage.drug)}" placeholder="E.g., alendronate (no patient details)" maxlength="70" autocomplete="off"></label></div>
+  <p class="helper">The source directory is searchable locally; it does not contact any insurer. Drug-level results are integrated only where a live feed has been validated. Other entries open official payer searches, PDFs, or benefit rules. Never enter patient identifiers or clinical notes in this trial.</p></div></section>
+  <div id="coverage-results">${coverageCardsMarkup()}</div>
+  <div class="notice coverage-footer"><strong>Important distinctions:</strong> Original Medicare Part B is not a pharmacy formulary. Traditional Medicare outpatient prescriptions use the member's separate Part D plan. VA and TRICARE have their own formularies. Medicare Advantage, D-SNP and commercial HMO/PPO network labels do not uniquely identify the applicable pharmacy list.</div>`;
+}
 function renderExplorer(){
   const applicable=policies.concat(state.custom).filter(p=>p.payer===state.scope.payer&&p.lines.includes(state.scope.line)&&p.benefit===state.scope.benefit).length;
-  $('#page').innerHTML=heading('PRESCRIBE WITH CONTEXT','The right medication starts here.','Look up plan-specific coverage, understand policy requirements, and bring the supporting evidence into your note.',`<button class="button secondary" data-action="sample">${icon('spark')} Try sample case</button><button class="button secondary" data-action="compare">${icon('grid')} ${state.compareVisible?'Hide comparison':'Compare medications'}</button><button class="button primary" data-action="authorization">New authorization ${icon('plus')}</button>`)+
+  $('#page').innerHTML=heading('PRESCRIBE WITH CONTEXT','The right medication starts here.','Look up plan-specific coverage, understand policy requirements, and bring the supporting evidence into your note.',`<button class="button secondary" data-action="coverage">Hawaiʻi plans</button><button class="button secondary" data-action="sample">${icon('spark')} Try sample case</button><button class="button secondary" data-action="compare">${icon('grid')} ${state.compareVisible?'Hide comparison':'Compare medications'}</button><button class="button primary" data-action="authorization">New authorization ${icon('plus')}</button>`)+
   payerShortcuts()+`<div class="metrics"><div class="metric"><span class="metric-icon">${icon('pill')}</span><div><span class="metric-value">${drugs.length}</span><span class="metric-label">Bone health medications</span></div></div><div class="metric"><span class="metric-icon">${icon('book')}</span><div><span class="metric-value">${applicable}</span><span class="metric-label">Sources in selected scope</span></div><span class="metric-note">Public sources</span></div><div class="metric"><span class="metric-icon">${icon('shield')}</span><div><span class="metric-value">Unverified</span><span class="metric-label">Member-specific benefits</span></div></div></div>`+scopeMarkup()+
   `<div class="explorer-grid"><section class="panel"><div class="list-head"><h2 class="section-title">Medication explorer <small>Osteoporosis</small></h2><div class="search">${icon('search')}<input id="drug-search" type="search" aria-label="Search medications" placeholder="Search brand or generic name" value="${esc(state.search)}"></div><div class="list-meta"><span>MEDICATION</span><span>COVERAGE CONTEXT</span></div></div><div class="drug-list" id="drug-list">${drugListMarkup()}</div></section><section class="panel" id="drug-detail" aria-live="polite">${detailMarkup()}</section></div><div class="info-strip">${icon('info')}<span>Public medical policies and plan formularies answer different questions. No member eligibility, PBM, real-time benefit or ModMed connection is active in this trial.</span></div>${state.compareVisible?comparisonMarkup():''}${publicFormularyMarkup()}`;
 }
@@ -176,7 +210,7 @@ async function runAi(){
   finally{state.aiBusy=false;if(state.page==='authorization'&&!state.locked)renderAuthorization();}
 }
 function lockSession(){
-  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.publicLookup={term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
+  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
   $('#vault-passphrase').value='';$('#vault-confirm').value='';$('#vault-dialog').close();$('#source-dialog')?.close();$('#source-form')?.reset();$('#print-region').textContent='';render();
 }
 function resetIdle(){clearTimeout(idleTimer);if(!state.locked)idleTimer=setTimeout(()=>{lockSession();toast('Session locked after 10 minutes without interaction.');},10*60*1000);}
@@ -246,8 +280,10 @@ document.addEventListener('click',async event=>{
   const remove=event.target.closest('[data-remove-policy]');if(remove){state.custom=state.custom.filter(p=>p.id!==remove.dataset.removePolicy);invalidate();log('Custom public source removed');render();return;}
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
+  if(action==='coverage'){setPage('coverage');return;}
   if(action==='compare'){state.compareVisible=!state.compareVisible;renderExplorer();return;}
   if(action==='public-search'){await runPublicFormularyLookup();return;}
+  if(action==='coverage-to-lookup'){state.publicLookup={term:state.coverage.drug,busy:false,result:null,error:''};setPage('formulary');if(state.publicLookup.term.trim().length>=2)await runPublicFormularyLookup();return;}
   if(action==='sample'){loadSample();return;}
   if(action==='authorization'){setPage('authorization');return;}
   if(action==='new-session'){state.locked=false;resetIdle();setPage('formulary');return;}
@@ -278,6 +314,8 @@ document.addEventListener('click',async event=>{
 document.addEventListener('input',event=>{
   const target=event.target;
   if(target.id==='drug-search'){state.search=target.value;$('#drug-list').innerHTML=drugListMarkup();return;}
+  if(target.id==='coverage-query'){state.coverage.query=target.value;const result=$('#coverage-results');if(result)result.innerHTML=coverageCardsMarkup();return;}
+  if(target.id==='coverage-drug'){state.coverage.drug=target.value;return;}
   if(target.id==='public-drug-query'){state.publicLookup.term=target.value;if(state.publicLookup.busy)state.aiEpoch++;state.publicLookup.busy=false;state.publicLookup.result=null;state.publicLookup.error='';return;}
   if(target.id==='trial-token'){state.token=target.value;return;}
   if(target.id==='clinical-note'){state.case.note=target.value;invalidate();$('#note-count').textContent=`${target.value.length.toLocaleString()} / ${MAX_NOTE.toLocaleString()}`;refreshEvidence();return;}
@@ -286,6 +324,8 @@ document.addEventListener('input',event=>{
 });
 document.addEventListener('change',event=>{
   const target=event.target;
+  if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
+  if(target.id==='coverage-payer'){state.coverage.payer=target.value;renderCoverage();return;}
   if(target.dataset.scope){if(target.dataset.scope==='payer'){state.scope.carrier='';state.scope.planCode='';state.scope.plan='';}if(['line','benefit'].includes(target.dataset.scope))state.scope.planCode='';state.scope[target.dataset.scope]=target.value;syncCaseScope();render();return;}
   if(target.id==='formulary-list'){state.scope.planCode=target.value;syncCaseScope();render();return;}
   if(target.id==='policy-pathway'){state.case.pathwayId=target.value;state.case.evidence={};invalidate();refreshEvidence();return;}
