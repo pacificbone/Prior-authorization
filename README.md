@@ -32,6 +32,7 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 - Reviewed UHC Commercial/Individual Exchange initial-therapy extracts for Evenity and denosumab.
 - HMA/Verdegard stays group-specific; the known EUTF source is supplemental coverage and is not generalized to primary plans. **HMSA pharmacy formulary drug tiers are not imported.** See [Hawaiʻi payer scope](docs/HAWAII-PAYERS.md).
 - Staff source-entry form, JSON import/export, scope validation, effective/expiration dates, stale-source warnings and conflict blocking.
+- **Compare medications** in the formulary explorer: a side-by-side, same-scope view distinguishes pharmacy formulary status, available medical criteria and PA lists. Imported plan-specific medical policies now require the exact matching plan/list code and cannot silently leak to other groups. Unknown status never means denied.
 - Criterion-by-criterion note evidence, explicit missing/not-met states, deterministic letter drafts and review-gated text/print exports.
 - Optional server-side OpenAI Responses and Bedrock Converse adapters. External AI is restricted to server-owned fictional HMSA/UHC sample IDs and returns validated exact quotations, not medical coverage decisions or invented narratives.
 - Browser memory by default. Explicit encrypted local file or browser copy using AES-256-GCM, random salt/IV and PBKDF2-SHA256 with 600,000 iterations. Passphrases/keys are not persisted. Ten-minute inactivity lock clears active app state and DOM content; this is not a forensic memory erasure guarantee.
