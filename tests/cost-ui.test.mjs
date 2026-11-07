@@ -39,9 +39,9 @@ test('medications can have distinct pharmacy benefit and medical drug product li
 });
 test('plan product names are HTML-escaped and unrelated charges are not shown as verified',()=>{
  const base=newCostCase();
- const html=renderCostPage({...base,planLabel:'HMSA A&B + "Choice"'},'arthroplasty');
+ const html=renderCostPage({...base,planLabel:"HMSA A&B + Choice's"},'arthroplasty');
  assert.match(html,/A&amp;B/);
- assert.match(html,/&quot;Choice&quot;/);
+ assert.match(html,/Choice&#39;s/);
  assert.doesNotMatch(html,/hmsa\.com\/member_id\//);
 });
 test('Medicare page shows verified statutory deductible facts but not a fictional surgery quote',()=>{
