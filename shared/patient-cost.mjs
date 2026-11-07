@@ -516,7 +516,7 @@ export function estimatePatientCost(data){
  const service=getCostService(data.procedureId);
  const originalMedicare=data.payer==='Traditional Medicare'&&data.line==='Traditional Medicare';
  const selfPay=data.payer==='Self-pay'&&data.line==='Uninsured / self-pay';
- if(!data.planLabel)messages.push('Exact plan product or employer group is not identified.');
+ if(!data.planLabel&&!selfPay)messages.push('Exact plan product or employer group is not identified.');
  if(data.network!=='in-network'&&!selfPay)messages.push('Network is not confirmed in-network: out-of-network deductibles, balance billing and protections cannot be calculated reliably.');
  if(data.coverage!=='staff-verified-covered'&&!selfPay)
     messages.push(data.coverage==='staff-verified-not-covered'?'Staff marked the service not covered; a covered-service share is not a cash price.':'Coverage / eligibility / medical necessity have not been confirmed for this benefit and setting.');
@@ -553,7 +553,7 @@ export function estimatePatientCost(data){
    }
    const allowed=Math.round(line.allowed*100);
    let deductiblePaid=0;
-   if(line.deductibleApplies&&line.method!=='none'&&remainingDed!==null){
+   if(line.deductibleApplies&&!['none','cash'].includes(line.method)&&remainingDed!==null){
       deductiblePaid=Math.min(allowed,remainingDed);
       remainingDed-=deductiblePaid;
    }
@@ -565,7 +565,7 @@ export function estimatePatientCost(data){
    else if(line.method==='both')share=deductiblePaid+Math.min(remainder,Math.round(line.copay*100)+Math.round(remainder*line.percentage/100));
    else if(line.method==='none')share=0;
    share=Math.max(0,Math.min(allowed,share));
-   if(remainingOop!==null&&line.oopEligible){
+   if(remainingOop!==null&&line.oopEligible&&line.method!=='cash'){
      const adjusted=Math.min(share,remainingOop);
      remainingOop-=adjusted;share=adjusted;
    }
@@ -579,7 +579,7 @@ export function estimatePatientCost(data){
      deductibleShare:deductiblePaid/100,required:line.required,rateSource:line.source,missing:null
    });
  }
- const requiredComplete=missingRequired.length===0;
+ const requiredComplete=missingRequired.length===0&&(data.coverage!=='staff-verified-not-covered'||selfPay);
  const isScenario=requiredComplete&&data.coverage==='staff-verified-covered'&&data.network==='in-network'&&data.secondary==='none'&&data.planLabel.trim()!==''&&data.benefit!=='Unverified'&&data.items.filter(x=>x.required).every(x=>x.source!=='unverified')&&!selfPay;
  const sourceMissing=data.items.filter(x=>x.required&&x.source==='unverified').map(x=>x.label);
  if(data.benefit==='Unverified')messages.push('Exact benefit channel has not been identified; do not interpret modeled shares as payable amounts.');
@@ -587,7 +587,7 @@ export function estimatePatientCost(data){
  if(missingOptional.length)messages.push('Optional or separately billed services remain unpriced; shown core costs exclude them.');
  if(selfPay)messages.push('For uninsured/self-pay, this modeled cash quote is NOT a formal No Surprises Act Good Faith Estimate. Request facility and surgeon estimates separately.');
  if(originalMedicare&&data.setting==='Hospital inpatient')messages.push('2026 Part A $1,736 deductible is per benefit period; do not use it as an automatic per-surgery copay. Part B physician fees may still be owed.');
- if(!requiredComplete)messages.push('Incomplete required facility/professional/product rates: no comprehensive estimate is available.');
+ if(!requiredComplete)messages.push(data.coverage==='staff-verified-not-covered'&&!selfPay?'Service is reported noncovered. Do not interpret a covered-service cost-share calculation as the self-pay or full patient price.':'Incomplete required facility/professional/product rates: no comprehensive estimate is available.');
  return {
    status:requiredComplete?'scenario':'incomplete',
    totalRequired:requiredComplete?total/100:null,
