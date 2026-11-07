@@ -1,5 +1,9 @@
 # Coverage Desk — Pacific Bone & Joint
 
+## Protected Cuptomize price evidence (optional, currently not activated)
+
+The staff cost panel can now **request protected Cuptomize public-rate evidence** for an exact hospital, insurer, setting and CPT/DRG, with *separate facility candidates and surgeon professional market benchmark ranges*. It never autofills or certifies a patient cost. This route is **disabled** until the Cloudflare Access application, verified staff audience, matching server-only shared secret and Worker-to-Worker service binding are configured. No PHI, member benefits or real authorization submissions are supported. See [activation and safety guide](docs/PRIVATE-CUPTOMIZE-PRICING.md).
+
 ## Staff-facing experience: one workflow
 
 The staff workup now **auto-checks the official public pharmacy file** when the medication and selected published plan/year match. Exact-plan HIOS IDs are distinguished from plan families. A payer-specific PA resource panel links directly to official authorization code checkers and submission instructions; no PHI or actual prior authorization is submitted by the app.
