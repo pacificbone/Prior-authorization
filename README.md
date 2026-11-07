@@ -24,14 +24,15 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 ## What is implemented
 
 - Responsive medication explorer with brand/generic search and explicit coverage unknowns.
-- **Public formulary lookup:** server fetches HMSA’s official November 1, 2026 machine-readable QUEST pharmacy formulary, validates its RxNorm records, plan identifier, tier and PA/ST/QL flags, and searches all published formulations by drug name or RxNorm ID. Results are kept separate from clinical policies and other HMSA plans. Refreshes the server's public-file cache every six hours, and flags source review after 90 days. Real patient identifiers are never required or accepted as request fields; live eligibility is unavailable.
+- **Hawaiʻi coverage navigator** with public source pathways across commercial HMO/PPO, Marketplace, QUEST Medicaid, MA/D-SNP, Part D, original Medicare, FEHB/Postal, VA, TRICARE, Curative, UHA/HMAA, and self-funded or delegated administrators. Sources carry explicit live/partial/official/unknown states; this is not blanket formulary ingestion. See [coverage navigator details](docs/HAWAII-COVERAGE-NAVIGATOR.md).
+- **Public formulary lookup:** select one of two verified, exact-plan 2026 public QUEST feeds—HMSA QUEST (HIOS plan 22780AA1111111) or UHC Community Plan Hawaiʻi QUEST (UCSHIQ1)—then search by drug name or RxNorm. The result shows source-specific tiers and PA/ST/QL flags, never member eligibility. Cached public files refresh at six hours; a 90-day review warning is not a payer expiration.
 - Separate medical-policy and exact-plan formulary records. No coverage inferred from a medical-necessity policy.
 - Hawaiʻi payer/administrator profiles for HMSA, HMAA, HMA/Verdegard, MDX, UHA, UHC and Humana; separate carrier and benefit context for delegated or employer-specific rules.
 - Four reviewed HMSA initial osteoporosis medical-policy records: Evenity and denosumab, with separate Commercial/QUEST and Medicare Advantage versions, alternative clinical pathways and drug-specific exception requirements.
 - Five HMAA entries from the July–December 2026 OptumRx Premium pharmacy formulary. Staff must explicitly select the published list and verify plan adoption.
 - MDX/UHC Medicare Advantage drug PA-list context, restricted to that carrier/line; the missing printed effective date is shown as unverified. A PA list cannot serve as clinical criteria or a formulary.
 - Reviewed UHC Commercial/Individual Exchange initial-therapy extracts for Evenity and denosumab.
-- HMA/Verdegard stays group-specific; the known EUTF source is supplemental coverage and is not generalized to primary plans. **HMSA pharmacy formulary drug tiers are not imported.** See [Hawaiʻi payer scope](docs/HAWAII-PAYERS.md).
+- HMA/Verdegard stays group-specific; EUTF supplemental coverage cannot be generalized to primary plans. Other HMSA pharmacy formularies remain source-linked rather than locally imported. See [Hawaiʻi payer scope](docs/HAWAII-PAYERS.md).
 - Staff source-entry form, JSON import/export, scope validation, effective/expiration dates, stale-source warnings and conflict blocking.
 - **Compare medications** in the formulary explorer: a side-by-side, same-scope view distinguishes pharmacy formulary status, available medical criteria and PA lists. Imported plan-specific medical policies now require the exact matching plan/list code and cannot silently leak to other groups. Unknown status never means denied.
 - Criterion-by-criterion note evidence, explicit missing/not-met states, deterministic letter drafts and review-gated text/print exports.
@@ -41,7 +42,9 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 - No analytics, remote fonts, session replay, patient upload API, automatic claim submission or automatic email/fax.
 - Local Node server, Cloudflare Worker configuration and an AWS Lambda API Gateway v2 adapter sharing the same application logic.
 
-This public formulary search has a fixed allowlisted public URL and needs no AI key. It performs **a live source read at runtime**, not a bundled copy of the complete list; access and deployment network connectivity must be tested in the actual environment. The fetch may fail and will then report no verified result rather than infer status. The feature is limited to HMSA QUEST pharmacy benefits, not all HMSA plans or medical-benefit injectables.
+The two current public formulary searches use fixed, allowlisted source URLs and need no AI key. They perform **live source reads at runtime**, not bundled copies of the complete lists; access and deployment network connectivity must be tested in the actual environment. An unavailable or changed source reports no verified result rather than inferring coverage. These feeds are limited to the separately published 2026 **HMSA and UnitedHealthcare QUEST pharmacy** lists, not all commercial/MA/Part D plans or medical-benefit injectables.
+
+**Two machine-readable QUEST feeds are now implemented:** the source's exact published plan identifier is selected and validated server-side. The other Hawaiʻi source pathways in the navigator lead to official payer searches, PDFs, or plan documentation; they **do not** imply an imported drug-level database or a live member benefit check. There is no universal formulary for traditional Medicare Part B, Medigap, VA, or all commercial PPO products.
 
 ## Connect AI for the fictional trial
 

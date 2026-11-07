@@ -34,6 +34,12 @@ An authorization policy may accept **any one** of several clinical pathways, whi
 
 HMSA's [official QUEST formulary page](https://www.hmsa.com/prc/pharmacy/hmsa-quest-drug-formulary/) publishes a JSON file effective **November 1, 2026**. The trial server fetches only [the official JSON](https://assets.contentstack.io/v3/assets/blt731834369e6b995a/blt1cfd921ba2fdcc8d/6ae4050ff59c3f1d3bce71fc/hmsa-quest-formulary-2026.json) and checks drug names, RxNorm identifiers and per-plan restriction flags. Its published HIOS plan ID is displayed to avoid confusing it with an actual member or group identifier.
 
+The app also checks UnitedHealthcare Community Plan of Hawaiʻi's [official QUEST pharmacy directory](https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans/hi-comm-plan-home/hi-cp-pharmacy.html) and [machine-readable PDL](https://legacy.providerlookuponline.com/mrf/optumrx/drugs/2877216/JSON_Drugs_UHCCPHI.json). The imported plan is strictly `PLAN-ID=UCSHIQ1`, year 2026; unrelated `PART D` rows are intentionally excluded.
+
 The app does not reproduce or upload a full copy of this formulary into GitHub. The public file is cached in Worker/Node memory for at most six hours; an upstream change or unavailable source produces an error rather than a fabricated benefit determination. No patient note, DOB, member number or eligibility information is sent in a search. The trial never infers that an unlisted drug is excluded.
 
 HMSA updates its online lists quarterly, but no fixed expiration date for this specific JSON was confirmed. The app sets an internal 90-day **review-needed** flag without treating it as a payer-defined end date. QUEST is separate from other HMSA variants and medical-benefit drug policies.
+
+## Wider coverage source directory
+
+See [the statewide source navigator](HAWAII-COVERAGE-NAVIGATOR.md). The application includes source pointers for HMSA Select/Choice, Essential, Optimal, Metallic, FEP and Postal; commercial and QUEST Kaiser; UHC commercial/MA/QUEST; AlohaCare QUEST, dual and wrap products; ʻOhana's 2026 Medicaid list; HMAA, UHA, Curative, Humana, Devoted, Medicare Part D, original Medicare Part B, VA, TRICARE, and employer/delegated programs. Only the two documented QUEST feeds above currently provide server-searched, complete published drug files. The HMAA limited extract remains separate and explicitly partial. Never interpret a directory hit as patient coverage.
