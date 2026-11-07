@@ -74,16 +74,33 @@ export function normalizeQuestRows(payload,{minimum=100,source=QUEST_FORMULARY}=
 }
 
 export function createPublishedFormularyService({fetcher=fetch,now=()=>Date.now(),minimum=100}={}){
-  const caches=new Map(),pending=new Map();
+  const caches=new Map(),pending=new Map(),urlCaches=new Map(),urlPending=new Map();
+  async function loadRaw(source){
+    const url=source.sourceUrl;
+    const shared=urlCaches.get(url);
+    if(shared&&now()<shared.expires)return shared.payload;
+    if(urlPending.has(url))return urlPending.get(url);
+    const work=(async()=>{
+      // Public allowlisted source only. Multiple exact Kaiser HIOS plans share
+      // a JSON document but MUST still be filtered to their own IDs and year.
+      const response=await fetcher(url,{headers:{accept:'application/json'},redirect:'error'});
+      return readPublishedJson(response);
+    })().finally(()=>urlPending.delete(url));
+    urlPending.set(url,work);
+    return work;
+  }
   async function load(source){
     const found=caches.get(source.id);
     if(found&&now()<found.expires)return found;
     if(pending.has(source.id))return pending.get(source.id);
     const work=(async()=>{
-      // Public, fixed allowlisted URL; never forward a user-supplied URL or member data.
-      const response=await fetcher(source.sourceUrl,{headers:{accept:'application/json'},redirect:'error'});
-      const rows=normalizeQuestRows(await readPublishedJson(response),{minimum,source});
-      const fresh={rows,checkedAt:new Date(now()).toISOString(),expires:now()+REFRESH_MS};
+      const payload=await loadRaw(source);
+      const rows=normalizeQuestRows(payload,{minimum,source});
+      const expiry=now()+REFRESH_MS;
+      // Cache raw document only after a full schema AND exact plan/year
+      // validation succeeds; a malformed source must not be sticky-cached.
+      urlCaches.set(source.sourceUrl,{payload,expires:expiry});
+      const fresh={rows,checkedAt:new Date(now()).toISOString(),expires:expiry};
       caches.set(source.id,fresh);
       return fresh;
     })().finally(()=>pending.delete(source.id));
