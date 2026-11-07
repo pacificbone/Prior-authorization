@@ -259,6 +259,11 @@ export const defaultOrthoCase=()=>({
   guidance:'without-ultrasound',planLabel:'',checks:{}
 });
 export function getOrthoProcedure(id){return orthoProcedures.find(p=>p.id===id)||null;}
+export function getOrthoActiveCriteria(selection){
+  const service=getOrthoProcedure(selection?.procedureId);
+  if(!service)return [];
+  return service.criteria.filter(c=>!(service.id==='knee-gel' && selection.requestType==='Initial' && c.id==='repeat') && !(service.id==='maci-harvest' && c.id==='implant'));
+}
 export function getOrthoGelProduct(id){return orthoGelProducts.find(p=>p.id===id)||null;}
 export function getOrthoPayerSources({procedureId,payer,line}={}){
   const service=getOrthoProcedure(procedureId);
@@ -300,7 +305,7 @@ export function orthoAuthorizationSnapshot(value){
   const selection=validateOrthoCase(value);
   const service=getOrthoProcedure(selection.procedureId);
   const sources=getOrthoPayerSources(selection);
-  const missing=service.criteria.filter(c=>selection.checks[c.id]!==true);
+  const missing=getOrthoActiveCriteria(selection).filter(c=>selection.checks[c.id]!==true);
   const blockers=[
     'Exact member eligibility and covered benefit not verified.',
     'Current payer/code-level PA determination and authorization routing not verified.',
@@ -341,7 +346,7 @@ export function createOrthoWorksheet(value,{today='2026-11-07',mode='gaps'}={}){
     ]:[]),
     '',
     'DOCUMENTATION WORKFLOW',
-    ...r.service.criteria.map(c=>(selection.checks[c.id]===true?'[LOCATED] ':'[MISSING] ')+c.label+' — '+c.help),
+    ...getOrthoActiveCriteria(selection).map(c=>(selection.checks[c.id]===true?'[LOCATED] ':'[MISSING] ')+c.label+' — '+c.help),
     '',
     'PUBLIC PAYER SOURCES (manual source/code/plan review required)',
     ...(r.sources.length?r.sources.map(x=>x.title+' ['+orthoSourceKinds[x.kind]+']\n'+x.url+'\n'+x.note):['No source cataloged for this exact payer/line/procedure. Research current policy.']),
