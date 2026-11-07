@@ -42,7 +42,7 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 - No analytics, remote fonts, session replay, patient upload API, automatic claim submission or automatic email/fax.
 - Local Node server, Cloudflare Worker configuration and an AWS Lambda API Gateway v2 adapter sharing the same application logic.
 
-This public formulary search has a fixed allowlisted public URL and needs no AI key. It performs **a live source read at runtime**, not a bundled copy of the complete list; access and deployment network connectivity must be tested in the actual environment. The fetch may fail and will then report no verified result rather than infer status. The feature is limited to HMSA QUEST pharmacy benefits, not all HMSA plans or medical-benefit injectables.
+The two current public formulary searches use fixed, allowlisted source URLs and need no AI key. They perform **live source reads at runtime**, not bundled copies of the complete lists; access and deployment network connectivity must be tested in the actual environment. An unavailable or changed source reports no verified result rather than inferring coverage. These feeds are limited to the separately published 2026 **HMSA and UnitedHealthcare QUEST pharmacy** lists, not all commercial/MA/Part D plans or medical-benefit injectables.
 
 **Two machine-readable QUEST feeds are now implemented:** the source's exact published plan identifier is selected and validated server-side. The other Hawaiʻi source pathways in the navigator lead to official payer searches, PDFs, or plan documentation; they **do not** imply an imported drug-level database or a live member benefit check. There is no universal formulary for traditional Medicare Part B, Medigap, VA, or all commercial PPO products.
 
