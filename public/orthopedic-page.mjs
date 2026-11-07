@@ -1,9 +1,10 @@
-import {orthoCategories,orthoPayers,orthoLines,orthoSettings,orthoRequestTypes,orthoProcedures,orthoGelProducts,orthoSourceKinds,getOrthoProcedure,orthoAuthorizationSnapshot} from '../shared/orthopedic-procedures.mjs';
+import {orthoCategories,orthoPayers,orthoLines,orthoSettings,orthoRequestTypes,orthoProcedures,orthoGelProducts,orthoSourceKinds,getOrthoProcedure,getOrthoActiveCriteria,orthoAuthorizationSnapshot} from '../shared/orthopedic-procedures.mjs';
 const escapeHtml=function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));};
 const selectionOptions=function selectionOptions(list,current){return list.map(v=>`<option value="${escapeHtml(v)}" ${v===current?'selected':''}>${escapeHtml(v)}</option>`).join('');};
 export function renderOrthopedicPage(selection,category='injections'){
  const selected=getOrthoProcedure(selection.procedureId)||orthoProcedures[0];
  const snapshot=orthoAuthorizationSnapshot(selection);
+ const activeCriteria=getOrthoActiveCriteria(selection);
  const filtered=orthoProcedures.filter(p=>p.category===category);
  const gel=selected.id==='knee-gel';
  return `<div class="page-heading"><div><span class="eyebrow">ORTHOPEDIC MEDICAL PROCEDURES</span><h1>Procedure authorizations</h1><p class="subtitle">Gel injections, joint replacements, MACI, carpal tunnel and sports surgery: find coding, documentation and payer policy.</p></div></div>
@@ -33,9 +34,9 @@ export function renderOrthopedicPage(selection,category='injections'){
    <p class="helper">${snapshot.missing.length} documentation categories still unmarked.</p>
   </div></section>
  </div>
- <section class="panel ortho-checklist"><div class="panel-title-row"><h2 class="section-title">Documentation preparation</h2><span class="pill neutral">${selected.criteria.length-snapshot.missing.length}/${selected.criteria.length} located</span></div><div class="panel-content">
+ <section class="panel ortho-checklist"><div class="panel-title-row"><h2 class="section-title">Documentation preparation</h2><span class="pill neutral">${activeCriteria.length-snapshot.missing.length}/${activeCriteria.length} located</span></div><div class="panel-content">
  <p class="helper">Mark that a supporting record is located. This does NOT establish that the policy criterion is satisfied.</p>
- <div class="ortho-check-rows">${selected.criteria.map(c=>`<label class="ortho-check-row"><input type="checkbox" data-ortho-check="${escapeHtml(c.id)}" ${selection.checks[c.id]===true?'checked':''}><span><strong>${escapeHtml(c.label)}</strong><small>${escapeHtml(c.help)}</small></span></label>`).join('')}</div>
+ <div class="ortho-check-rows">${activeCriteria.map(c=>`<label class="ortho-check-row"><input type="checkbox" data-ortho-check="${escapeHtml(c.id)}" ${selection.checks[c.id]===true?'checked':''}><span><strong>${escapeHtml(c.label)}</strong><small>${escapeHtml(c.help)}</small></span></label>`).join('')}</div>
  </div></section>
  <section class="panel ortho-sources"><div class="panel-title-row"><h2 class="section-title">Public payer policy and routing sources</h2><span class="pill neutral">${snapshot.sources.length} source(s)</span></div><div class="panel-content">
  <p class="helper">These are official payer links or clearly labeled coding references. A source match does not prove whether a specific member needs prior authorization.</p>
