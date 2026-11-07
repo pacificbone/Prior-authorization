@@ -1,6 +1,6 @@
 import {COST_YEARS,COST_PAYERS,COST_LINES,COST_SETTINGS,COST_NETWORKS,COST_COVERAGE,COST_SECONDARY,COST_RATE_SOURCES,COST_METHODS,COST_FACILITIES,COST_MEDICATIONS,estimatePatientCost,getCostService,selectCostGuidance} from '../shared/patient-cost.mjs';
 import {orthoCategories,orthoProcedures,orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
-const escapeCost=function escapeCost(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&#39;'}[c]));};
+const escapeCost=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const costOpt=function costOpt(options,current){
  return options.map(x=>`<option value="${escapeCost(typeof x==='string'?x:x.id)}" ${(typeof x==='string'?x:x.id)===current?'selected':''}>${escapeCost(typeof x==='string'?x:x.name||x.label)}</option>`).join('');
 };
