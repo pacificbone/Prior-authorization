@@ -289,7 +289,7 @@ export function validateOrthoCase(value){
     !orthoSettings.includes(value.setting)||!orthoRequestTypes.includes(value.requestType))
     throw new Error('Select a valid procedure and coverage program.');
   if(typeof value.planLabel!=='string'||value.planLabel.length>80||
-    !/^[A-Za-z0-9 /&+()._-]*$/.test(value.planLabel))
+    !/^[\p{L}\p{N} /&+().,'’ʻ_-]*$/u.test(value.planLabel)||/\d{7,}/.test(value.planLabel))
     throw new Error('Use a plan name/group code only; never enter member identifiers.');
   if(typeof value.gelProductId!=='string'||typeof value.guidance!=='string'||
     !['with-ultrasound','without-ultrasound'].includes(value.guidance))
