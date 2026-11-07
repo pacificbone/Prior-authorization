@@ -14,7 +14,7 @@ export function policyFreshness(policy, today=dateToday()) {
   return (Date.parse(today)-Date.parse(policy.reviewed))/86400000>90 ? 'stale' : 'current';
 }
 export function matchingPolicies(scope, drugId, custom=[], today=dateToday()) {
-  return [...seeds,...custom].filter(p=>p.payer===scope.payer && p.lines.includes(scope.line) && p.benefit===scope.benefit && p.drugIds.includes(drugId) && (!p.carrier||p.carrier===scope.carrier) && (!coverageProfiles[p.payer]?.requiresCarrier||!!scope.carrier) && !['invalid','future','expired'].includes(policyFreshness(p,today)) && ((p.kind!=='formulary'&&p.payer!=='HMA') || (scope.planCode && p.planCode===scope.planCode)));
+  return [...seeds,...custom].filter(p=>p.payer===scope.payer && p.lines.includes(scope.line) && p.benefit===scope.benefit && p.drugIds.includes(drugId) && (!p.carrier||p.carrier===scope.carrier) && (!coverageProfiles[p.payer]?.requiresCarrier||!!scope.carrier) && !['invalid','future','expired'].includes(policyFreshness(p,today)) && (p.planCode ? !!scope.planCode && p.planCode===scope.planCode : p.kind!=='formulary' && p.payer!=='HMA'));
 }
 export function applyPolicyPathway(policy,pathwayId,drugId) {
   if(!policy)return null;
@@ -36,6 +36,24 @@ export function formularyResult(scope,drugId,custom=[],today=dateToday()) {
   const entry=matches[0];
   if(policyFreshness(entry,today)!=='current') return {status:'unknown',reason:'Source review is overdue.',entry};
   return {status:entry.formularyStatus,reason:'Exact plan entry; member eligibility and benefits remain unverified.',entry};
+}
+/**
+ * Compare public payer sources under exactly one selected coverage scope.
+ * Medical policy preferences are not formulary statuses or patient-specific coverage.
+ * This result is not a therapeutic substitution recommendation.
+ */
+export function compareMedications(scope, custom=[], today=dateToday()) {
+  return drugs.map(drug => {
+    const formulary = formularyResult(scope,drug.id,custom,today);
+    const result = resolvePolicy(scope,drug.id,custom,today);
+    return {
+      drug,
+      formulary,
+      medicalPolicy: result.conflict ? null : result.policy,
+      medicalPolicyConflict: result.conflict,
+      authorizationLists: result.matches.filter(p=>p.kind==='authorization-list')
+    };
+  });
 }
 export function checkEvidence(policy, note, evidence={}) {
   return (policy?.criteria||[]).map(c=>{
