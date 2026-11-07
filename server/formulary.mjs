@@ -6,7 +6,8 @@ export const QUEST_FORMULARY = Object.freeze({
   line:'QUEST / Medicaid',
   benefit:'Pharmacy',
   effective:'2026-11-01',
-  through:'2026-12-31',
+  // Review cadence is internal; the payer has not published a hard expiration date.
+  reviewAfterDays:90,
   sourcePage:'https://www.hmsa.com/prc/pharmacy/hmsa-quest-drug-formulary/',
   sourceUrl:'https://assets.contentstack.io/v3/assets/blt731834369e6b995a/blt1cfd921ba2fdcc8d/6ae4050ff59c3f1d3bce71fc/hmsa-quest-formulary-2026.json',
   planIdType:'HIOS-PLAN-ID'
@@ -103,7 +104,7 @@ export function createPublishedFormularyService({fetcher=fetch,now=()=>Date.now(
       source:{...QUEST_FORMULARY},
       sourceType:'public-plan-formulary',
       checkedAt:data.checkedAt,
-      historical:new Date(now()).toISOString().slice(0,10)>QUEST_FORMULARY.through,
+      reviewOverdue:(now()-Date.parse(QUEST_FORMULARY.effective+'T00:00:00Z'))/86400000>QUEST_FORMULARY.reviewAfterDays,
       searched:input.drug.trim(),
       totalMatches:matches.length,
       truncated:matches.length>MAX_MATCHES,
