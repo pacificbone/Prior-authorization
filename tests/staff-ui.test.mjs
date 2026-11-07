@@ -61,6 +61,9 @@ test('procedure screen keeps patient price missing and documents separate surgeo
  assert.match(html,/Surgeon \/ professional procedure fee/);
  assert.match(html,/Hospital or ASC facility fee/);
  assert.match(html,/Anesthesia/);
+ assert.match(html,/Surgeon:/);
+ assert.match(html,/Facility:/);
+ assert.match(html,/Implant \/ gel \/ cellular product:/);
  assert.match(html,/Not yet available/);
  assert.match(html,/Download authorization checklist/);
  assert.match(html,/Download conditional cost worksheet/);
