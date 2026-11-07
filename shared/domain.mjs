@@ -86,6 +86,32 @@ export function buildLetter(caseData,policy,{custom=[],today=dateToday(),reviewe
   const rows=result.checks.filter(c=>c.status==='documented').map(c=>`• ${c.label}\n  Clinical note evidence: “${c.quote}”`).join('\n\n');
   return `${released?'CLINICIAN-REVIEWED DRAFT — SIGNATURE REQUIRED':'DRAFT — INCOMPLETE / CLINICIAN REVIEW REQUIRED'}\nSYNTHETIC TRIAL — NOT FOR PATIENT SUBMISSION\n\nPacific Bone & Joint\nAuthorization support attachment\nDate: ${today}\nCase reference: ${caseData.label||'[case reference]'}\nPayer / administrator: ${caseData.payer}${caseData.carrier?' / '+caseData.carrier:''} · ${caseData.line}\nPlan: ${caseData.plan||'[exact plan not documented]'}\nBenefit: ${caseData.benefit}\nRequest: ${caseData.requestType==='appeal'?'Appeal support':'Initial authorization'} for ${drug?.name||'[medication]'}\n\nTo the Utilization Management Reviewer:\n\nPlease review the request for ${drug?.name||'the requested medication'} using the attached clinical documentation and the applicable member benefit terms. The following evidence is presented from the source note for clinician review.\n\n${policy?`Policy reference: ${policy.title}, ${policy.policyNumber||policy.id}. Effective ${policy.effective}; source checked ${policy.reviewed}. ${policy.locator||''}\n${policy.url}${applyPolicyPathway(policy,caseData.pathwayId,caseData.drugId)?.selectedPathway?'\nSelected qualifying pathway: '+applyPolicyPathway(policy,caseData.pathwayId,caseData.drugId).selectedPathway.label:''}`:'Policy reference: [applicable policy not verified]'}\n\nDOCUMENTED SUPPORT\n${rows||'[No criterion-specific support has been verified.]'}\n\nSOURCE CLINICAL NOTE\n${caseData.note||'[Clinical documentation required.]'}${caseData.rationale?.trim()?`\n\nADDITIONAL CLINICIAN RATIONALE\n${caseData.rationale.trim()}`:''}\n\n${result.issues.length?`ITEMS REQUIRING RESOLUTION BEFORE SUBMISSION\n${result.issues.map(x=>'• '+x).join('\n')}\n\n`:''}This attachment does not establish member coverage, clinical appropriateness, authorization approval or payment. Member benefits, current policy applicability, prescribing safety and the accuracy of all facts require clinician and staff verification.\n\nReviewing clinician: ____________________\nSignature / date: ____________________\n\nSuggested attachments: source visit note, DXA report, fracture records, prior treatment documentation, relevant laboratory results and the applicable policy. Include only available records relevant to the request.\n`;
 }
+/** A minimum-necessary, non-patient-bearing staff worksheet for the fictional trial. */
+export function buildDocumentationChecklist(caseData, policy, {custom=[], today=dateToday()}={}) {
+  const result=readiness(caseData,policy,custom,today);
+  const drug=drugs.find(d=>d.id===caseData.drugId);
+  const gaps=result.checks.filter(c=>c.status!=="documented");
+  const lines=[
+    "SYNTHETIC TRIAL — NOT FOR PATIENT USE",
+    "Pacific Bone & Joint | Prior authorization documentation checklist",
+    `Generated: ${today}`,
+    `Medication: ${drug?.name||"Unspecified"}`,
+    `Payer / administrator: ${caseData.payer||"Unspecified"} | ${caseData.line||"Unknown"} | ${caseData.benefit||"Unknown"}`,
+    `Exact plan / list: ${caseData.plan||"[not verified]"}${caseData.planCode?` | ${caseData.planCode}`:""}`,
+    policy?`Source to verify: ${policy.title} (${policy.policyNumber||policy.id}); checked ${policy.reviewed}`:"Source to verify: no unambiguous policy selected",
+    "",
+    `EVIDENCE GAPS (${gaps.length})`,
+    ...gaps.flatMap((c,i)=>[`${i+1}. ${c.label} — ${c.status==="not_met"?"Criterion marked not met":"No valid quoted evidence"}`,`   What to verify: ${c.help}`,""]),
+    ...(gaps.length?[]:["No criterion-level documentation gaps recorded. Clinician verification is still required.",""]),
+    `RELEASE BLOCKERS (${result.issues.length})`,
+    ...result.issues.map((issue,i)=>`${i+1}. ${issue}`),
+    "",
+    "Verify member eligibility, current plan-specific policy and benefit, source documents, drug labeling and clinical suitability.",
+    "Quote presence is not proof that criteria are satisfied. A clinician must review the original record.",
+    "This staff worksheet contains no source clinical note, AI output or evidence quotations. Do not add PHI to this trial.",
+  ];
+  return lines.join("\n")+"\n";
+}
 export function validateAiEvidence(output,policy,note) {
   if(!output || !Array.isArray(output.evidence) || output.evidence.length>policy.criteria.length) throw new Error('AI response did not match the evidence schema.');
   const evidence={};

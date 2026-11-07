@@ -1,0 +1,40 @@
+name: Deploy Coverage Desk synthetic Cloudflare trial
+on:
+  workflow_dispatch:
+    inputs:
+      synthetic_only_ack:
+        description: 'I confirm this is a fictional-data-only trial and no PHI will be used'
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+jobs:
+  deploy:
+    if: inputs.synthetic_only_ack == true
+    runs-on: ubuntu-latest
+    environment: synthetic-trial
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check credentials are configured
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo 'Configure CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID as repository or synthetic-trial environment secrets.'
+            exit 1
+          fi
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Deploy synthetic-only Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo 'This deployment processes fictional information only. No PHI release has been approved.'
+          npx --yes wrangler@4 deploy

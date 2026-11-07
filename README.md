@@ -34,6 +34,7 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 - Staff source-entry form, JSON import/export, scope validation, effective/expiration dates, stale-source warnings and conflict blocking.
 - **Compare medications** in the formulary explorer: a side-by-side, same-scope view distinguishes pharmacy formulary status, available medical criteria and PA lists. Imported plan-specific medical policies now require the exact matching plan/list code and cannot silently leak to other groups. Unknown status never means denied.
 - Criterion-by-criterion note evidence, explicit missing/not-met states, deterministic letter drafts and review-gated text/print exports.
+- Downloadable **Gap checklist** for staff lists missing/not-met evidence and release blockers without copying the fictional source note or exact evidence quotes.
 - Optional server-side OpenAI Responses and Bedrock Converse adapters. External AI is restricted to server-owned fictional HMSA/UHC sample IDs and returns validated exact quotations, not medical coverage decisions or invented narratives.
 - Browser memory by default. Explicit encrypted local file or browser copy using AES-256-GCM, random salt/IV and PBKDF2-SHA256 with 600,000 iterations. Passphrases/keys are not persisted. Ten-minute inactivity lock clears active app state and DOM content; this is not a forensic memory erasure guarantee.
 - No analytics, remote fonts, session replay, patient upload API, automatic claim submission or automatic email/fax.
@@ -68,6 +69,8 @@ npm run build
 npx wrangler@4 login
 npx wrangler@4 deploy
 ```
+
+A manual, fictional-data-only GitHub Actions deploy workflow is included in [the Cloudflare trial runbook](docs/CLOUDFLARE-TRIAL.md). It requires Cloudflare credentials in protected GitHub secrets and explicit acknowledgment. The workflow does not configure Cloudflare Access or prevent a public `workers.dev` hostname.
 
 Deploying with the checked-in configuration leaves AI disabled. For a provider connection, set `AI_PROVIDER`, `AI_MODEL`, `AI_TRIAL_ENABLED` and the exact HTTPS `APP_ORIGIN` in the Worker environment. Set `TRIAL_ACCESS_TOKEN` and provider credentials with **Wrangler secrets** or the Cloudflare dashboard, never in tracked `vars`. All asset requests pass through the Worker for security headers. `dist/` contains public client/shared modules only; it contains no server credentials.
 
