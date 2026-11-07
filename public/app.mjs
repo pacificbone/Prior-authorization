@@ -31,7 +31,7 @@ const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${pat
 const sourceLink=(url,label='Open source')=>`<a class="source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ${icon('external')}</a>`;
 const options=(values,current)=>values.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join('');
 const nav=[['formulary','Formulary explorer','grid'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
-const state={page:'formulary',compareVisible:false,scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
+const state={page:'formulary',compareVisible:false,publicLookup:{term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
 let toastTimer,idleTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),6000);}
 function log(action){state.events.unshift({action,time:new Date().toISOString()});state.events=state.events.slice(0,50);}
@@ -77,11 +77,38 @@ function comparisonMarkup(){
     return `<tr><th>${esc(drug.name)}<br><small>${esc(drug.generic)}</small></th><td><strong>${esc(status)}</strong>${source?(formulary.status==="unknown"?`<br><span class="tiny">Source needs review; tier unverified</span><br>${sourceLink(source.url,"Review source")}`:`<br>${esc(source.tier?`Tier ${source.tier} · `:"")}${esc(source.planCode||"")}<br>${sourceLink(source.url,"Formulary source")}`):""}${formulary.status==="unknown"?`<br><span class="tiny">${esc(formulary.reason)}</span>`:""}</td><td>${esc(clinical)}${medicalPolicy?`<br>${sourceLink(medicalPolicy.url,"Medical policy")}`:""}</td><td>${authorizationLists.length?`${authorizationLists.length} published record(s) · verify dates`:"Not verified"}</td></tr>`;
   }).join("")}</tbody></table></div><p class="helper">A policy-listed preferred product is not the same as an exact-plan pharmacy formulary entry. Confirm current eligibility, plan adoption, benefit routing, product selection and clinical suitability separately.</p></div></section>`;
 }
+function publicFormularyMarkup(){
+  const lookup=state.publicLookup;
+  const result=lookup.result;
+  const source=result?.source;
+  const status=lookup.error?`<p class="notice amber" role="alert">${esc(lookup.error)}</p>`:lookup.busy?'<p class="helper">Checking HMSA’s published public formulary…</p>':result?`<div class="lookup-summary"><strong>${esc(source.label)}</strong> · published effective ${esc(source.effective)} · checked ${esc(result.checkedAt.slice(0,10))}<br><span class="tiny">Plan identifier type: ${esc(source.planIdType)}. Confirm the member’s plan before using any entry.</span>${result.historical?'<br><strong class="warn-text">This publication has reached its end date; verify a newer payer version.</strong>':''}</div>`:''; 
+  return `<section class="panel public-lookup"><div class="panel-title-row"><h2 class="section-title">Search published HMSA QUEST formulary</h2><span class="pill neutral">Public drug file · 11/01/2026</span></div><div class="panel-content"><p class="helper">This independent lookup searches HMSA’s published QUEST pharmacy list for exact drug formulations. It does not infer coverage for other HMSA, commercial, Medicare Advantage, medical-benefit or employer plans. Never enter a patient name, DOB, member ID, or clinical note.</p><div class="lookup-actions"><label class="lookup-label">Drug brand, generic, or RxNorm ID<input type="search" id="public-drug-query" value="${esc(lookup.term)}" minlength="2" maxlength="70" placeholder="e.g., alendronate, Evenity" autocomplete="off"></label><button class="button primary" data-action="public-search" ${lookup.busy?'disabled':''}>${icon('search')} ${lookup.busy?'Checking…':'Search official list'}</button></div>${status}${result?`${result.totalMatches===0?'<div class="notice amber">No matching listed formulation found. This does not establish an exclusion; check the current plan/formulary and benefit channel.</div>':`<div class="table-scroll"><table class="lookup-table"><thead><tr><th>Published drug formulation</th><th>Formulary tier</th><th>Restrictions flagged</th><th>Plan ID</th></tr></thead><tbody>${result.matches.map(row=>`<tr><th>${esc(row.name)}<br><span class="tiny">RxNorm ${esc(row.rxnorm)}</span></th><td>${esc(row.tier)}</td><td>${row.priorAuthorization===true?'PA · ':''}${row.stepTherapy===true?'ST · ':''}${row.quantityLimit===true?'QL · ':''}${row.priorAuthorization!==true&&row.stepTherapy!==true&&row.quantityLimit!==true?(row.priorAuthorization===null||row.stepTherapy===null||row.quantityLimit===null?'Not reported':'No listed flags') : ''}</td><td>${esc(row.planId)}</td></tr>`).join('')}</tbody></table></div>`}${result.truncated?'<p class="notice amber">More than 40 formulations match. Narrow your drug search to the strength and dosage form.</p>':''}<p class="helper">${esc(result.limitations)}<br>${sourceLink(source.sourcePage,'HMSA QUEST source page')} · ${sourceLink(source.sourceUrl,'HMSA official JSON')}</p>`:''}</div></section>`;
+}
+async function runPublicFormularyLookup(){
+  const field=$('#public-drug-query');
+  if(!field)return;
+  const term=field.value.trim();
+  if(term.length<2||term.length>70){toast('Enter a drug name or RxNorm identifier (2–70 characters).');return;}
+  state.publicLookup={term,busy:true,result:null,error:''};
+  const generation=state.aiEpoch;
+  renderExplorer();
+  try{
+    const response=await fetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:'hmsa-quest-2026-11',drug:term}),credentials:'same-origin',cache:'no-store'});
+    const data=await response.json();
+    if(state.aiEpoch!==generation||state.locked)return;
+    if(!response.ok)throw new Error(data.error||'Public formulary unavailable.');
+    state.publicLookup={term,busy:false,result:data,error:''};
+  }catch(error){
+    if(state.aiEpoch!==generation||state.locked)return;
+    state.publicLookup={term,busy:false,result:null,error:error.message||'Unable to verify published list.'};
+  }
+  if(state.page==='formulary')renderExplorer();
+}
 function renderExplorer(){
   const applicable=policies.concat(state.custom).filter(p=>p.payer===state.scope.payer&&p.lines.includes(state.scope.line)&&p.benefit===state.scope.benefit).length;
   $('#page').innerHTML=heading('PRESCRIBE WITH CONTEXT','The right medication starts here.','Look up plan-specific coverage, understand policy requirements, and bring the supporting evidence into your note.',`<button class="button secondary" data-action="sample">${icon('spark')} Try sample case</button><button class="button secondary" data-action="compare">${icon('grid')} ${state.compareVisible?'Hide comparison':'Compare medications'}</button><button class="button primary" data-action="authorization">New authorization ${icon('plus')}</button>`)+
   payerShortcuts()+`<div class="metrics"><div class="metric"><span class="metric-icon">${icon('pill')}</span><div><span class="metric-value">${drugs.length}</span><span class="metric-label">Bone health medications</span></div></div><div class="metric"><span class="metric-icon">${icon('book')}</span><div><span class="metric-value">${applicable}</span><span class="metric-label">Sources in selected scope</span></div><span class="metric-note">Public sources</span></div><div class="metric"><span class="metric-icon">${icon('shield')}</span><div><span class="metric-value">Unverified</span><span class="metric-label">Member-specific benefits</span></div></div></div>`+scopeMarkup()+
-  `<div class="explorer-grid"><section class="panel"><div class="list-head"><h2 class="section-title">Medication explorer <small>Osteoporosis</small></h2><div class="search">${icon('search')}<input id="drug-search" type="search" aria-label="Search medications" placeholder="Search brand or generic name" value="${esc(state.search)}"></div><div class="list-meta"><span>MEDICATION</span><span>COVERAGE CONTEXT</span></div></div><div class="drug-list" id="drug-list">${drugListMarkup()}</div></section><section class="panel" id="drug-detail" aria-live="polite">${detailMarkup()}</section></div><div class="info-strip">${icon('info')}<span>Public medical policies and plan formularies answer different questions. No member eligibility, PBM, real-time benefit or ModMed connection is active in this trial.</span></div>${state.compareVisible?comparisonMarkup():''}`;
+  `<div class="explorer-grid"><section class="panel"><div class="list-head"><h2 class="section-title">Medication explorer <small>Osteoporosis</small></h2><div class="search">${icon('search')}<input id="drug-search" type="search" aria-label="Search medications" placeholder="Search brand or generic name" value="${esc(state.search)}"></div><div class="list-meta"><span>MEDICATION</span><span>COVERAGE CONTEXT</span></div></div><div class="drug-list" id="drug-list">${drugListMarkup()}</div></section><section class="panel" id="drug-detail" aria-live="polite">${detailMarkup()}</section></div><div class="info-strip">${icon('info')}<span>Public medical policies and plan formularies answer different questions. No member eligibility, PBM, real-time benefit or ModMed connection is active in this trial.</span></div>${state.compareVisible?comparisonMarkup():''}${publicFormularyMarkup()}`;
 }
 function detailMarkup(){
   const drug=drugs.find(d=>d.id===state.drugId),resolved=resolvePolicy(state.scope,drug.id,state.custom),p=resolved.policy;
@@ -220,6 +247,7 @@ document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='compare'){state.compareVisible=!state.compareVisible;renderExplorer();return;}
+  if(action==='public-search'){await runPublicFormularyLookup();return;}
   if(action==='sample'){loadSample();return;}
   if(action==='authorization'){setPage('authorization');return;}
   if(action==='new-session'){state.locked=false;resetIdle();setPage('formulary');return;}
@@ -250,6 +278,7 @@ document.addEventListener('click',async event=>{
 document.addEventListener('input',event=>{
   const target=event.target;
   if(target.id==='drug-search'){state.search=target.value;$('#drug-list').innerHTML=drugListMarkup();return;}
+  if(target.id==='public-drug-query'){state.publicLookup.term=target.value;return;}
   if(target.id==='trial-token'){state.token=target.value;return;}
   if(target.id==='clinical-note'){state.case.note=target.value;invalidate();$('#note-count').textContent=`${target.value.length.toLocaleString()} / ${MAX_NOTE.toLocaleString()}`;refreshEvidence();return;}
   if(target.dataset.case){state.case[target.dataset.case]=target.value;if(target.dataset.case==='plan')state.scope.plan=target.value;invalidate();if($('#packet-content'))$('#packet-content').innerHTML=packetMarkup();return;}
