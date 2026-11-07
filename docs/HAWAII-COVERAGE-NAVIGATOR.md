@@ -47,6 +47,13 @@ The internal 90-day warning is a **review reminder**; it does not invent a payer
 - **Federal / postal**: HMSA federal, Postal Service and Postal Medicare PDP records are separated. Federal employee drug lists and Medicare Postal Part D cannot be generalized to HMSA commercial.
 - **HMA/Verdegard, MDX, self-funded, workers' compensation**: these are administrators, claim systems or employer arrangements, not universal plan formularies. Verify the underlying carrier/PBM, group, authorization destination and benefit.
 
+## Sources inspected but not imported
+
+- **Kaiser Hawaiʻi individual Standard plans:** the official [machine-readable JSON](https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs-individual-standard-plans.json) responded successfully, but its complete plan-ID mapping and dataset format could not be extracted reliably within the inspection limits. It remains **source-linked, not a searchable imported formulary**.
+- **AlohaCare QUEST:** the publicly linked [AlohaCare QUEST JSON](https://office.alohacare.org/userfiles/MONTHLY%20WEBSITE%20UPDATES/AlohaCare_Formulary_QUEST.json) timed out in the independent browser inspection. No drug entries or plan matches were imported from that source.
+
+These availability/inspection results do not establish that a source is invalid, incomplete, or unavailable to ordinary users. Do not mark a plan live without a verified schema, plan-ID mapping, full-file source fetch and regression tests.
+
 ## What is not yet ingested
 
 Full searchable drug rows for **HMSA Select/Choice, Essential, Optimal, Metallic, Medicare Advantage, commercial UHC, Kaiser variants other than the two exact products listed above, AlohaCare, ʻOhana, UHA, Curative, VA, TRICARE, Humana, Devoted, and other PDPs** are **not** in the app's indexed database yet. Those cards link to official payer sources only. The HMAA Premium extract remains explicitly **partial**, not a complete plan import. Connected payer eligibility, member ID lookups, credentialed formulary APIs and automatic claim submission are not active.
