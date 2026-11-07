@@ -4,7 +4,7 @@ import {
   orthoProcedures,orthoPayerSources,orthoGelProducts,
   getOrthoProcedure,getOrthoPayerSources,getOrthoProcedureCodes,
   orthoAuthorizationSnapshot,validateOrthoCatalog,validateOrthoCase,
-  defaultOrthoCase,createOrthoWorksheet
+  defaultOrthoCase,getOrthoActiveCriteria,createOrthoWorksheet
 } from '../shared/orthopedic-procedures.mjs';
 
 test('orthopedic catalog validates and covers gels, hips, knees, MACI, hand and sports',()=>{
@@ -123,4 +123,18 @@ test('wrong combination cannot create false Medicare or Veterans coverage claims
   assert.equal(snapshot.sources.length,0);
   const va={...defaultOrthoCase(),payer:'Veterans Affairs',line:'VA / Community Care'};
   assert.ok(orthoAuthorizationSnapshot(va).sources.some(x=>x.id==='va-community'));
+});
+
+test('initial gel and MACI biopsy checklists avoid irrelevant repeat and implant criteria',()=>{
+  const gel=defaultOrthoCase();
+  const initial=getOrthoActiveCriteria(gel).map(c=>c.id);
+  const repeat=getOrthoActiveCriteria({...gel,requestType:'Repeat / continuation'}).map(c=>c.id);
+  assert.ok(!initial.includes('repeat'));
+  assert.ok(repeat.includes('repeat'));
+  const biopsy={...gel,procedureId:'maci-harvest'};
+  const implantation={...gel,procedureId:'maci-implant'};
+  assert.ok(!getOrthoActiveCriteria(biopsy).some(c=>c.id==='implant'));
+  assert.ok(getOrthoActiveCriteria(implantation).some(c=>c.id==='implant'));
+  const worksheet=createOrthoWorksheet(biopsy);
+  assert.doesNotMatch(worksheet,/\[MISSING\] Cell product and implant authorization/);
 });
