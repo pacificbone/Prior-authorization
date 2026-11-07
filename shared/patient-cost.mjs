@@ -423,7 +423,7 @@ export function newCostCase(input={}){
    year:input.year||2026,
    network:input.network||'unknown',
    coverage:'unverified',
-   benefit:input.procedureId?.startsWith('drug-')?'Unverified':'Medical',
+   benefit:input.benefit|| (procedureId.startsWith('drug-')?'Unverified':'Medical'),
    planLabel:'',
    facilityId:'none',
    deductibleRemaining:null,
@@ -540,7 +540,7 @@ export function estimatePatientCost(data){
    });
  }
  const requiredComplete=missingRequired.length===0;
- const isScenario=requiredComplete&&data.coverage==='staff-verified-covered'&&data.network==='in-network'&&data.secondary==='none'&&data.planLabel.trim()!==''&&data.benefit!=='Unverified'&&!selfPay;
+ const isScenario=requiredComplete&&data.coverage==='staff-verified-covered'&&data.network==='in-network'&&data.secondary==='none'&&data.planLabel.trim()!==''&&data.benefit!=='Unverified'&&data.items.filter(x=>x.required).every(x=>x.source!=='unverified')&&!selfPay;
  const sourceMissing=data.items.filter(x=>x.required&&x.source==='unverified').map(x=>x.label);
  if(data.benefit==='Unverified')messages.push('Exact benefit channel has not been identified; do not interpret modeled shares as payable amounts.');
  if(sourceMissing.length)messages.push('At least one required price lacks a verified source; amounts are assumptions, not validated contracted prices.');
