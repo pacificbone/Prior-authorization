@@ -8,6 +8,9 @@ export const COST_YEARS=Object.freeze([
 
 export const COST_PAYERS=Object.freeze([
   "HMSA",
+  "Aetna",
+  "Cigna",
+  "Anthem Blue Cross and Blue Shield",
   "UnitedHealthcare",
   "Kaiser Permanente",
   "UHA",
