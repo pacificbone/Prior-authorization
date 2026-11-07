@@ -19,7 +19,7 @@ export function renderStaffPage(state){
  const servicesMarkup=grouped.map(({cat,items})=>`<optgroup label="${h(STAFF_CATEGORY_LABELS[cat]||cat)}">${opts(items,serviceId,'',x=>({v:x.id,label:x.name}))}</optgroup>`).join('');
  const needPlan=!plan,needService=!service;
  const linked=ctx.sourceLinks.filter(x=>x.url);
- const costShown=!!plan&&!!service;
+ const costShown=!!plan&&!!service&&!!cost;
  const med=service?.type==='medication';
  const live=ctx.liveSource;
  const drugLookup=state.lookup||{};
