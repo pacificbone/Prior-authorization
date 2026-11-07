@@ -124,3 +124,68 @@
 @media(max-width:1100px){.cost-controls,.cost-item-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:740px){.cost-controls,.cost-item-grid,.cost-summary{grid-template-columns:1fr}.cost-total{font-size:30px}}
 @media(max-width:620px){.cost-item{padding:12px}.cost-item-flags{display:block}.cost-item-flags label{margin:10px 0}.cost-setup .panel-content{padding:17px}}
+
+/* Unified staff workflow: insurer -> exact plan -> service -> evidence -> cost -> packet */
+.staff-banner{margin:0 0 20px;line-height:1.65}
+.staff-stage{margin-bottom:17px}
+.staff-stage .panel-content{padding-top:19px}
+.staff-stage .section-title{display:flex;align-items:center;gap:11px}
+.staff-number{width:25px;height:25px;display:inline-flex;align-items:center;justify-content:center;background:#e9f2ed;border:1px solid #d3e3d8;border-radius:50%;font-size:11px;color:#21684d;flex:none}
+.staff-main-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 17px}
+.staff-main-grid label,.staff-cost-setup label,.staff-cost-inputs label{min-width:0}
+.staff-main-grid input,.staff-main-grid select,.staff-cost-setup input,.staff-cost-setup select,.staff-cost-inputs input,.staff-cost-inputs select{display:block;margin-top:6px;width:100%;max-width:100%}
+.staff-subgrid{margin:16px 0 0}
+.staff-plan-identified{padding:13px 16px;border:1px solid #cddfd3;background:#f2f8f4;border-radius:9px;margin:17px 0 1px;line-height:1.6}
+.staff-plan-identified strong{color:#2e6647;font-size:12px}
+.staff-plan-identified span{margin-left:11px;color:#647b6c;font-size:11px}
+.staff-plan-identified small{display:block;color:#596f5e}
+.staff-answer{border-bottom:1px solid #e3ebe5;padding:12px 0;display:flex;align-items:flex-start;gap:16px}
+.staff-answer strong{width:157px;flex:none;font-size:12px;color:#275d40}
+.staff-answer span{font-size:12px;line-height:1.7;color:#536c5a}
+.staff-lookup{background:#f8fbf8;padding:15px;border:1px solid #dfe9e0;border-radius:10px;margin:16px 0}
+.staff-lookup h3{font-size:13px;margin:0 0 10px;color:#315e46}
+.staff-lookup-search{display:flex;align-items:center;gap:10px}
+.staff-lookup-search input{flex:1;min-width:100px;padding:10px;border-radius:8px;border:1px solid #d8e4dc}
+.staff-lookup-search button{flex:none}
+.staff-lookup table{margin:14px 0 7px}
+.staff-note{background:#f6f9f5;padding:10px 14px;border-left:3px solid #7ca38a;border-radius:0 8px 8px 0;font-size:12px;line-height:1.7}
+.staff-unresolved{font-size:11px;line-height:1.75;padding-left:23px;color:#966a2a}
+.staff-sources{margin-top:18px}
+.staff-sources summary,.staff-checks summary,.staff-advanced summary{cursor:pointer;color:#37694e;font-size:12px;font-weight:650;line-height:1.6}
+.staff-source{padding:13px 0;border-bottom:1px solid #e5ece7}
+.staff-source div{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.staff-source strong{font-size:12px;color:#365b43}
+.staff-source small{font-size:10px;color:#8b987f}
+.staff-source p{font-size:11px;color:#6e7b71;line-height:1.6;margin:7px 0}
+.staff-source a{font-size:11px}
+.staff-cost-hero{display:grid;grid-template-columns:1fr 1fr;gap:22px;background:#f3f8f4;border:1px solid #dce9df;border-radius:12px;padding:18px;margin-bottom:17px}
+.staff-cost-hero span{font-size:10px;color:#66816f;display:block}
+.staff-cost-hero strong{display:block;color:#285d42;font-size:23px;line-height:1.55}
+.staff-cost-hero div:nth-child(2) strong{font-size:13px;margin-top:5px}
+.staff-cost-hero small{display:block;font-size:11px;color:#6b826e;line-height:1.6}
+.staff-cost-setup{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px 14px;margin:14px 0 18px}
+.staff-cost-row{margin:12px 0;padding:13px 15px;border:1px solid #dfe8e0;border-radius:10px}
+.staff-cost-optional{background:#fafbfa}
+.staff-cost-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin:0 0 12px}
+.staff-cost-head strong{font-size:12px;color:#345e46}
+.staff-cost-head span{font-size:10px;color:#778678}
+.staff-cost-inputs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.staff-cost-inputs label{font-size:10px}
+.staff-cost-foot{display:flex;justify-content:flex-start;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:11px}
+.staff-cost-foot label{font-size:10.5px;color:#5f7767;display:flex;align-items:center;gap:5px}
+.staff-cost-foot input{width:15px;height:15px;margin:0}
+.staff-cost-foot span{margin-left:auto;font-size:11px;font-weight:650;color:#38694c}
+.staff-checks{padding:11px 15px;border:1px solid #e1e9e2;border-radius:9px}
+.staff-checks ul{margin:10px 0 0;padding-left:20px;font-size:11px;line-height:1.7;color:#786a48}
+.staff-doc-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.staff-doc{border:1px solid #e0e9e1;border-radius:9px;padding:12px;display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.staff-doc input{width:17px;height:17px;flex:none;margin-top:2px}
+.staff-doc span{min-width:0}
+.staff-doc strong{display:block;font-size:11px;color:#365c43}
+.staff-doc small{display:block;margin-top:5px;font-size:10px;color:#6c7c6e;line-height:1.55}
+.staff-evidence{font-size:11px;color:#55715f;margin:14px 0}
+.staff-advanced{padding:12px 17px;margin:25px 0;border:1px solid #e4e9e5;border-radius:10px}
+.staff-advanced .local-buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+@media(max-width:1120px){.staff-cost-inputs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:940px){.staff-main-grid,.staff-cost-setup{grid-template-columns:repeat(2,minmax(0,1fr))}.staff-doc-list{grid-template-columns:1fr}}
+@media(max-width:640px){.staff-main-grid,.staff-cost-setup,.staff-cost-inputs,.staff-cost-hero{grid-template-columns:1fr}.staff-answer{display:block}.staff-answer strong{display:block;width:auto;margin-bottom:4px}.staff-lookup-search{flex-wrap:wrap}.staff-lookup-search button{width:100%}.staff-plan-identified span{display:block;margin-left:0}.staff-cost-hero strong{font-size:19px}.staff-cost-foot span{margin-left:0;width:100%}.staff-stage .panel-content{padding:16px}}

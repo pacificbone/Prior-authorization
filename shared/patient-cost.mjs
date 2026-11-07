@@ -1,5 +1,6 @@
 import {getOrthoProcedure,getOrthoProcedureCodes} from './orthopedic-procedures.mjs';
 import {drugs} from './catalog.mjs';
+import {EXTRA_PROCEDURES,EXTRA_DRUGS} from './staff-service-catalog.mjs';
 export const COST_YEARS=Object.freeze([
   2026,
   2027
@@ -7,6 +8,9 @@ export const COST_YEARS=Object.freeze([
 
 export const COST_PAYERS=Object.freeze([
   "HMSA",
+  "Aetna",
+  "Cigna",
+  "Anthem Blue Cross and Blue Shield",
   "UnitedHealthcare",
   "Kaiser Permanente",
   "UHA",
@@ -465,11 +469,17 @@ export const COST_MEDICATIONS=Object.freeze([
   {id:'drug-zoledronic-acid',name:'Zoledronic acid (Reclast)',category:'medication',drugId:'zoledronic-acid',settingNote:'Infusion and medication may be billed separately.'},
   {id:'drug-teriparatide',name:'Teriparatide (Forteo/generic)',category:'medication',drugId:'teriparatide',settingNote:'Self-administered prescription: pharmacy formulary/PBM and quantity matter.'}
 ]);
-export function getCostService(id){return getOrthoProcedure(id)||COST_MEDICATIONS.find(x=>x.id===id)||null;}
+export function getCostService(id){
+  const existing=getOrthoProcedure(id)||EXTRA_PROCEDURES.find(x=>x.id===id)||COST_MEDICATIONS.find(x=>x.id===id);
+  if(existing)return existing;
+  if(typeof id!=='string'||!id.startsWith('drug-'))return null;
+  const drug=[...drugs,...EXTRA_DRUGS].find(x=>x.id===id.slice(5));
+  return drug?{id,name:drug.name,category:'medication',drugId:drug.id,settingNote:'Check the exact benefit, dispensed units and site.'}:null;
+}
 export function createCostItems(selection){
  const service=getCostService(selection.procedureId);
  if(!service)throw new Error('Unknown service.');
- const procedureCodes=service.category==='medication'?[]:getOrthoProcedureCodes(selection);
+ const procedureCodes=service.category==='medication'?[]:(getOrthoProcedure(selection.procedureId)?getOrthoProcedureCodes(selection):(service.codes||[]));
  const coded=procedureCodes.filter(x=>x.type==='CPT'||x.type==='HCPCS');
  const surgicalCode=coded.find(x=>!x.code.startsWith('J'))?.code||'';
  const gelCode=coded.find(x=>x.code.startsWith('J'))?.code||'';
