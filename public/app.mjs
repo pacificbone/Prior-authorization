@@ -4,6 +4,8 @@ import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,b
 import {sealWorkspace,openWorkspace} from '/shared/vault.mjs';
 import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverageDirectoryStats} from '/shared/hawaii-plan-sources.mjs';
 import {PUBLISHED_FORMULARIES} from '/shared/live-formularies.mjs';
+import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
+import {renderOrthopedicPage} from './orthopedic-page.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -32,8 +34,8 @@ const paths={
 const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.info}</svg>`;
 const sourceLink=(url,label='Open source')=>`<a class="source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ${icon('external')}</a>`;
 const options=(values,current)=>values.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join('');
-const nav=[['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
-const state={page:'formulary',coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
+const nav=[['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
+const state={page:'formulary',orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
 let toastTimer,idleTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),6000);}
 function log(action){state.events.unshift({action,time:new Date().toISOString()});state.events=state.events.slice(0,50);}
@@ -54,7 +56,7 @@ function renderNav(){
 function render(){
   renderNav();
   if(state.locked){$('#page').innerHTML=`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. Restore an encrypted file or start a new fictional case.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`;return;}
-  ({formulary:renderExplorer,coverage:renderCoverage,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderExplorer)();
+  ({formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderExplorer)();
 }
 function setPage(page){if(!nav.some(n=>n[0]===page))return;state.page=page;history.replaceState(null,'',`#${page}`);render();window.scrollTo({top:0});}
 function drugStatus(drug){
@@ -145,6 +147,7 @@ function renderCoverage(){
   <div id="coverage-results">${coverageCardsMarkup()}</div>
   <div class="notice coverage-footer"><strong>Important distinctions:</strong> Original Medicare Part B is not a pharmacy formulary. Traditional Medicare outpatient prescriptions use the member's separate Part D plan. VA and TRICARE have their own formularies. Medicare Advantage, D-SNP and commercial HMO/PPO network labels do not uniquely identify the applicable pharmacy list.</div>`;
 }
+function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ortho,state.orthoCategory);}
 function renderExplorer(){
   const applicable=policies.concat(state.custom).filter(p=>p.payer===state.scope.payer&&p.lines.includes(state.scope.line)&&p.benefit===state.scope.benefit).length;
   $('#page').innerHTML=heading('PRESCRIBE WITH CONTEXT','The right medication starts here.','Look up plan-specific coverage, understand policy requirements, and bring the supporting evidence into your note.',`<button class="button secondary" data-action="coverage">Hawaiʻi plans</button><button class="button secondary" data-action="sample">${icon('spark')} Try sample case</button><button class="button secondary" data-action="compare">${icon('grid')} ${state.compareVisible?'Hide comparison':'Compare medications'}</button><button class="button primary" data-action="authorization">New authorization ${icon('plus')}</button>`)+
@@ -217,7 +220,7 @@ async function runAi(){
   finally{state.aiBusy=false;if(state.page==='authorization'&&!state.locked)renderAuthorization();}
 }
 function lockSession(){
-  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
+  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.orthoCategory='injections';state.ortho=defaultOrthoCase();state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
   $('#vault-passphrase').value='';$('#vault-confirm').value='';$('#vault-dialog').close();$('#source-dialog')?.close();$('#source-form')?.reset();$('#print-region').textContent='';render();
 }
 function resetIdle(){clearTimeout(idleTimer);if(!state.locked)idleTimer=setTimeout(()=>{lockSession();toast('Session locked after 10 minutes without interaction.');},10*60*1000);}
@@ -288,6 +291,13 @@ document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='coverage'){setPage('coverage');return;}
+  if(action==='ortho-gaps'||action==='ortho-outline'){
+    try {const text=createOrthoWorksheet(state.ortho,{today:dateToday(),mode:action==='ortho-gaps'?'gaps':'outline'});
+      download(`pbj-synthetic-orthopedic-${action==='ortho-gaps'?'gaps':'outline'}-${dateToday()}.txt`,text);
+      log('Synthetic orthopedic worksheet downloaded');toast('Synthetic orthopedic worksheet downloaded. No PHI was included.');
+    }catch(error){toast(error.message||'Orthopedic worksheet could not be generated.');}
+    return;
+  }
   if(action==='compare'){state.compareVisible=!state.compareVisible;renderExplorer();return;}
   if(action==='public-search'){await runPublicFormularyLookup();return;}
   if(action==='coverage-to-lookup'){state.publicLookup={sourceId:button.dataset.sourceId||PUBLISHED_FORMULARIES[0].id,term:state.coverage.drug,busy:false,result:null,error:''};setPage('formulary');if(state.publicLookup.term.trim().length>=2)await runPublicFormularyLookup();return;}
@@ -321,6 +331,7 @@ document.addEventListener('click',async event=>{
 document.addEventListener('input',event=>{
   const target=event.target;
   if(target.id==='drug-search'){state.search=target.value;$('#drug-list').innerHTML=drugListMarkup();return;}
+  if(target.id==='ortho-plan-label'){state.ortho.planLabel=target.value;return;}
   if(target.id==='coverage-query'){state.coverage.query=target.value;const result=$('#coverage-results');if(result)result.innerHTML=coverageCardsMarkup();return;}
   if(target.id==='coverage-drug'){state.coverage.drug=target.value;return;}
   if(target.id==='public-drug-query'){state.publicLookup.term=target.value;if(state.publicLookup.busy)state.aiEpoch++;state.publicLookup.busy=false;state.publicLookup.result=null;state.publicLookup.error='';return;}
@@ -333,6 +344,17 @@ document.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
   if(target.id==='coverage-payer'){state.coverage.payer=target.value;renderCoverage();return;}
+  if(target.dataset.orthoCheck){state.ortho.checks[target.dataset.orthoCheck]=target.checked;renderOrthopedics();return;}
+  if(target.id==='ortho-category'){state.orthoCategory=target.value;state.ortho.procedureId=orthoProcedures.find(p=>p.category===target.value)?.id||'knee-gel';state.ortho.checks={};state.ortho.gelProductId='';renderOrthopedics();return;}
+  if(target.id==='ortho-procedure'){const next=getOrthoProcedure(target.value);if(!next)return;state.ortho.procedureId=next.id;state.orthoCategory=next.category;state.ortho.checks={};state.ortho.gelProductId='';renderOrthopedics();return;}
+  if(target.id==='ortho-payer'){state.ortho.payer=target.value;const defaults={'Traditional Medicare':'Traditional Medicare','Veterans Affairs':'VA / Community Care','TRICARE':'TRICARE','Workers compensation':'Workers compensation','AlohaCare':'QUEST / Medicaid'};state.ortho.line=defaults[target.value]||(['Traditional Medicare','VA / Community Care','TRICARE','Workers compensation'].includes(state.ortho.line)?'Commercial':state.ortho.line);renderOrthopedics();return;}
+  if(target.id==='ortho-plan-label'){
+    try{validateOrthoCase({...state.ortho,planLabel:target.value});state.ortho.planLabel=target.value;}
+    catch{state.ortho.planLabel='';toast('Only a plan product name is allowed here — no member numbers, personal details, or clinical notes.');}
+    renderOrthopedics();return;
+  }
+  if(target.id==='ortho-line'||target.id==='ortho-setting'||target.id==='ortho-request-type'||target.id==='ortho-gel'||target.id==='ortho-guidance'){
+    const key={'ortho-line':'line','ortho-setting':'setting','ortho-request-type':'requestType','ortho-gel':'gelProductId','ortho-guidance':'guidance','ortho-plan-label':'planLabel'}[target.id];state.ortho[key]=target.value;renderOrthopedics();return;}
   if(target.dataset.scope){if(target.dataset.scope==='payer'){state.scope.carrier='';state.scope.planCode='';state.scope.plan='';}if(['line','benefit'].includes(target.dataset.scope))state.scope.planCode='';state.scope[target.dataset.scope]=target.value;syncCaseScope();render();return;}
   if(target.id==='public-source-picker'){state.aiEpoch++;state.publicLookup={sourceId:target.value,term:state.publicLookup.term,busy:false,result:null,error:''};renderExplorer();return;}
   if(target.id==='formulary-list'){state.scope.planCode=target.value;syncCaseScope();render();return;}
