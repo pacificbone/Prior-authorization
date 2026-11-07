@@ -81,7 +81,7 @@ export function renderStaffPage(state){
  <label>Care setting<select id="staff-setting">${opts(['Office','ASC','Hospital outpatient','Hospital inpatient'],setting)}</select></label>
  ${serviceId==='knee-gel'?`<label>Gel product<select id="staff-gel"><option value="">Choose product</option>${opts(orthoGelProducts,gelProductId,'',x=>({v:x.id,label:x.name+' ('+x.code+')'}))}</select></label><label>Injection technique<select id="staff-guidance">${opts([{v:'without-ultrasound',label:'Without ultrasound'},{v:'with-ultrasound',label:'With documented ultrasound'}],guidance,'',x=>x)}</select></label>`:''}
  </div>
- ${service?`<p class="helper"><strong>${h(service.name)}</strong>${service.description?` — ${h(service.description)}`:''}${ctx.possibleCodes.length?`<br>Candidate codes: ${ctx.possibleCodes.map(c=>h(c.code)).join(' · ')} (verify coding)`:''}</p>`:''}
+ ${service?`<p class="helper"><strong>${h(service.name)}</strong>${service.description?` — ${h(service.description)}`:''}${ctx.possibleCodes.length?`<br>Candidate codes: ${ctx.possibleCodes.map(c=>h(c.code)).join(' · ')} (verify coding)`:(service.type==='procedure'?'<br>Billing code not verified — confirm technique and payer coding before submission.':'')}</p>`:''}
  </div></section>
  <section class="panel staff-stage" id="staff-coverage"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">3</span> Formulary, coverage and PA requirements</h2></div><div class="panel-content">
  ${needPlan||needService?'<p class="helper">Choose an insurer-owned plan and a requested treatment first. No cross-insurer policy will be shown.</p>':`
