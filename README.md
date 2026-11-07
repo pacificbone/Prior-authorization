@@ -1,5 +1,9 @@
 # Coverage Desk — Pacific Bone & Joint
 
+## ModMed / SamaCare / Develop Health handoff (pilot guidance)
+
+A benefit-specific vendor handoff now appears in **Staff workup → Formulary, coverage and PA requirements**. Pharmacy prescriptions route first to ModMed EMA ePA/RTPB, with an optional Develop Health evaluation. Medical-benefit drugs and gel injections use payer checks first with SamaCare evaluation; surgery and imaging remain with payer/RCM authorization workflows unless product-specific support is proven. No vendor, payer or ModMed patient-data integration is active and no PHI is allowed. See [ModMed and vendor integration guide](docs/MODMED-PA-INTEGRATIONS.md).
+
 ## Protected Cuptomize price evidence (optional, currently not activated)
 
 The staff cost panel can now **request protected Cuptomize public-rate evidence** for an exact hospital, insurer, setting and CPT/DRG, with *separate facility candidates and surgeon professional market benchmark ranges*. It never autofills or certifies a patient cost. This route is **disabled** until the Cloudflare Access application, verified staff audience, matching server-only shared secret and Worker-to-Worker service binding are configured. No PHI, member benefits or real authorization submissions are supported. See [activation and safety guide](docs/PRIVATE-CUPTOMIZE-PRICING.md).
