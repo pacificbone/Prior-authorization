@@ -42,8 +42,8 @@ test('only imported published feeds advertise local drug-level lookup',()=>{
    const source=getPublishedFormulary(entry.liveSourceId);
    assert.ok(source);
    assert.equal(entry.payer,source.payer);
-   assert.equal(entry.program,'quest');
-   assert.equal(source.line,'QUEST / Medicaid');
+   assert.equal(entry.program,source.line==='QUEST / Medicaid'?'quest':'exchange');
+   assert.ok(['QUEST / Medicaid','Individual Exchange'].includes(source.line));
  }
  assert.equal(coverageDirectoryStats().imported,PUBLISHED_FORMULARIES.length);
  const original=hawaiiCoverageSources.find(x=>x.id==='original-b');
