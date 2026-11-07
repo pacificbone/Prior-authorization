@@ -69,12 +69,12 @@ export function renderStaffPage(state){
  return `<div class="page-heading"><div><span class="eyebrow">PACIFIC BONE & JOINT · FRONT DESK / AUTHORIZATION TEAM</span><h1>Coverage, prior auth & patient costs</h1>
  <p class="subtitle">One workflow: insurer → exact plan → medication or procedure → requirements → costs → documentation.</p></div></div>
  <div class="notice amber staff-banner"><strong>Synthetic trial — not cleared for patient records.</strong> Use only plan names and fictional figures. Medical necessity, patient eligibility, PA approvals, member-specific quotes and completed submissions require approved clinical systems.</div>
- <section class="panel staff-stage" id="staff-plan"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">1</span> Insurance and exact plan</h2><span class="pill neutral">Only plans owned by selected insurer</span></div><div class="panel-content">
+ <section class="panel staff-stage" id="staff-plan"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">1</span> Insurance and plan identity</h2><span class="pill neutral">No cross-insurer plans</span></div><div class="panel-content">
  <div class="staff-main-grid"><label>Insurance company<select id="staff-payer">${opts(STAFF_PAYERS,payer,'Choose insurance company',x=>({v:x.name,label:x.name}))}</select></label>
  <label>Coverage year<select id="staff-year">${opts(STAFF_YEARS.map(String),String(year))}</select></label>
- <label>Plan / product<select id="staff-plan-select" ${!payer?'disabled':''}>${opts(plans,planId,payer?'Choose this insurer’s plan':'Select insurer first',x=>({v:x.id,label:x.name}))}</select></label></div>
+ <label>Plan / product or official source<select id="staff-plan-select" ${!payer?'disabled':''}>${opts(plans,planId,payer?'Choose this insurer’s plan':'Select insurer first',x=>({v:x.id,label:x.name}))}</select></label></div>
  ${payer&&plans.length===0?'<p class="notice amber">No verified plan sources for this insurer and year. Do not substitute another insurer’s formulary; confirm the plan with the payer.</p>':''}
- ${plan?`<p class="staff-plan-identified"><strong>${h(plan.payer)} · ${h(plan.name)}</strong> <span>${h(plan.network)} · ${h(staffPlanProgramLine(plan))}</span><br><small>${h(planStatus)}. Actual group and eligibility must still be verified.</small></p>`:''}
+ ${plan?`<p class="staff-plan-identified"><strong>${h(plan.payer)} · ${h(plan.name)}</strong> <span>${h(plan.network)} · ${h(staffPlanProgramLine(plan))}</span><br><small>${h(ctx.planPrecision.label)} · ${h(planStatus)}. Actual group and eligibility must still be verified.</small></p>`:''}
  </div></section>
  <section class="panel staff-stage" id="staff-service"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">2</span> Medication or procedure</h2></div><div class="panel-content">
  <div class="staff-main-grid"><label>Search by drug, generic, condition or procedure<input id="staff-service-query" type="search" maxlength="80" placeholder="e.g., Prolia, TKA, MACI, gel, carpal tunnel" value="${h(search||'')}" autocomplete="off"></label>
