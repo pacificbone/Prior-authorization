@@ -8,7 +8,7 @@ import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,cre
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
 import {newCostCase,validateCostCase,costWorksheet,getCostService,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
 import {renderCostPage} from './cost-page.mjs';
-import {staffContext,staffPlansForPayer,staffGetService,staffServices,STAFF_CATEGORY_LABELS,staffAuthorizePacket,staffPatientScript} from '/shared/staff-workflow.mjs';
+import {staffContext,staffPlansForPayer,staffGetService,staffDefaultBenefit,staffServices,STAFF_CATEGORY_LABELS,staffAuthorizePacket,staffPatientScript} from '/shared/staff-workflow.mjs';
 import {renderStaffPage} from './staff-page.mjs';
 import {COST_PAYERS} from '/shared/patient-cost.mjs';
 
@@ -461,7 +461,7 @@ document.addEventListener('change',event=>{
     if(id==='staff-payer'){st.payer=target.value;st.planId='';}
     else if(id==='staff-year'){st.year=Number(target.value);st.planId='';}
     else if(id==='staff-plan-select'){st.planId=target.value;}
-    else if(id==='staff-service-select'){st.serviceId=target.value;st.search='';st.gelProductId='';st.benefit='Medical';}
+    else if(id==='staff-service-select'){st.serviceId=target.value;st.search='';st.gelProductId='';st.benefit=staffDefaultBenefit(staffGetService(target.value));}
     else if(id==='staff-benefit'){st.benefit=target.value;}
     else if(id==='staff-request-type'){st.requestType=target.value;}
     else if(id==='staff-setting'){st.setting=target.value;}
