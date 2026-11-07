@@ -31,7 +31,7 @@ test('joint replacements and office procedures never claim vendor handles surgic
   const route=modmedPaRoute(ctx('HMSA','hmsa-select-choice',id));
   assert.equal(route.lane,'procedure');
   assert.deepEqual(route.steps.map(x=>x.id),['payer-procedure','samacare-scope']);
-  assert.match(route.caution,/does not establish automated surgical PA/);
+  assert.match(route.caution,/establishes automated surgical PA approval/);
  }
 });
 test('delegated or invalid benefit context blocks inappropriate vendor routing',()=>{
