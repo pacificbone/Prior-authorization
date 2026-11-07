@@ -133,7 +133,7 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  let criteria=[];
  if(service?.type==='medication'){
    const p=primaryPolicy?applyPolicyPathway(primaryPolicy,'',service.id):null;
-   const all=[...medChecklist,...(p?.criteria||[])];
+   const all=[...(p?.criteria||[]),...medChecklist];
    const ids=new Set();
    criteria=all.filter(x=>{if(ids.has(x.id))return false;ids.add(x.id);return true;});
    if(primaryPolicy?.pathways?.length)restrictions.push('Medical policy has alternative qualification pathways; select and verify a specific pathway in the full source.');
