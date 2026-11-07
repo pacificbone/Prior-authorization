@@ -3,7 +3,22 @@
   "name": "pbj-prior-authorization-trial",
   "main": "server/worker.mjs",
   "compatibility_date": "2026-11-06",
-  "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": true },
-  "observability": { "enabled": false },
-  "vars": { "AI_PROVIDER": "none", "AI_TRIAL_ENABLED": "false" }
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "AI_PROVIDER": "none",
+    "AI_TRIAL_ENABLED": "false"
+  },
+  "services": [
+    {
+      "binding": "CUP_PRICE_SERVICE",
+      "service": "cup-optimize"
+    }
+  ]
 }
