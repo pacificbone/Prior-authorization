@@ -85,6 +85,24 @@ export const COST_METHODS=Object.freeze([
 
 export const COST_FACTS=Object.freeze([
   {
+    "id": "part-d-2026",
+    "year": 2026,
+    "kind": "part-d",
+    "title": "Medicare Part D 2026 covered-drug OOP threshold",
+    "url": "https://www.cms.gov/newsroom/fact-sheets/final-cy-2026-part-d-redesign-program-instructions",
+    "oopThreshold": 2100,
+    "note": "Part D covered prescription-drug spending has a $2,100 annual OOP threshold in 2026. This is distinct from Part B medical services and depends on qualifying incurred drug costs, formulary coverage and LIS/Extra Help."
+  },
+  {
+    "id": "part-d-2027",
+    "year": 2027,
+    "kind": "part-d",
+    "title": "Medicare Part D 2027 covered-drug OOP threshold",
+    "url": "https://www.medicare.gov/health-drug-plans/part-d/basics/costs",
+    "oopThreshold": 2400,
+    "note": "2027 Part D covered-drug annual OOP threshold is $2,400. Verify the member's exact PDP or MA-PD benefits and Extra Help; this is not a medical Part B or inpatient cap."
+  },
+  {
     "id": "medicare-2026",
     "year": 2026,
     "kind": "medicare",
@@ -145,9 +163,9 @@ export const COST_FACTS=Object.freeze([
     "id": "quest-hawaii",
     "year": null,
     "kind": "quest",
-    "title": "Hawaiʻi Med-QUEST cost-sharing information",
-    "url": "https://cca.hawaii.gov/ins/faqs/",
-    "note": "Covered services generally have little or no cost sharing, but cost-share eligibility exceptions, long-term support and other plans/secondary benefits must be confirmed. Do not assume $0 for each claim."
+    "title": "Hawaiʻi QUEST cost-sharing — official Kaiser member information",
+    "url": "https://healthy.kaiserpermanente.org/hawaii/shop-plans/medicaid/faqs",
+    "note": "Kaiser says most covered QUEST services have no copay for most eligible members, but a monthly cost share can apply based on financial eligibility. Verify the actual plan, authorized service, and any secondary coverage; never assume $0."
   },
   {
     "id": "wc-hawaii",
@@ -249,6 +267,27 @@ export const COST_FACILITIES=Object.freeze([
 ]);
 
 export const COST_PAYER_TOOLS=Object.freeze([
+  {
+    "id": "uha-medical",
+    "payers": ["UHA"],
+    "title": "UHA Personalized Price Comparison Tool",
+    "url": "https://www.uhahealth.com/important-notices/transparency-in-coverage-and-no-surprises-act-overview",
+    "note": "UHA's member portal estimates billing-code and bundled-service out-of-pocket amounts with accumulators; enter actual plan and facility."
+  },
+  {
+    "id": "uha-rx",
+    "payers": ["UHA"],
+    "title": "UHA Drug Out-of-Pocket Estimator",
+    "url": "https://www.uhahealth.com/members/provider-search/member-drug-tools",
+    "note": "This drug tool is only an estimate, and may not match the member's exact PBM benefit. Confirm drug and dispensing channel."
+  },
+  {
+    "id": "kaiser-cost",
+    "payers": ["Kaiser Permanente"],
+    "title": "Kaiser Hawaiʻi Personalized Cost Estimates",
+    "url": "https://healthy.kaiserpermanente.org/hawaii/support/estimating-your-costs.html",
+    "note": "Kaiser offers member-specific deductible and out-of-pocket-based care estimates and a separate sample fee list; verify individual HMO/product."
+  },
   {
     "id": "hmsa",
     "payers": [
@@ -575,6 +614,10 @@ export function selectCostGuidance(value){
    value.line==='Individual Exchange'?'marketplace':
    'none'
  ) && (x.year===null||x.year===value.year));
+ if(value.benefit==='Pharmacy'&&['Medicare Advantage','Traditional Medicare'].includes(value.line)) {
+   const partD=COST_FACTS.find(x=>x.id==='part-d-'+value.year);
+   if(partD)special.push(partD);
+ }
  // Do not include a specific Akamai-plan example unless the plan can be positively matched.
  // A shared payer label is insufficient to identify actual plan benefits.
  return {tools:related,facts:special,facility:COST_FACILITIES.find(f=>f.id===value.facilityId)};
