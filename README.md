@@ -25,7 +25,7 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 
 - Responsive medication explorer with brand/generic search and explicit coverage unknowns.
 - **Hawaiʻi coverage navigator** with public source pathways across commercial HMO/PPO, Marketplace, QUEST Medicaid, MA/D-SNP, Part D, original Medicare, FEHB/Postal, VA, TRICARE, Curative, UHA/HMAA, and self-funded or delegated administrators. Sources carry explicit live/partial/official/unknown states; this is not blanket formulary ingestion. See [coverage navigator details](docs/HAWAII-COVERAGE-NAVIGATOR.md).
-- **Public formulary lookup:** select one of two verified, exact-plan 2026 public QUEST feeds—HMSA QUEST (HIOS plan 22780AA1111111) or UHC Community Plan Hawaiʻi QUEST (UCSHIQ1)—then search by drug name or RxNorm. The result shows source-specific tiers and PA/ST/QL flags, never member eligibility. Cached public files refresh at six hours; a 90-day review warning is not a payer expiration.
+- **Public formulary lookup:** select one of four exact-plan 2026 public pharmacy files: HMSA QUEST (`22780AA1111111`), UHC Hawaiʻi QUEST (`UCSHIQ1`), Kaiser Hawaiʻi QUEST (`KP-HI-QUEST Medicaid`), or Kaiser Hawaiʻi Marketplace Platinum 0/5 Plus CAM (`60612HI0110006`). Search by name or RxNorm; view plan-specific tiers and PA/ST/QL flags. This is published-source data, not member eligibility. Public files are cached for up to six hours, and the internal 90-day source-review warning is not a payer-defined expiration.
 - Separate medical-policy and exact-plan formulary records. No coverage inferred from a medical-necessity policy.
 - Hawaiʻi payer/administrator profiles for HMSA, HMAA, HMA/Verdegard, MDX, UHA, UHC and Humana; separate carrier and benefit context for delegated or employer-specific rules.
 - Four reviewed HMSA initial osteoporosis medical-policy records: Evenity and denosumab, with separate Commercial/QUEST and Medicare Advantage versions, alternative clinical pathways and drug-specific exception requirements.
@@ -42,9 +42,9 @@ Start in **Formulary explorer**, select payer, line of business and benefit, the
 - No analytics, remote fonts, session replay, patient upload API, automatic claim submission or automatic email/fax.
 - Local Node server, Cloudflare Worker configuration and an AWS Lambda API Gateway v2 adapter sharing the same application logic.
 
-The two current public formulary searches use fixed, allowlisted source URLs and need no AI key. They perform **live source reads at runtime**, not bundled copies of the complete lists; access and deployment network connectivity must be tested in the actual environment. An unavailable or changed source reports no verified result rather than inferring coverage. These feeds are limited to the separately published 2026 **HMSA and UnitedHealthcare QUEST pharmacy** lists, not all commercial/MA/Part D plans or medical-benefit injectables.
+The four public formulary searches use fixed, allowlisted source URLs and need no AI key. They perform **live public-source reads at runtime**, not bundled copies of complete lists; provider access and deployment networking must be tested. If a source is unavailable or has changed format, the app fails closed instead of inferring coverage. These four exact-plan datasets are **three QUEST pharmacy plans and one Kaiser Hawaiʻi Marketplace product**, not blanket commercial HMO/PPO, Medicare Advantage, Part D or medical-benefit drug coverage.
 
-**Two machine-readable QUEST feeds are now implemented:** the source's exact published plan identifier is selected and validated server-side. The other Hawaiʻi source pathways in the navigator lead to official payer searches, PDFs, or plan documentation; they **do not** imply an imported drug-level database or a live member benefit check. There is no universal formulary for traditional Medicare Part B, Medigap, VA, or all commercial PPO products.
+**Four machine-readable exact-plan feeds are now implemented:** the source's published plan identifier, identification type and plan year are required by the server. Other Hawaiʻi directory entries link to official payer sites, PDFs or plan documents and **do not** imply a complete imported formulary or live member benefit check. Original Medicare Part B, Medigap and third-party administrators have no universal retail-drug formulary.
 
 ## Connect AI for the fictional trial
 
@@ -104,7 +104,7 @@ Tests cover scope isolation, unknown benefits, stale/future/expired/conflicting 
 
 ## Boundaries
 
-- No live formulary/PBM/eligibility feed; published-list extracts and directory links do not establish a member’s benefits. Payers listed in the selector without imported records remain unknown.
+- No live **member-specific PBM or eligibility** integration. Four public plan-specific drug-list lookups and limited reviewed extracts do not establish actual member benefits; other plan results stay unknown.
 - No ModMed integration, OCR/document upload, payer submission or outcome feedback feed.
 - Seed criteria cover selected **initial osteoporosis therapy**, not all indications, renewals or appeals. Appeal drafts remain unreleasable until the applicable workflow is implemented.
 - Clinical quote extraction does not establish medical truth, prescribing suitability or fulfillment of a criterion. A clinician must interpret every linked passage.
