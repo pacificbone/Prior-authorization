@@ -506,6 +506,7 @@ export function estimatePatientCost(data){
    if((line.method==='copay'||line.method==='both')&&line.copay===null)missingReason=missingReason||'Copay missing.';
    if(line.deductibleApplies&&line.method!=='none'&&remainingDed===null)missingReason=missingReason||'Remaining annual deductible unknown.';
    if(line.method==='part-a-review')missingReason=missingReason||'Inpatient Part A benefit-period calculation requires manual verification.';
+   if(originalMedicare&&data.setting==='Hospital inpatient'&&line.kind==='facility')missingReason='Original Medicare Part A inpatient facility requires benefit-period and admission-specific calculation; no percentage approximation permitted.';
    if(missingReason){
      (line.required?missingRequired:missingOptional).push({id:line.id,label:line.label,reason:missingReason});
      components.push({id:line.id,label:line.label,allowed:line.allowed,patientShare:null,missing:missingReason,required:line.required});
