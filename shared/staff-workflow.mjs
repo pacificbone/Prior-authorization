@@ -132,7 +132,7 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  if(plan?.program==='original-medicare'&&service?.type==='medication'&&benefit==='Pharmacy')restrictions.push('Choose the member’s actual PDP, not original Part B.');
  if(plan?.payer==='Medigap')restrictions.push('Medigap is supplemental; identify original Medicare and separate pharmacy coverage before deciding treatment benefits.');
  if(plan?.year&&!plan.year.includes(String(year)))restrictions.push('Plan source year requires current-year verification.');
- if(plan&&plan.status!=='live-drug-search')restrictions.push('This plan does not yet have complete in-app drug-level formulary records; use its official source.');
+ if(plan&&service?.type==='medication'&&benefit==='Pharmacy'&&plan.status!=='live-drug-search')restrictions.push('This plan does not yet have complete in-app drug-level formulary records; use its official source.');
  const precision=staffPlanPrecision(plan,year);
  if(precision.level==='plan-family')restrictions.push('This is a published plan family or source directory, NOT a member-specific plan match. Verify exact contract, plan, employer group, coverage code and PBM before applying formulary, PA criteria or cost sharing.');
  if(precision.level==='administrator')restrictions.push('Administrator is not a direct health-plan benefit. Identify the underwriting/underlying primary carrier and claim-specific authorization delegate.');
