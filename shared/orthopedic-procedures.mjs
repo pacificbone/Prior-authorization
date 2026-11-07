@@ -132,6 +132,10 @@ export const orthoProcedures=Object.freeze([
   ],'Code 64728 is technique-specific. Do not add separate 76942 ultrasound guidance to 64728; some payer policies label the technique unproven.',[...base,...carpal,
     C('device','Balloon-specific technique documentation','Confirm the selected device/technique meets the actual 64728 descriptor, not any generic ultrasound-guided release.')
   ]),
+  P('carpal-ultrasound-other','hand','Ultrasound-guided percutaneous CTR (non-balloon / other technique)',[],
+    'No verified universal code supplied. Do not assume CPT 64728 applies to a non-balloon or SX-One style technique. Obtain a current, device-specific payer coding determination before billing.',
+    [...base,...carpal],
+    'The 64728 code specifically includes intracarpal balloon dilation. This non-balloon route intentionally displays NO candidate code and blocks authorization packet completeness.'),
   P('acl-reconstruction','sports','ACL reconstruction',[{code:'29888',type:'CPT',label:'Arthroscopically aided ACL reconstruction'}],'Verify graft, concurrent meniscal work and actual current payer criteria.',[...base,...sports]),
   P('meniscus-repair','sports','Meniscus repair',[{code:'29882',type:'CPT',label:'Meniscus repair, medial or lateral'},
     {code:'29883',type:'CPT',label:'Meniscus repair, medial and lateral'}],'Choose exact repair codes by anatomy and operative plan.',[...base,...sports])
@@ -254,7 +258,7 @@ export function getOrthoGelProduct(id){return orthoGelProducts.find(p=>p.id===id
 export function getOrthoPayerSources({procedureId,payer,line}={}){
   const service=getOrthoProcedure(procedureId);
   if(!service)return [];
-  return orthoPayerSources.filter(x=>x.payer===payer&&x.lines.includes(line)&&
+  return orthoPayerSources.filter(x=>(x.payer===payer||(x.payer==='Other'&&x.kind==='coding-reference'))&&x.lines.includes(line)&&
     (!x.categories.length||x.categories.includes(service.category))&&
     (!x.procedureIds.length||x.procedureIds.includes(procedureId)));
 }
@@ -299,6 +303,7 @@ export function orthoAuthorizationSnapshot(value){
   ];
   if(!selection.planLabel.trim())blockers.push('Specific plan or employer group not identified.');
   if(service.id==='knee-gel'&&!selection.gelProductId)blockers.push('Brand-specific gel product/HCPCS not selected.');
+  if(!getOrthoProcedureCodes(selection).length)blockers.push('No validated code for this technique; obtain payer/device-specific coding guidance.');
   if(!sources.length)blockers.push('No verified payer procedure source in this public catalog; manual policy research required.');
   if(missing.length)blockers.push(missing.length+' supporting-documentation categories not marked located.');
   if(selection.payer==='Traditional Medicare'&&selection.line!=='Traditional Medicare')blockers.push('Traditional Medicare payer/line mismatch.');
@@ -352,7 +357,7 @@ export function validateOrthoCatalog(){
     ids.add(service.id);
     const criteriaIds=service.criteria.map(c=>c.id);
     if(new Set(criteriaIds).size!==criteriaIds.length)throw new Error('Duplicate checklist requirement: '+service.id);
-    if(!service.codes.length||service.codes.some(c=>!/^[A-Z]?\d{4,5}$/.test(c.code)))
+    if((!service.codes.length&&service.id!=='carpal-ultrasound-other')||service.codes.some(c=>!/^[A-Z]?\d{4,5}$/.test(c.code)))
       throw new Error('Invalid candidate billing codes.');
   }
   for(const source of orthoPayerSources){
