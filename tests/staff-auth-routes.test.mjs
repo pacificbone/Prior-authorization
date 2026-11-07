@@ -33,7 +33,7 @@ test('AlohaCare QUEST procedure route exposes exact-code PA lookup and provider 
  const packet=staffAuthorizePacket({payer:'AlohaCare',planId:'aloha-quest',year:2026,serviceId:'carpal-open',benefit:'Medical'});
  assert.match(packet,/OFFICIAL SUBMISSION ROUTE/);
  assert.match(packet,/office.alohacare.org\/PriorAuth/);
- assert.match(packet,/verify code, plan, delegate/);
+ assert.match(packet,/Staff to confirm code, plan, delegate/);
 });
 test('UHA commercial scope shows drug and procedure lookup, no Medicare or HMSA source',()=>{
  const medical=staffContext({payer:'UHA',planId:'uha-employer',year:2026,serviceId:'total-knee',benefit:'Medical'});
