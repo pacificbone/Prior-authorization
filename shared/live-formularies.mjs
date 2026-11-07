@@ -44,6 +44,21 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
     sourceUrl:'https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs-medicaid.json',
     planIdType:'QUEST Medicaid-CHIP Plan Description',
     planId:'KP-HI-QUEST Medicaid'
+  }),
+  Object.freeze({
+    id:'kaiser-hi-marketplace-platinum-2026',
+    label:'Kaiser Hawaiʻi Platinum 0/5 Plus CAM · individual 2026',
+    payer:'Kaiser Permanente',
+    line:'Individual Exchange',
+    benefit:'Pharmacy',
+    effective:null,
+    reviewed:'2026-11-07',
+    year:2026,
+    reviewAfterDays:90,
+    sourcePage:'https://healthy.kaiserpermanente.org/hawaii/pages/technical-information',
+    sourceUrl:'https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs.json',
+    planIdType:'HIOS-PLAN-ID',
+    planId:'60612HI0110006'
   })
 ]);
 export const QUEST_FORMULARY=PUBLISHED_FORMULARIES[0];
