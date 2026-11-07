@@ -6,6 +6,42 @@ const opts=function opts(items,current,empty='',getter=(x)=>({v:x,label:x})){
   return (empty?`<option value="">${h(empty)}</option>`:'')+items.map(x=>{const {v,label}=getter(x);return `<option value="${h(v)}" ${String(v)===String(current)?'selected':''}>${h(label)}</option>`}).join('');
 };
 const money=function money(amount){return amount===null||amount===undefined?'Not yet available':'$'+Number(amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+function renderRateEvidence(st,ctx){
+  const service=ctx.service;
+  if(service?.type!=='procedure')return '';
+  const choices=[...ctx.possibleCodes.map(x=>({id:x.code,label:x.code+' · '+(x.label||'Procedure')})),
+    ...(st.setting==='Hospital inpatient'&&service.category==='arthroplasty'
+      ? ['DRG 469','DRG 470','DRG 461','DRG 462'].map(code=>({id:code,label:code+' · verify inpatient DRG assignment'})) : [])];
+  const chosen=choices.some(x=>x.id===st.rateCode)?st.rateCode:choices[0]?.id||'';
+  const lookup=st.rateLookup||{};
+  const result=lookup.result;
+  const fs=result?.facility||[],ps=result?.professional||[];
+  const moneyOrUnknown=n=>n===null||n===undefined?'Unknown':money(n);
+  return `<section class="staff-rate-evidence">
+    <div class="staff-rate-heading"><strong>Cuptomize price evidence</strong><small>Protected staff lookup · not a patient quote</small></div>
+    <p class="helper">Find published hospital charges and professional market benchmarks for the selected insurer and billing code. These are not the member's verified allowed amounts.</p>
+    <div class="staff-rate-tools"><label>Exact billing code<select id="staff-rate-code">${opts(choices,chosen,'Choose code',x=>({v:x.id,label:x.label}))}</select></label>
+      <button class="button secondary" data-action="staff-load-rates" ${!chosen||lookup.busy?'disabled':''}>${lookup.busy?'Checking…':'Find Cuptomize rates'}</button></div>
+    ${lookup.error?`<p class="notice amber">${h(lookup.error)}</p>`:''}
+    ${result?`<div class="staff-rate-results">
+      <p class="helper"><strong>Public rate evidence only.</strong> Indexed ${h(result.builtAt||'Unknown')}; no insurer/member benefits verified; no amounts automatically entered in the calculator.</p>
+      <div class="staff-rate-grid">
+        <div><strong>Hospital facility evidence (${fs.length})</strong>
+          ${fs.length?`<div class="table-scroll"><table><thead><tr><th>Published payer label</th><th>Price or benchmark</th><th>Source date</th></tr></thead><tbody>
+          ${fs.map(x=>`<tr><td>${h(x.payerLabel)}<small>${h(x.description)}${x.billingClassVerified?'':' · class unverified'}</small></td>
+            <td>${x.amount!==null?moneyOrUnknown(x.amount):x.percent!==null?h(x.percent)+'% of charges':x.medianAllowed!==null?'Median '+moneyOrUnknown(x.medianAllowed):'No dollar rate'}<small>${h(x.methodology||'unspecified methodology')}</small></td>
+            <td>${h(x.sourceUpdated||'Unknown')}${x.sourceUrl?` <a href="${h(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source</a>`:''}</td></tr>`).join('')}
+          </tbody></table></div>`:'<p class="helper">No exact code, setting, hospital and insurer-label match found.</p>'}</div>
+        <div><strong>Professional market benchmark (${ps.length})</strong>
+          ${ps.length?`<div class="table-scroll"><table><thead><tr><th>Published plan</th><th>Min / median / max</th><th>Observations</th></tr></thead><tbody>
+            ${ps.map(x=>`<tr><td>${h(x.payer)} · ${h(x.planLabel)}</td><td>${moneyOrUnknown(x.minimum)} / ${moneyOrUnknown(x.median)} / ${moneyOrUnknown(x.maximum)}</td><td>${h(x.observationCount)}</td></tr>`).join('')}
+          </tbody></table></div>`:'<p class="helper">No professional benchmark found. Your actual contracted fee must be verified independently.</p>'}</div>
+      </div>
+      <details class="staff-rate-warnings"><summary>Assumptions and missing data</summary><ul>${(result.warnings||[]).slice(0,10).map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>
+    </div>`:''}
+    <p class="helper">Requires verified Cloudflare Access and a configured private Cuptomize Worker connection. A missing result does not mean $0 or no coverage.</p>
+  </section>`;
+}
 export function renderStaffPage(state){
  const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,search,docs}=state;
  const plans=staffPlansForPayer(payer,year);
@@ -50,6 +86,7 @@ export function renderStaffPage(state){
   </div>`:'';
  const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(x.status)}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
  const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages].slice(0,9):[];
+ const rateEvidence=renderRateEvidence(state,ctx);
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
    ${!costShown?`<p class="helper">Choose the insurer, plan and treatment above to begin. No price will be invented.</p>`:`
    <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${(estimate?.totalRequired??null)===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${(estimate?.totalRequired??null)===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Separate billing estimates</strong>
@@ -66,7 +103,8 @@ export function renderStaffPage(state){
      <label>Medical OOP remaining ($)<input id="staff-oop" type="number" min="0" step="0.01" value="${cost.oopRemaining===null?'':h(cost.oopRemaining)}" placeholder="Unknown"></label>
      <label>Secondary payer<select id="staff-secondary">${opts([{v:'unknown',label:'Unknown'},{v:'none',label:'No secondary'},{v:'possible',label:'Possible secondary'},{v:'verified-other',label:'Secondary exists, not modeled'}],cost.secondary,'',x=>x)}</select></label>
    </div>
-   <p class="helper">Prices below are **not** pulled from your insurers. Enter the correct allowed amount or a documented quote for each billing entity. Select the applicable patient cost-sharing rule.</p>
+   ${rateEvidence}
+   <p class="helper">Enter the confirmed insurer-allowed amount or dated written quote for each charge. Public Cuptomize market evidence is never used automatically as a patient price.</p>
    <div class="staff-price-lines">${rows}</div>
    ${estimateWarnings.length?`<details class="staff-checks" ${(estimate?.totalRequired??null)===null?'open':''}><summary>Missing rates and benefit checks (${estimateWarnings.length})</summary><ul>${estimateWarnings.map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>`:''}
    <p class="helper">Never substitute a hospital chargemaster amount for an insurer's negotiated facility charge. Original Medicare inpatient Part A facility estimates require a separate benefit-period calculation.</p>

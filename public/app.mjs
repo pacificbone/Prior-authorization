@@ -156,6 +156,8 @@ function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ort
 function renderStaff(){$('#page').innerHTML=renderStaffPage(state.staff);}
 function resetStaffPrice(){
   const st=state.staff;
+  st.rateCode='';
+  st.rateLookup={result:null,error:'',busy:false};
   const ctx=staffContext(st);
   st.docs={};
   st.lookup={sourceId:null,term:'',busy:false,result:null,error:''};
@@ -350,6 +352,35 @@ document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
   if(action==='coverage'){setPage('coverage');return;}
+  if(action==='staff-load-rates'){
+    const st=state.staff;
+    const code=$('#staff-rate-code')?.value||'';
+    const payload={payer:st.payer,planId:st.planId,year:st.year,serviceId:st.serviceId,
+      benefit:st.benefit,facilityId:st.cost?.facilityId||'none',setting:st.setting,code};
+    const epoch=++state.aiEpoch;
+    st.rateLookup={result:null,error:'',busy:true};
+    renderStaff();
+    try{
+      if(!code||!st.cost)throw Error('Choose a valid procedure and facility first.');
+      const response=await fetch('/api/staff/rates',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload),credentials:'same-origin',cache:'no-store'
+      });
+      const result=await response.json();
+      if(epoch!==state.aiEpoch||state.page!=='workup'||state.locked)return;
+      if(st.payer!==payload.payer||st.planId!==payload.planId||st.serviceId!==payload.serviceId||
+         st.cost?.facilityId!==payload.facilityId||st.setting!==payload.setting)return;
+      if(!response.ok)throw Error(result.error||'Protected price-evidence service is unavailable.');
+      if(result.patientQuoteReady!==false||result.applyAutomatically!==false)
+        throw Error('Server returned an invalid rate-evidence state.');
+      st.rateLookup={result,error:'',busy:false};
+    }catch(error){
+      if(epoch!==state.aiEpoch||state.page!=='workup'||state.locked)return;
+      st.rateLookup={result:null,error:error.message||'Could not verify source rates.',busy:false};
+    }
+    renderStaff();
+    return;
+  }
   if(action==='staff-check-formulary'){await runStaffFormularyLookup();return;}
   if(action==='staff-export-packet'){
     try{
@@ -458,6 +489,12 @@ document.addEventListener('input',event=>{
 document.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
+  if(target.id==='staff-rate-code'){
+    state.aiEpoch++;
+    state.staff.rateCode=target.value;
+    state.staff.rateLookup={result:null,error:'',busy:false};
+    renderStaff();return;
+  }
   if(target.dataset.staffCheck){
     state.staff.docs[target.dataset.staffCheck]=target.checked;
     renderStaff();return;
@@ -502,6 +539,8 @@ document.addEventListener('change',event=>{
       const key=map[target.id];
       candidate[key]=['deductibleRemaining','oopRemaining'].includes(key)?(target.value===''?null:Number(target.value)):target.value;
       if(key==='facilityId'||key==='network'){
+        state.aiEpoch++;
+        state.staff.rateLookup={result:null,error:'',busy:false};
         candidate.items=candidate.items.map(line=>({...line,allowed:null,source:'unverified'}));
         candidate.coverage='unverified';
         candidate.deductibleRemaining=null;candidate.oopRemaining=null;
