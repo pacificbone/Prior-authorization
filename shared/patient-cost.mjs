@@ -465,7 +465,13 @@ export const COST_MEDICATIONS=Object.freeze([
   {id:'drug-zoledronic-acid',name:'Zoledronic acid (Reclast)',category:'medication',drugId:'zoledronic-acid',settingNote:'Infusion and medication may be billed separately.'},
   {id:'drug-teriparatide',name:'Teriparatide (Forteo/generic)',category:'medication',drugId:'teriparatide',settingNote:'Self-administered prescription: pharmacy formulary/PBM and quantity matter.'}
 ]);
-export function getCostService(id){return getOrthoProcedure(id)||COST_MEDICATIONS.find(x=>x.id===id)||null;}
+export function getCostService(id){
+  const existing=getOrthoProcedure(id)||COST_MEDICATIONS.find(x=>x.id===id);
+  if(existing)return existing;
+  if(typeof id!=='string'||!id.startsWith('drug-'))return null;
+  const drug=drugs.find(x=>x.id===id.slice(5));
+  return drug?{id,name:drug.name,category:'medication',drugId:drug.id,settingNote:'Check the exact benefit, dispensed units and site.'}:null;
+}
 export function createCostItems(selection){
  const service=getCostService(selection.procedureId);
  if(!service)throw new Error('Unknown service.');
