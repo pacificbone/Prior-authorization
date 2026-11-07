@@ -277,6 +277,48 @@ export const COST_FACILITIES=Object.freeze([
     "note": "Hawaiʻi Health Systems hospital-specific cost estimator / machine-readable source."
   },
   {
+    "id": "queens-north-hawaii",
+    "name": "Queen’s North Hawaiʻi Community Hospital",
+    "sourceUrl": "https://www.queens.org/pricing-transparency/",
+    "category": "hospital-mrf",
+    "note": "Hospital-specific price file. Verify plan, service setting, code and whether facility price includes implants."
+  },
+  {
+    "id": "kaiser-moanalua",
+    "name": "Kaiser Moanalua Medical Center",
+    "sourceUrl": "https://healthy.kaiserpermanente.org/hawaii/doctors-locations/price-transparency",
+    "category": "hospital-mrf",
+    "note": "Kaiser facility rates and in-network plan pricing are not interchangeable with Added Choice PPO or other Kaiser products."
+  },
+  {
+    "id": "maui-memorial",
+    "name": "Maui Memorial Medical Center",
+    "sourceUrl": "https://www.mauihealth.org/patients-and-visitors/billing-information/price-transparency/",
+    "category": "hospital-mrf",
+    "note": "Use the specific Maui Memorial rate source and exact payer; hospital and surgeon fees may be separate."
+  },
+  {
+    "id": "invision",
+    "name": "InVision Imaging (Honolulu)",
+    "sourceUrl": "https://www.invisionhawaii.com/",
+    "category": "provider-site-only",
+    "note": "Imaging location only. No independently verified machine-readable negotiated-price file; request a written insurer-matched estimate."
+  },
+  {
+    "id": "hra",
+    "name": "Hawaiʻi Radiologic Associates (Hilo / Kona)",
+    "sourceUrl": "https://www.hirad.com/",
+    "category": "provider-site-only",
+    "note": "Imaging location only. Contact the provider and payer for facility/professional quote; no public negotiated rate imported."
+  },
+  {
+    "id": "hdrs",
+    "name": "Hawaiʻi Diagnostic Radiology Services",
+    "sourceUrl": "https://www.hawaiidrs.com/our-locations/",
+    "category": "provider-site-only",
+    "note": "Independent imaging provider; published operator location is not a patient cost estimator or price transparency file."
+  },
+  {
     "id": "other",
     "name": "Other facility / office / ASC",
     "sourceUrl": null,
