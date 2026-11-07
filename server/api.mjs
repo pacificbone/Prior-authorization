@@ -1,3 +1,4 @@
+import {createPublishedFormularyService,validateSearchInput} from './formulary.mjs';
 import {samples} from '../shared/fixtures.mjs';
 import {policies} from '../shared/catalog.mjs';
 import {applyPolicyPathway} from '../shared/domain.mjs';
@@ -6,10 +7,23 @@ import {json,readBoundedJson,secureResponse,tokenMatches} from './security.mjs';
 // Trial rate limiting is per process/isolate, not a production distributed control.
 export function createApi({fetcher=fetch,now=()=>Date.now()}={}) {
   let calls=[];
+  const searchPublicFormulary=createPublishedFormularyService({fetcher,now});
   return async function handle(request,env={}) {
     const url=new URL(request.url);
     const reply=(data,status=200)=>secureResponse(json(data,status),request.url);
     if(url.pathname==='/api/status'&&request.method==='GET') return reply({...aiConfiguration(env),storage:'browser-memory-or-explicit-encrypted-vault',phiRelease:'blocked',version:'0.1.0'});
+    if(url.pathname==='/api/formulary/search') {
+      if(request.method!=='POST')return reply({error:'Method not allowed.'},405);
+      const origin=request.headers.get('origin');
+      const allowed=env.APP_ORIGIN||url.origin;
+      if(!origin||origin!==allowed||request.headers.get('sec-fetch-site')==='cross-site')
+        return reply({error:'Same-origin requests are required.'},403);
+      let input;
+      try{input=await readBoundedJson(request);validateSearchInput(input);}
+      catch{return reply({error:'Use a drug name or RxNorm identifier, not patient information.'},400);}
+      try{return reply(await searchPublicFormulary(input));}
+      catch{return reply({error:'The official published list could not be verified right now. No formulary conclusion is available. Use the payer source link and try again later.'},503);}
+    }
     if(url.pathname!=='/api/ai/extract') return reply({error:'Not found.'},404);
     if(request.method!=='POST') return reply({error:'Method not allowed.'},405);
     const origin=request.headers.get('origin');
