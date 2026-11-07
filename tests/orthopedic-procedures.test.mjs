@@ -116,6 +116,10 @@ test('synthetic worksheet contains gaps and payer source links but no patient no
   assert.match(createOrthoWorksheet(withChecks),/\[LOCATED\] Diagnosis/);
 });
 
+test('Hawaiʻi plan product names are accepted but long member-style numeric strings are not',()=>{
+  assert.equal(validateOrthoCase({...defaultOrthoCase(),planLabel:'Hawaiʻi Choice'}).planLabel,'Hawaiʻi Choice');
+  assert.throws(()=>validateOrthoCase({...defaultOrthoCase(),planLabel:'Member 12345678901'}));
+});
 test('wrong combination cannot create false Medicare or Veterans coverage claims',()=>{
   const wrong={...defaultOrthoCase(),payer:'Traditional Medicare',line:'Commercial'};
   const snapshot=orthoAuthorizationSnapshot(wrong);
