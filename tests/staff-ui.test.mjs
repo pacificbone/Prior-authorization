@@ -26,7 +26,7 @@ test('a single staff workflow includes five steps and advanced tools are seconda
   assert.ok(page.includes(phrase),phrase);
  }
  assert.match(page,/One workflow: insurer/);
- assert.match(page,/Staff/);
+ assert.match(page,/FRONT DESK \/ AUTHORIZATION TEAM/);
  assert.match(page,/Advanced reference tools/);
  assert.match(page,/Synthetic trial/);
 });
@@ -80,7 +80,7 @@ test('service catalog search can find peripheral procedures and medicines',()=>{
  x.search='trigger';
  const html=renderStaffPage(x);
  assert.match(html,/Percutaneous \/ ultrasound-guided trigger finger release/);
- assert.match(html,/No verified code|Candidate codes/);
+ assert.match(html,/Billing code not verified/);
  x.serviceId='evenity';x.search='evenity';x.cost=newCostCase({procedureId:'drug-evenity',payer:'HMSA',line:'Commercial'});
  assert.match(renderStaffPage(x),/Evenity/);
 });
