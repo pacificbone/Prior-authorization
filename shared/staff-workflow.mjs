@@ -162,7 +162,10 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
      medicalNecessity:'requires clinical record review',cost:'not determined'}
  };
 }
-export function staffAuthorizePacket({payer,planId,year,serviceId,benefit='Medical',requestType='Initial',setting='Office',gelProductId='',guidance='without-ultrasound',checks={}}) {
+export function staffAuthorizePacket(input) {
+ if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['payer','planId','year','serviceId','benefit','requestType','setting','gelProductId','guidance','checks'].includes(k)))
+   throw Error('Only selected plan, service and checklist metadata are allowed. No patient identifiers or clinical notes.');
+ const {payer,planId,year,serviceId,benefit='Medical',requestType='Initial',setting='Office',gelProductId='',guidance='without-ultrasound',checks={}}=input;
  const ctx=staffContext({payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance});
  if(!ctx.plan||!ctx.service)throw Error('Select exact payer plan and requested service first.');
  const {plan,service}=ctx;
