@@ -45,7 +45,12 @@ export function renderStaffPage(state){
  const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages].slice(0,9):[];
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
    ${!costShown?`<p class="helper">Choose the insurer, plan and treatment above to begin. No price will be invented.</p>`:`
-   <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${estimate?.totalRequired===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${estimate?.totalRequired===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Surgeon + facility + other charges</strong><small>Facility, anesthesia, implants and medications may bill separately. Unknown is not $0.</small></div></div>
+   <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${estimate?.totalRequired===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${estimate?.totalRequired===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Separate billing estimates</strong>
+  <small>Surgeon: ${money(estimate?.components?.find(x=>x.id==='surgeon')?.patientShare)}</small>
+  <small>Facility: ${money(estimate?.components?.find(x=>x.id==='facility')?.patientShare)}</small>
+  <small>Anesthesia: ${money(estimate?.components?.find(x=>x.id==='anesthesia')?.patientShare)}</small>
+  <small>Implant / gel / cellular product: ${money(estimate?.components?.find(x=>['gel-product','maci-cell','drug-product'].includes(x.id))?.patientShare)}</small>
+  <small>Unknown is not $0; missing items remain unpriced.</small></div></div>
    <div class="staff-cost-setup">
      <label>Hospital / ASC<select id="staff-facility">${opts(COST_FACILITIES,cost.facilityId,'',x=>({v:x.id,label:x.name}))}</select></label>
      <label>Network<select id="staff-network">${opts([{v:'unknown',label:'Not confirmed'},{v:'in-network',label:'In network'},{v:'out-of-network',label:'Out of network'}],cost.network,'',x=>x)}</select></label>
