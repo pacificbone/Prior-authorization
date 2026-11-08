@@ -37,7 +37,7 @@ export const PAYER_POLICY_EVIDENCE=Object.freeze([
  {id:'hmsa-evolent-matrix-2026',payer:'HMSA',lines:['Commercial','QUEST / Medicaid','Medicare Advantage'],benefit:'Medical',products:joints,
   title:'HMSA Joint Surgery Utilization Review Matrix 2026',version:'2026-01-01',effectiveFrom:'2026-01-01',
   sourceUrl:'https://www1.radmd.com/sites/default/files/2025-12/HMSA%20Joint%20Surgery%20Utilization%20Review%20Matrix%202026%2001.01.26.pdf',locator:'Pages 1–4 and 6',
-  sourceSha256:'9f0be97828c56547d5c90f5240b1e978fe2781d30738d610cbcfaf5201ffcfdf',
+  sourceSha256:null,directoryOnly:true,
   summary:'Separates primary requests and related code groupings. Bilateral same-day joint surgery requires separate authorizations. Evolent does not manage facility precertification; emergency-department services are outside this program.',
   prompts:['Confirm exact primary procedure, side and associated code groupings.','Review professional and facility authorizations separately; bilateral requests need separate review.'],
   limitations:'A utilization matrix is not a complete clinical-criteria policy or a payment guarantee.'},
@@ -52,21 +52,21 @@ export const PAYER_POLICY_EVIDENCE=Object.freeze([
  {id:'hmsa-gel-ma-2026',payer:'HMSA',lines:['Medicare Advantage'],benefit:'Medical',products:gel,
   title:'HMSA Hyaluronates — Medicare Advantage',version:'2026-03-13',effectiveFrom:'2026-03-13',
   sourceUrl:'https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/',locator:'Official A–L directory: Hyaluronates (Medicare Advantage), effective 03/13/2026; separate MA fax form',
-  sourceSha256:'9f0be97828c56547d5c90f5240b1e978fe2781d30738d610cbcfaf5201ffcfdf',
+  sourceSha256:null,directoryOnly:true,
   summary:'HMSA publishes a separate Medicare Advantage hyaluronate clinical policy, distinct from its June 2026 Commercial/QUEST policy. This record confirms policy existence and date, not the detailed MA clinical criteria.',
   prompts:['Retrieve and review the MA policy and MA preferred-drug program before selecting a product.','Do not apply Commercial/QUEST six-month or renewal rules automatically to MA.'],
   limitations:'Directory-level verification only; SHA-256 is a legacy evidence reference and is NOT a verified digest of the linked directory. Exact member plan adoption, criteria and supply route are not verified.'},
  {id:'hmsa-gel-ma-preference-2026',payer:'HMSA',lines:['Medicare Advantage'],benefit:'Medical',products:gel,
   title:'HMSA Hyaluronates Preferred Drug Program — Medicare Advantage',version:'2026-01-01',effectiveFrom:'2026-01-01',
   sourceUrl:'https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies-m-z/',locator:'Official M–Z directory: Synvisc and Synvisc One MA preferred program, effective 01/01/2026',
-  sourceSha256:'9f0be97828c56547d5c90f5240b1e978fe2781d30738d610cbcfaf5201ffcfdf',
+  sourceSha256:null,directoryOnly:true,
   summary:'A separate Medicare Advantage preferred-product program exists. The directory does not establish a universal preferred brand or exception requirements.',
   prompts:['Verify the exact MA product preference and exception policy for the requested gel.'],
   limitations:'Directory-level verification only; no verified plan adoption, sourcing route or complete product preference. Legacy digest does not fingerprint this directory URL.'},
  {id:'hmsa-prolia-ma-2026',payer:'HMSA',lines:['Medicare Advantage'],benefit:'Medical',products:['bone-prolia','bone-bildyos','bone-enoby','bone-stoboclo','bone-jubbonti'],
   title:'HMSA Prolia and Biosimilars — Medicare Advantage',version:'2026-10-01',effectiveFrom:'2026-10-01',
   sourceUrl:'https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/',locator:'Official A–L directory: Jubbonti (Medicare Advantage), effective 10/01/2026',
-  sourceSha256:'9f0be97828c56547d5c90f5240b1e978fe2781d30738d610cbcfaf5201ffcfdf',
+  sourceSha256:null,directoryOnly:true,
   summary:'HMSA publishes an MA-specific Prolia/biosimilar policy effective October 2026. Do not infer that the Commercial/QUEST Jubbonti preference or exceptions automatically apply.',
   prompts:['Retrieve the MA policy, determine product preference and applicable indication-specific branch.','Verify medical versus pharmacy benefit and specialty-pharmacy versus buy-and-bill route independently.'],
   limitations:'Directory-level verification only; exact clinical criteria, member adoption, supplier and payment not verified. Legacy digest does not fingerprint this directory URL.'},
@@ -85,7 +85,7 @@ export function validatePayerEvidence(rows=PAYER_POLICY_EVIDENCE){
   const host=new URL(s.sourceUrl).hostname;
   if(!['id','title','version','payer','locator','summary','limitations'].every(k=>typeof s[k]==='string'&&s[k].trim())||
    !Array.isArray(s.lines)||!s.lines.length||!s.lines.every(x=>typeof x==='string')||!Array.isArray(s.products)||!s.products.every(x=>typeof x==='string')||
-   !Array.isArray(s.prompts)||!s.prompts.every(x=>typeof x==='string'&&x.trim())||s.sourceRetrieved!==true||!['Medical','Pharmacy'].includes(s.benefit)||ids.has(s.id)||!validPublicSource(s.sourceUrl)||!['www.hmsa.com','www1.radmd.com','www.uhcprovider.com'].includes(host)||!validSourceDigest(s.sourceSha256)||
+   !Array.isArray(s.prompts)||!s.prompts.every(x=>typeof x==='string'&&x.trim())||s.sourceRetrieved!==true||!['Medical','Pharmacy'].includes(s.benefit)||ids.has(s.id)||!validPublicSource(s.sourceUrl)||!['www.hmsa.com','www1.radmd.com','www.uhcprovider.com'].includes(host)||!(s.directoryOnly===true&&s.sourceSha256===null||validSourceDigest(s.sourceSha256))||
    !validPolicyDate(s.retrievedAt)||!validPolicyDate(s.reviewDue)||s.reviewDue<s.retrievedAt||(Date.parse(s.reviewDue)-Date.parse(s.retrievedAt))/86400000>90||
    (s.effectiveFrom!==null&&!validPolicyDate(s.effectiveFrom))||s.planAdoptionVerified!==false||s.orderingAllowed!==false)throw Error('Invalid public payer evidence');
   ids.add(s.id);
@@ -104,7 +104,7 @@ export function payerVerificationWorksheet(scope={},asOf=policyDay()){
   `Scope: ${scope.payer||'[PAYER]'} / ${scope.planId||'[EXACT PLAN PRODUCT]'} / ${scope.line||'[LINE]'} / ${scope.benefit||'[BENEFIT]'} / ${scope.productId||'[PRODUCT]'} / ${scope.setting||'[SETTING]'} / ${scope.state||'[STATE]'} / ${scope.serviceDate||'[DATE]'}`,
   'Exact member plan adoption: NOT VERIFIED','Patient eligibility, authorization and coverage: NOT VERIFIED',
   'Supplier, network, acquisition route and reimbursement: NOT VERIFIED','Ordering: BLOCKED',
-  ...refs.flatMap(s=>['',`PUBLIC REFERENCE: ${s.title}`,`Version: ${s.version}; ${s.locator}; SHA-256: ${s.sourceSha256}`,s.sourceUrl,
+  ...refs.flatMap(s=>['',`PUBLIC REFERENCE: ${s.title}`,`Version: ${s.version}; ${s.locator}; SHA-256: ${s.sourceSha256||'NOT CAPTURED — DIRECTORY ONLY'}`,s.sourceUrl,
    `Review: ${s.reviewOverdue?'OVERDUE':'public snapshot reviewed; exact-plan applicability unverified'}${s.versionConfirmationRequired?'; current guideline version requires confirmation':''}`,
    s.summary,...s.prompts.map(p=>p+' [NOT DOCUMENTED]'),s.limitations]),
   ...(refs.length?[]:['No matching public reference imported. Obtain the exact policy; do not infer requirements.']),
