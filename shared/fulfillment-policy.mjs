@@ -9,6 +9,7 @@ export const FULFILLMENT_PATHS = Object.freeze({
 });
 const validPaths=new Set(Object.values(FULFILLMENT_PATHS));
 export function resolveFulfillment({payer,planId,productId,benefit,serviceDate,policies=[]}={}){
+ if(!payer || !planId || !productId || !benefit || !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(serviceDate||'')) || !Number.isFinite(Date.parse(serviceDate+'T00:00:00Z'))) return {path:FULFILLMENT_PATHS.UNKNOWN,verified:false,blockers:['Exact payer, plan, product, benefit and valid service date are required'],orderingAllowed:false,sourceUrl:null};
  const exact=policies.filter(p=>p.payer===payer && p.planId===planId &&
    p.productId===productId && p.benefit===benefit &&
    (!p.effectiveFrom || p.effectiveFrom<=serviceDate) &&
@@ -24,8 +25,8 @@ export function resolveFulfillment({payer,planId,productId,benefit,serviceDate,p
   whiteBagging:p.whiteBagging??null,brownBagging:p.brownBagging??null,
   medicalBenefitBilling:p.medicalBenefitBilling??null,
   pharmacyBenefitBilling:p.pharmacyBenefitBilling??null,
-  orderingAllowed:p.path!==FULFILLMENT_PATHS.RESTRICTED,
-  blockers:p.path===FULFILLMENT_PATHS.RESTRICTED?['Supplier or coverage restrictions require manual review']:[]};
+  orderingAllowed:false, // Requires a separate validated patient-specific authorization and procurement workflow.
+  blockers:['Patient-specific eligibility, authorization and supplier details require verification before ordering']};
 }
 export function fulfillmentChecklist(result){
  const checks=['Verify exact member plan and active coverage','Verify medical versus pharmacy benefit',
