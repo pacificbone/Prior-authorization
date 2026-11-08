@@ -3,6 +3,7 @@ import {payerEvidenceFor,payerVerificationWorksheet} from '../shared/payer-polic
 import {AUTH_TEMPLATE_CATALOG,authTemplateForService,findAuthTemplate,renderAuthTemplateNote} from '../shared/authorization-template-catalog.mjs';
 import {resolveFulfillment,fulfillmentChecklist} from '../shared/fulfillment-policy.mjs';
 import {prepareAuthorizationPacket,renderAuthorizationPreflightSummary} from '../shared/authorization-packet-preflight.mjs';
+import {documentationBranchesFor} from '../shared/payer-documentation-branches.mjs';
 const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function selectedClinicalTemplate(state){
  return state.clinicalTemplateId?findAuthTemplate(state.clinicalTemplateId):authTemplateForService(state.serviceId,state.gelProductId);
@@ -24,6 +25,7 @@ export function renderClinicalAddendumPanel(state){
  const scope=staffVerificationScope(state);
  const fulfillment=resolveFulfillment(scope);
  const refs=payerEvidenceFor(scope);
+ const branches=documentationBranchesFor(refs.map(r=>r.id),state.requestType||'Initial');
  // No unverified reference documents are promoted into authoritative criteria.
  const packet=prepareAuthorizationPacket({templateId:template?.id,policyRequest:{
    payer:scope.payer,planId:scope.planId,line:scope.line,
@@ -48,6 +50,10 @@ export function renderClinicalAddendumPanel(state){
  <section id="staff-policy-evidence"><h3>Source verification and exact-plan adoption</h3>
  <p><strong>Exact-plan adoption: NOT VERIFIED.</strong> Public document retrieval does not confirm the member's plan, benefits or supply permissions.</p>
  ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. Snapshot reviewed ${h(s.retrievedAt)}; ${s.reviewOverdue?'REVIEW OVERDUE':'plan applicability unverified'}. ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256)}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
+ <details class="staff-sources"><summary>Source-linked documentation prompts (${branches.length})</summary>
+ <p class="helper">Research aids only: the exact member plan has not been confirmed to adopt these criteria. Verify the current policy before submission.</p>
+ ${branches.map(b=>`<section class="payer-evidence-entry"><strong>${h(b.title)}</strong><ul>${b.fields.map(f=>`<li>${h(f.label)}</li>`).join("")}</ul><p class="helper">${h(b.notes)}</p></section>`).join("")||"<p>No matching branch for this request type; review the source policy manually.</p>"}
+ </details>
  <div class="local-buttons"><button class="button secondary" data-action="staff-print-verification">Print payer verification worksheet</button></div></section>
  <h3>Supply route: ${h(fulfillment.path)} / ${fulfillment.verified?'policy verified':'unverified'}</h3>
  <p><strong>Ordering blocked.</strong> No verified exact-plan procurement policy is loaded. A formulary result or completed checklist cannot authorize purchasing, dispensing or shipment.</p>
