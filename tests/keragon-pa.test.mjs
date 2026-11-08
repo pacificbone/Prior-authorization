@@ -82,7 +82,7 @@ test('UI shows real connection distinction and links to original TriZetto PA res
  assert.match(html,/does not confirm|are unknown|unknown/i);
  assert.match(html,/TriZetto electronic prior authorization/);
  assert.match(html,/Optum is optional/);
- assert.doesNotMatch(html,/Prepare ModMed activation email|reconnect.*ModMed just to/i);
+ assert.doesNotMatch(html,/Prepare ModMed activation email|mailto:practicesolutions@modmed\.com/i);
  assert.doesNotMatch(html,/<input[^>]*(password|api.key)/i);
  for(const url of Object.values(KERAGON_LINKS))assert.match(url,/^https:\/\//);
 });
