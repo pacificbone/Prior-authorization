@@ -5,6 +5,7 @@ import {resolveFulfillment,fulfillmentChecklist} from '../shared/fulfillment-pol
 import {prepareAuthorizationPacket,renderAuthorizationPreflightSummary} from '../shared/authorization-packet-preflight.mjs';
 import {documentationBranchesFor} from '../shared/payer-documentation-branches.mjs';
 import {payerRoutingFor} from '../shared/hawaii-payer-routing.mjs';
+import {submissionRequirementsFor} from '../shared/payer-submission-requirements.mjs';
 const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function selectedClinicalTemplate(state){
  return state.clinicalTemplateId?findAuthTemplate(state.clinicalTemplateId):authTemplateForService(state.serviceId,state.gelProductId);
@@ -28,6 +29,7 @@ export function renderClinicalAddendumPanel(state){
  const refs=payerEvidenceFor(scope);
  const branches=documentationBranchesFor(refs.map(r=>r.id),state.requestType||'Initial');
  const routes=payerRoutingFor({payer:scope.payer,line:scope.line,category:scope.medication?'medication':'surgery'});
+ const submissionFields=submissionRequirementsFor(scope);
  // No unverified reference documents are promoted into authoritative criteria.
  const packet=prepareAuthorizationPacket({templateId:template?.id,policyRequest:{
    payer:scope.payer,planId:scope.planId,line:scope.line,
@@ -49,6 +51,9 @@ export function renderClinicalAddendumPanel(state){
  <pre class="clinical-template-preview">${h(renderAuthorizationPreflightSummary(packet))}</pre></details>
  <p class="helper">This is a synthetic checklist preview. Clinical findings and patient records must remain in an approved clinical system; selecting checkboxes elsewhere does not satisfy payer criteria.</p>
  </section>
+ <section id="staff-submission-fields"><h3>Payer submission record checklist</h3>
+ ${submissionFields.length?submissionFields.map(r=>`<details><summary>${h(r.payer)} — public submission records checklist</summary><p>${h(r.note)}</p><ul>${r.fields.map(f=>`<li>${h(f.label)}</li>`).join("")}</ul><a href="${h(r.sourceUrl)}" target="_blank" rel="noopener noreferrer">Published payer guidance</a></details>`).join(""):"<p class=\"helper\">No payer-specific submission record checklist imported; confirm current requirements with the insurer.</p>"}
+ <p class="helper">Checklist only. Do not enter patient identifiers in this synthetic trial.</p></section>
  <section id="staff-payer-routing"><h3>Other Hawaiʻi payer authorization routing</h3>
  ${routes.length?routes.map(r=>`<div class="staff-source"><strong>${h(r.title)}</strong><p>${h(r.note)}</p><a href="${h(r.sourceUrl)}" target="_blank" rel="noopener noreferrer">Payer source</a>${r.secondaryUrl?` · <a href="${h(r.secondaryUrl)}" target="_blank" rel="noopener noreferrer">Additional policy</a>`:""}</div>`).join(""):"<p class=\"helper\">No reviewed payer routing reference for this combination. Confirm with the payer.</p>"}
  <p class="helper">Public routing information only. Exact member product, delegated administrator, code-level PA and buy-and-bill or pharmacy sourcing remain unverified.</p></section>
