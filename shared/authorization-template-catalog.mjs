@@ -1,0 +1,78 @@
+import { orthoGelProducts, orthoProcedures } from './orthopedic-procedures.mjs';
+import { getOfflineGuide, assessOfflinePacket } from './offline-auth-guides.mjs';
+
+// Product- and procedure-specific note templates; clinical aids, not payer coverage rules.
+const field=(id,label)=>({id,label});
+const gelFields=[
+ field('diagnosis','Symptomatic knee osteoarthritis diagnosis, ICD-10 and laterality'),
+ field('symptoms','Pain, functional restrictions and examination findings'),
+ field('imaging','Radiographic evidence and date'),
+ field('conservative','Prior conservative care, dates, response or contraindication'),
+ field('priorInjections','Prior corticosteroid or viscosupplement courses, dates and benefit'),
+ field('reasonForProduct','Reason for the requested product and any preferred alternatives considered'),
+ field('plan','Dose, number of injections, laterality and administration setting'),
+ field('benefit','Medical versus pharmacy benefit and supply route')
+];
+const boneProducts=[
+ ['prolia','Prolia (denosumab)','J0897'],
+ ['evenity','Evenity (romosozumab)','J3111'],
+ ['reclast','Reclast (zoledronic acid)','J3489'],
+ ['boniva-iv','Boniva IV (ibandronate)','J1740'],
+ ['forteo','Forteo (teriparatide)',null],
+ ['tymlos','Tymlos (abaloparatide)',null]
+];
+const boneFields=[
+ field('diagnosis','Indication, osteoporosis diagnosis and fracture risk'),
+ field('dxa','DXA date, T-scores and fracture history where available'),
+ field('priorTherapy','Prior therapies, durations, outcomes, intolerance or contraindications'),
+ field('rationale','Patient-specific rationale for selected agent over alternatives'),
+ field('safety','Relevant safety review, precautions and contraindications'),
+ field('labs','Relevant calcium, renal and mineral laboratory evaluation'),
+ field('administration','Dose, route, schedule, setting and planned duration'),
+ field('continuity','Last dose if ongoing and continuity/follow-on treatment plan'),
+ field('benefit','Medical or pharmacy benefit, supplier and exact plan')
+];
+const surgicalFields=[
+ field('diagnosis','Diagnosis, ICD-10, side and affected anatomy'),
+ field('history','Symptoms, severity, duration and functional impact'),
+ field('exam','Actual pertinent examination findings'),
+ field('imaging','Relevant imaging and diagnostic results with dates'),
+ field('conservative','Nonoperative treatment, dates, response or clinical exception'),
+ field('indication','Specific operative indication and individualized medical necessity'),
+ field('procedure','Proposed procedure, laterality, technique and concurrent work'),
+ field('setting','Requested site of service and justification when needed'),
+ field('records','Supporting office note, imaging, studies and records to attach')
+];
+export const AUTH_TEMPLATE_CATALOG=Object.freeze([
+ ...orthoGelProducts.map(p=>Object.freeze({id:'gel-'+p.id,category:'viscosupplementation',name:p.name,codes:[p.code],fields:gelFields,notes:'Verify brand-specific dose, HCPCS billing units, payer preference and repeat-series rules.'})),
+ ...boneProducts.map(([id,name,code])=>Object.freeze({id:'bone-'+id,category:'bone-health',name,codes:code?[code]:[],fields:boneFields,notes:'Verify current product labeling, indication, benefit channel, and payer-specific step therapy.'})),
+ ...orthoProcedures.filter(p=>p.id!=='knee-gel').map(p=>Object.freeze({
+   id:'procedure-'+p.id,category:'surgery',name:p.name,codes:p.codes.map(c=>c.code),
+   fields:[...surgicalFields,...p.criteria.filter(c=>!surgicalFields.some(f=>f.id===c.id)).map(c=>field(c.id,c.label))],
+   notes:p.notes||'Confirm payer-specific procedure and site-of-service criteria.'
+ }))
+]);
+export function findAuthTemplate(id){return AUTH_TEMPLATE_CATALOG.find(x=>x.id===id)||null;}
+export function assessAuthTemplate(id,values={}){
+ const template=findAuthTemplate(id);
+ if(!template) return {status:'unknown-template',missing:[],payerVerified:false};
+ const missing=template.fields.filter(f=>!String(values[f.id]??'').trim());
+ return {status:missing.length?'incomplete':'clinical-fields-complete',missing,payerVerified:false,
+ warning:'Clinical fields complete does not imply medical necessity, benefit coverage, or authorization approval.'};
+}
+export function renderAuthTemplateNote(id,values={},metadata={}){
+ const template=findAuthTemplate(id);
+ if(!template) throw new Error('Unknown authorization template');
+ const status=assessAuthTemplate(id,values);
+ const header=['PRIOR AUTHORIZATION CLINICAL ADDENDUM — DRAFT FOR CLINICIAN REVIEW',
+ 'Service: '+template.name,'Codes (verify): '+(template.codes.join(', ')||'Coding review required'),
+ 'Payer and exact product: '+(metadata.plan||'[NOT VERIFIED]'),
+ 'Patient identifier: '+(metadata.patient||'[ENTER IN SECURE CLINICAL SYSTEM]'),
+ 'Visit date: '+(metadata.date||'[DATE]')];
+ const body=template.fields.map(f=>f.label+': '+(String(values[f.id]??'').trim()||'[NOT DOCUMENTED]'));
+ return [...header,'',...body,'','Individualized medical necessity: '+(metadata.medicalNecessity||'[CLINICIAN TO COMPLETE]'),
+ 'Supporting attachments: '+(metadata.attachments||'[LIST SUPPORTING RECORDS]'),
+ 'Missing fields: '+(status.missing.map(f=>f.label).join('; ')||'None from generic template'),
+ 'Payer-specific criteria verified: NO — verify exact plan and effective policy.',
+ 'Clinician review/signature: ______________________'].join('\n');
+}
