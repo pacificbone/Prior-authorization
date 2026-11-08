@@ -1,10 +1,15 @@
 # Coverage Desk — Pacific Bone & Joint
 
-## Keragon-first prior authorization orchestration (synthetic design)
+## Existing PBJ systems — Keragon + ModMed and TriZetto first
 
-The PBJ staff **Formulary, coverage and PA requirements** panel now routes through **Keragon**, not Develop Health or SamaCare. Pharmacy-benefit prescriptions use the verified ModMed EMA ePA/PBM workflow, with Keragon organizing review and follow-up. Medical-benefit drugs/gel and orthopedic procedures use the exact insurer-specific medical PA requirements, optionally leveraging Keragon's **Optum prior authorization** actions where supported; the **TriZetto eligibility** action is conditional on payer access. A copy button produces a synthetic, plan/service-specific prompt to paste into Keragon's AI workflow builder. It does **not** deploy or activate a Keragon workflow, submit PA, send PHI or verify member prices.
+PBJ reports that **Keragon is already connected to ModMed EMA** and that **TriZetto is its billing/clearinghouse service**. Staff workup therefore reuses the existing ModMed connection, not a new integration order. **Optum is not required** in this design.
 
-See [Keragon setup, workflow design and go-live checklist](docs/KERAGON-PRIOR-AUTH.md). Keragon's ModMed connector requires a **separate ModMed FHIR integration** with approved credentials and scopes. The app remains synthetic-only, and all live connections must meet the [HIPAA release conditions](docs/HIPAA-RELEASE.md).
+- Pharmacy-benefit medications use ModMed ePrescribing ePA / the actual PBM where activated, with Keragon tracking checklists and follow-up.
+- Medical-benefit injections/gel and orthopedic surgeries first use the exact insurer's PA rules and evaluate whether the existing TriZetto agreement includes **separately licensed electronic PA (278 or FHIR CRD/DTR/PAS)**. An existing TriZetto claims account is not proof of an authorization subscription.
+- Keragon's published **TriZetto connector currently lists only eligibility requests**. The app does not invent a prior-auth API or automatically route authorization through TriZetto; payer portals/RCM remain the fallback.
+- A copy button generates a synthetic payer/service-specific draft for Keragon's workflow builder. No live connection, patient-specific quote, PA submission or PHI is enabled in Coverage Desk.
+
+See [Keragon and TriZetto activation guide](docs/KERAGON-PRIOR-AUTH.md) and [HIPAA release prerequisites](docs/HIPAA-RELEASE.md).
 
 ## Protected Cuptomize price evidence (optional, currently not activated)
 

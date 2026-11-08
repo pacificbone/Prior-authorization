@@ -1,43 +1,48 @@
-import {KERAGON_LINKS,KERAGON_MODMED_SETUP_EMAIL,keragonPaRoute} from '../shared/keragon-pa.mjs';
+import {KERAGON_LINKS, PRACTICE_CONNECTIVITY, keragonPaRoute} from '../shared/keragon-pa.mjs';
 
-const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-const safeUrl=value=>{
- const raw=String(value??'');
- if(raw===KERAGON_MODMED_SETUP_EMAIL)return raw;
- try {
-   const u=new URL(raw);
-   const allowed=new Set(['app.keragon.com','help.keragon.com','www.keragon.com','www.modmed.com']);
-   return u.protocol==='https:'&&allowed.has(u.hostname)&&u.username===''&&u.password===''?u.href:null;
+const h=value=>String(value??'').replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[c]));
+const allowUrl=value=>{
+ try{
+  const u=new URL(String(value||''));
+  return u.protocol==='https:'&&
+    ['app.keragon.com','help.keragon.com','www.keragon.com',
+     'www.trizettoprovider.com','www.modmed.com'].includes(u.hostname)&&
+    !u.username&&!u.password?u.href:null;
  }catch{return null;}
 };
 const link=(href,label)=>{
- const url=safeUrl(href);
- if(!url)return '';
- return '<a href="'+h(url)+'"'+(url.startsWith('mailto:')?'':' target="_blank" rel="noopener noreferrer"')+'>'+h(label)+'</a>';
+ const url=allowUrl(href);
+ return url?'<a href="'+h(url)+'" target="_blank" rel="noopener noreferrer">'+h(label)+'</a>':'';
 };
 export function renderKeragonPaPanel(ctx,{benefit='Medical',requestType='Initial'}={}){
  const route=keragonPaRoute(ctx,{benefit,requestType});
  if(!route)return '';
- return '<section class="staff-vendor-pa staff-keragon-pa" aria-label="Keragon authorization workflow handoff">'+
-  '<div class="staff-rate-heading"><strong>Keragon authorization workflow</strong><small>Blueprint only · no active payer submission</small></div>'+
-  '<div class="staff-answer"><strong>Recommended lane</strong><span>'+h(route.headline)+'</span></div>'+
+ const medical=route.lane==='medical-drug'||route.lane==='procedure';
+ return '<section class="staff-vendor-pa staff-keragon-pa" aria-label="Existing Keragon and TriZetto authorization workflow">'+
+  '<div class="staff-rate-heading"><strong>Keragon authorization workflow</strong><small>Existing systems · authorization connection not verified</small></div>'+
+  '<p class="helper"><strong>Already in use (reported by PBJ):</strong> Keragon ↔ ModMed, and TriZetto for clearinghouse/billing. No need to buy or reconnect ModMed just to plan this workflow. Exact scopes, Keragon-to-TriZetto actions and payer access still require verification.</p>'+
+  '<div class="staff-answer"><strong>Recommended workflow</strong><span>'+h(route.headline)+'</span></div>'+
   '<p class="helper">'+h(route.description)+'</p>'+
-  '<ol class="staff-vendor-steps">'+route.steps.map(x=>
-    '<li><strong>'+h(x.title)+'</strong> <small>'+h(x.mode)+'</small>'+
-    '<p>'+h(x.detail)+'</p>'+(x.url?link(x.url,'Connector documentation'):'')+'</li>').join('')+'</ol>'+
-  '<p class="notice amber"><strong>No live connection:</strong> '+h(route.connectionStatus)+' '+h(route.warning)+'</p>'+
-  '<div class="local-buttons"><button class="button primary" data-action="staff-keragon-blueprint">Copy workflow instructions for Keragon</button>'+
+  '<ol class="staff-vendor-steps">'+route.steps.map(s=>
+     '<li><strong>'+h(s.title)+'</strong> <small>'+h(s.mode)+'</small>'+
+     '<p>'+h(s.detail)+'</p>'+(s.url?link(s.url,'Official product information'):'')+'</li>'
+   ).join('')+'</ol>'+
+  '<p class="notice amber"><strong>Current boundary:</strong> '+h(route.connectionStatus)+' '+h(route.warning)+'</p>'+
+  '<div class="local-buttons"><button class="button primary" data-action="staff-keragon-blueprint">Copy Keragon workflow instructions</button>'+
   link(KERAGON_LINKS.app,'Open Keragon workspace')+'</div>'+
-  '<p class="helper">The copy action uses only the selected public payer/plan category and service, never member identifiers or clinical notes. Paste into Keragon’s AI workflow builder and review all steps before enabling.</p>'+
-  '<details class="staff-vendor-details"><summary>Keragon setup checklist — administrator</summary>'+
-  '<p><strong>1. ModMed FHIR connector:</strong> Ask ModMed Practice Solutions to enable Keragon. Obtain the firm URL prefix, FHIR username and FHIR password from ModMed; connect through Keragon Authentication, not through Coverage Desk. Verify enabled resource scopes (Coverage, ServiceRequest, Encounter and any other needed reads). ServiceRequest access is read/search; it is not an authorization-result writeback.</p>'+
-  '<p>'+link(KERAGON_MODMED_SETUP_EMAIL,'Prepare ModMed activation email')+' · '+link(KERAGON_LINKS.modmedSetup,'Official Keragon–ModMed setup')+'</p>'+
-  '<p><strong>2. Eligibility:</strong> Configure the TriZetto insurance eligibility action and exact payer IDs only after appropriate account authorization. Eligibility does not prove deductible remaining or negotiated allowed fees.</p>'+
-  '<p>'+link(KERAGON_LINKS.trizetto,'TriZetto eligibility connector')+'</p>'+
-  '<p><strong>3. Prior auth:</strong> Verify Optum authorization create, status and determination actions for each relevant Hawaiʻi payer, benefit, CPT/HCPCS and medication. Unsupported transactions must use the official payer portal or existing ModMed ePA.</p>'+
-  '<p>'+link(KERAGON_LINKS.optum,'Optum authorization connector')+' · '+link(KERAGON_LINKS.modmedEpa,'ModMed ePrescribing / ePA')+'</p>'+
-  '<p><strong>4. Security:</strong> Confirm Keragon BAA, ModMed interfaces, TriZetto/Optum agreements, MFA, scopes, unique users, approval before submission, logging and exception handling. Do not enter patient information here or create unverified callback endpoints.</p>'+
-  '<p>'+link(KERAGON_LINKS.october,'Keragon October 2026 connector release')+' · '+
-  link(KERAGON_LINKS.httpClient,'Keragon custom HTTP action')+' · '+link(KERAGON_LINKS.webhook,'Keragon webhook setup')+'</p>'+
+  '<p class="helper">The blueprint contains only public payer/plan categories and the selected procedure or medication. No patient charts, credentials, member IDs, or real submissions leave this trial.</p>'+
+  '<details class="staff-vendor-details"><summary>Use existing connections — administrator checklist</summary>'+
+  '<p><strong>1. Keragon–ModMed:</strong> Already linked according to PBJ. Confirm the existing connection and permissions for Coverage, Encounter and ServiceRequest; do not open another integration or request credentials. ModMed ServiceRequest availability does not establish chart-note writeback or electronic PA filing.</p>'+
+  '<p>'+link(KERAGON_LINKS.modmedConnector,'Keragon ModMed connector')+'</p>'+
+  '<p><strong>2. TriZetto:</strong> Already used for billing/clearinghouse, but whether its Keragon eligibility action is enabled and whether PBJ has purchased/enrolled for its separate prior authorization transactions are unknown. Ask the current TriZetto account representative to confirm available eligibility transactions, 278 authorization and newer FHIR-based prior-authorization products, payer roster, API/security requirements, and existing contracted pricing.</p>'+
+  '<p>'+link(KERAGON_LINKS.trizetto,'Keragon TriZetto eligibility action')+' · '+
+  link(KERAGON_LINKS.trizettoPa,'TriZetto electronic prior authorization')+' · '+
+  link(KERAGON_LINKS.trizettoPaServices,'TriZetto PA services')+'</p>'+
+  (medical?'<p><strong>3. Medical authorizations:</strong> If TriZetto already offers the exact payer and code authorization route for PBJ, use that approved workflow. Otherwise route to the existing official payer/delegate portal while Keragon manages document checklists, status and overdue tasks. Do not assume that the Keragon TriZetto eligibility connector itself creates prior authorizations.</p>':
+   '<p><strong>3. Pharmacy benefit:</strong> Use ModMed EMA ePA or the actual PBM portal. TriZetto eligibility and medical prior-auth products are not a substitute for a verified pharmacy ePA transaction.</p>')+
+  '<p><strong>4. Optum is optional:</strong> Optum is a separate health technology / authorization service. Keragon publishes PA actions for Optum, but PBJ does not need an Optum subscription or connection unless the existing TriZetto and payer paths cannot meet a defined requirement. No Optum PA action is part of this default design.</p>'+
+  '<p><strong>5. PHI safeguards:</strong> Validate vendor agreements and scopes, workforce roles, audit, required clinical approval and privacy-safe error handling before connecting live submission or pricing feeds. This trial remains synthetic-data-only.</p>'+
   '</details></section>';
 }
