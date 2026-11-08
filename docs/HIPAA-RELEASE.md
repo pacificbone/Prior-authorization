@@ -39,3 +39,11 @@ The current patient-data lock is deliberate. Releasing PHI requires implementing
 - [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data): endpoint/features, account approval and retention settings matter under a BAA. Verify the current contract and the eligible account configuration. This implementation does not establish those prerequisites.
 
 No vendor contracts or BAA status were verified in the user’s actual accounts during this build.
+
+## November 7 follow-up safeguards
+
+The private pricing bridge's Access validation now enforces a signed subject, strict token dates and coherent time windows, rejects unsupported critical headers, bounds key material and rejects ambiguous keys. Key retrieval has a timeout and refuses redirects. These checks authenticate only the existing rate bridge; they do not implement workforce MFA, clinical case authorization or practice isolation.
+
+`shared/release-boundary.mjs` explicitly reports production controls as blocked. The status API cannot be used to enable PHI; changing environment flags does not grant release. The build rejects attempts to enable patient-data flags or a production/clinical deployment mode, and CI verifies that rejection. The ordinary synthetic build remains available. No patient ingestion, protected clinical store or durable audit service was added.
+
+The outstanding production requirements above still apply. The evidence needed to resolve them is detailed in [the payer verification follow-up](PAYER-VERIFICATION-FOLLOWUP-2026-11-07.md).

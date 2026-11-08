@@ -1,3 +1,4 @@
+import {renderClinicalAddendumPanel} from './clinical-addendum-panel.mjs';
 import {STAFF_PAYERS,STAFF_YEARS,STAFF_CATEGORY_LABELS,staffPlansForPayer,staffPlanProgramLine,staffContext,staffServices} from '../shared/staff-workflow.mjs';
 import {COST_FACILITIES,COST_RATE_SOURCES,COST_METHODS,estimatePatientCost} from '../shared/patient-cost.mjs';
 import {orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
@@ -151,6 +152,7 @@ export function renderStaffPage(state){
  <details class="staff-sources"><summary>Official sources relevant to this plan and request (${linked.length})</summary>${sourceRows||'<p class="helper">No reviewed exact-policy URL available; check insurer provider resources.</p>'}</details>
  `}
  </div></section>
+ ${renderClinicalAddendumPanel(state)}
  ${pricesMarkup}
  <section class="panel staff-stage" id="staff-packet"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">5</span> Supporting documentation & staff communication</h2></div><div class="panel-content">
  ${!plan||!service?'<p class="helper">Select a plan and treatment to generate a tailored evidence checklist and request template.</p>':`

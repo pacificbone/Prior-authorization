@@ -9,6 +9,7 @@
     "start": "node --env-file-if-exists=.env.local server/local.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser/clinical-addendum.e2e.mjs",
     "check": "node scripts/check.mjs"
   }
 }
