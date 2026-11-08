@@ -11,7 +11,7 @@ export const HAWAII_PAYER_ROUTING=Object.freeze([
  {payer:'AlohaCare',line:'QUEST / Medicaid',category:'medication',title:'AlohaCare QUEST formulary and physician-administered drug pathway',
   sourceUrl:'https://0ogp.alohacare.org/Providers/Formulary_QUEST',
   note:'Separate pharmacy ePA and physician-administered drug forms. Verify exact product, benefit, and acquisition route.',reviewedAt:'2026-11-08'},
- {payer:'\u2018Ohana Health Plan',line:'QUEST / Medicaid',category:'surgery',title:'Ohana Medicaid code-specific authorization lookup',
+ {payer:'ʻOhana / Wellcare',line:'QUEST / Medicaid',category:'surgery',title:'Ohana Medicaid code-specific authorization lookup',
   sourceUrl:'https://www.ohanahealthplan.com/content/dam/centene/wellcare/hi/pdfs/provider/HI_OhanaHP_Medicaid_CCS_QI_PriorAuthReq_R.pdf',
   secondaryUrl:'https://www.wellcare.com/en/Hawaii/Providers/Authorization-Lookup',
   note:'Medicaid PA list directs providers to the current code lookup. Verify exact member product, service and facility.',reviewedAt:'2026-11-08'},
