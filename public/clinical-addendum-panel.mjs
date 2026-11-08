@@ -4,6 +4,7 @@ import {AUTH_TEMPLATE_CATALOG,authTemplateForService,findAuthTemplate,renderAuth
 import {resolveFulfillment,fulfillmentChecklist} from '../shared/fulfillment-policy.mjs';
 import {prepareAuthorizationPacket,renderAuthorizationPreflightSummary} from '../shared/authorization-packet-preflight.mjs';
 import {documentationBranchesFor} from '../shared/payer-documentation-branches.mjs';
+import {payerRoutingFor} from '../shared/hawaii-payer-routing.mjs';
 const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function selectedClinicalTemplate(state){
  return state.clinicalTemplateId?findAuthTemplate(state.clinicalTemplateId):authTemplateForService(state.serviceId,state.gelProductId);
@@ -26,6 +27,7 @@ export function renderClinicalAddendumPanel(state){
  const fulfillment=resolveFulfillment(scope);
  const refs=payerEvidenceFor(scope);
  const branches=documentationBranchesFor(refs.map(r=>r.id),state.requestType||'Initial');
+ const routes=payerRoutingFor({payer:scope.payer,line:scope.line,category:scope.medication?'medication':'surgery'});
  // No unverified reference documents are promoted into authoritative criteria.
  const packet=prepareAuthorizationPacket({templateId:template?.id,policyRequest:{
    payer:scope.payer,planId:scope.planId,line:scope.line,
@@ -47,6 +49,9 @@ export function renderClinicalAddendumPanel(state){
  <pre class="clinical-template-preview">${h(renderAuthorizationPreflightSummary(packet))}</pre></details>
  <p class="helper">This is a synthetic checklist preview. Clinical findings and patient records must remain in an approved clinical system; selecting checkboxes elsewhere does not satisfy payer criteria.</p>
  </section>
+ <section id="staff-payer-routing"><h3>Other Hawaiʻi payer authorization routing</h3>
+ ${routes.length?routes.map(r=>`<div class="staff-source"><strong>${h(r.title)}</strong><p>${h(r.note)}</p><a href="${h(r.sourceUrl)}" target="_blank" rel="noopener noreferrer">Payer source</a>${r.secondaryUrl?` · <a href="${h(r.secondaryUrl)}" target="_blank" rel="noopener noreferrer">Additional policy</a>`:""}</div>`).join(""):"<p class=\"helper\">No reviewed payer routing reference for this combination. Confirm with the payer.</p>"}
+ <p class="helper">Public routing information only. Exact member product, delegated administrator, code-level PA and buy-and-bill or pharmacy sourcing remain unverified.</p></section>
  <section id="staff-policy-evidence"><h3>Source verification and exact-plan adoption</h3>
  <p><strong>Exact-plan adoption: NOT VERIFIED.</strong> Public document retrieval does not confirm the member's plan, benefits or supply permissions.</p>
  ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. Snapshot reviewed ${h(s.retrievedAt)}; ${s.reviewOverdue?'REVIEW OVERDUE':'plan applicability unverified'}. ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256)}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
