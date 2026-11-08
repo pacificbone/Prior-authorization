@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {assessPayerAuthorization} from '../shared/payer-authorization-preflight.mjs';
+const p={payer:'Synthetic',planId:'TEST-1',line:'Commercial',serviceId:'total-knee',effectiveFrom:'2026-01-01',effectiveTo:'2026-12-31',verified:true,sourceUrl:'https://example.org/policy',policyId:'policy-1',version:'1',reviewedBy:'Tester',reviewedAt:'2026-10-01',reviewDue:'2026-12-01',criteria:[{id:'imaging',label:'Documented imaging'},{id:'function',label:'Functional limitations'}]};
+const base={payer:p.payer,planId:p.planId,line:p.line,serviceId:p.serviceId,serviceDate:'2026-11-08',policies:[p]};
+test('unknown exact plan blocks',()=>assert.equal(assessPayerAuthorization({...base,planId:'OTHER'}).status,'blocked'));
+test('duplicate policy blocks',()=>assert.equal(assessPayerAuthorization({...base,policies:[p,p]}).status,'blocked'));
+test('stale review blocks',()=>assert.equal(assessPayerAuthorization({...base,asOf:'2027-01-01'}).status,'blocked'));
+test('missing evidence is explicit',()=>assert.equal(assessPayerAuthorization(base).missing.length,2));
+test('documentation does not constitute submission clearance',()=>{const r=assessPayerAuthorization({...base,evidence:{imaging:{reviewed:true,recordReference:'XR',finding:'OA'},function:{reviewed:true,recordReference:'Note',finding:'Stairs'}}});assert.equal(r.status,'criteria-documented');assert.equal(r.submissionReady,false)});
+test('unapproved exception cannot bypass criterion',()=>assert.equal(assessPayerAuthorization({...base,evidence:{imaging:{reviewed:true,applicable:false,exceptionRationale:'none'}}}).missing.length,2));
