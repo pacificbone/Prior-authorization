@@ -1,7 +1,7 @@
 import {STAFF_PAYERS,STAFF_YEARS,STAFF_CATEGORY_LABELS,staffPlansForPayer,staffPlanProgramLine,staffContext,staffServices} from '../shared/staff-workflow.mjs';
 import {COST_FACILITIES,COST_RATE_SOURCES,COST_METHODS,estimatePatientCost} from '../shared/patient-cost.mjs';
 import {orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
-import {renderModmedPaPanel} from './vendor-pa-panel.mjs';
+import {renderKeragonPaPanel} from './keragon-pa-panel.mjs';
 const h=function h(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));};
 const opts=function opts(items,current,empty='',getter=(x)=>({v:x,label:x})){
   return (empty?`<option value="">${h(empty)}</option>`:'')+items.map(x=>{const {v,label}=getter(x);return `<option value="${h(v)}" ${String(v)===String(current)?'selected':''}>${h(label)}</option>`}).join('');
@@ -140,7 +140,7 @@ export function renderStaffPage(state){
  <div class="staff-answer"><strong>Prior authorization</strong><span>${ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
  ${ctx.policyConflict?'<p class="notice amber">Conflicting medical policies were found; no automatic authorization conclusion can be made.</p>':''}
  ${paRouteMarkup}
- ${renderModmedPaPanel(ctx,{benefit,requestType})}
+ ${renderKeragonPaPanel(ctx,{benefit,requestType})}
  ${med&&benefit==='Pharmacy'&&live?`
  <div class="staff-lookup"><h3>Search this insurer’s published formulary</h3><p class="helper">${h(live.label)} · exact plan ID ${h(live.planId)} · ${h(live.year)}. Look up each strength and route. A row is not an eligibility approval.</p><div class="staff-lookup-search"><input id="staff-drug-lookup" value="${h(drugLookup.term||service.name)}" maxlength="70" autocomplete="off" placeholder="Brand / generic / RxNorm"><button class="button primary" data-action="staff-check-formulary" ${querying?'disabled':''}>${querying?'Checking…':'Check published drug list'}</button></div>
  ${drugLookup.error?`<p class="notice amber">${h(drugLookup.error)}</p>`:''}
