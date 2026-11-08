@@ -32,3 +32,18 @@ export async function tokenMatches(supplied,expected) {
   const [a,b]=await Promise.all([crypto.subtle.digest('SHA-256',enc.encode(supplied)),crypto.subtle.digest('SHA-256',enc.encode(expected))]);
   const x=new Uint8Array(a),y=new Uint8Array(b);let d=0;for(let i=0;i<x.length;i++)d|=x[i]^y[i];return d===0;
 }
+
+// Bound remote key material before parsing it; never include response text in errors.
+export async function readBoundedResponseJson(response,limit=131072){
+ if(Number(response.headers.get('content-length')||0)>limit)throw Error('Remote JSON too large');
+ const reader=response.body?.getReader();
+ if(!reader)throw Error('Missing remote JSON');
+ let total=0;const chunks=[];
+ try{
+  while(true){const {done,value}=await reader.read();if(done)break;total+=value.length;
+   if(total>limit){await reader.cancel();throw Error('Remote JSON too large');}chunks.push(value);
+  }
+ }finally{reader.releaseLock();}
+ const bytes=new Uint8Array(total);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}
+ return JSON.parse(new TextDecoder().decode(bytes));
+}

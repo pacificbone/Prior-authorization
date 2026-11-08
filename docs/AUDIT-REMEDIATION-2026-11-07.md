@@ -45,3 +45,7 @@ Review date is local Hawaiʻi date. Source URLs can change in place. Human revie
 ## Reproduce checks
 
 Run `npm test`, `npm run check` and `npm run build` on Node 22 or later. For browser verification, start `node server/local.mjs --port 3088` in a separate terminal, make Playwright available, then run `npm run test:browser`. Optional `PBJ_PLAYWRIGHT_MODULE` and `PBJ_CHROME_PATH` select an existing Playwright installation and browser. `PBJ_QA_DIR` saves a rendered blank Prolia PDF and panel screenshot outside the source tree. Browser tests deliberately send no patient data and do not contact payer APIs. Playwright is an optional development tool, not a production dependency.
+
+## Subsequent blocker-resolution pass
+
+The previously inaccessible HMSA hyaluronate files have now been retrieved and reviewed directly. Public HMSA/Evolent surgical sources were also obtained. See [the follow-up verification record](PAYER-VERIFICATION-FOLLOWUP-2026-11-07.md) for the updated source inventory, exact-plan adoption gate, supplier/reimbursement boundaries, security hardening and remaining external requirements. This supersedes the earlier retrieval blocker; it does not clear exact-member coverage or production release.

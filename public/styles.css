@@ -210,3 +210,5 @@
 @media(max-width:560px){.staff-rate-tools label,.staff-rate-tools button{width:100%}.staff-rate-evidence{padding:12px}}
 
 .clinical-template-preview{white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;font:12px/1.6 system-ui;padding:16px;background:#f4f7f0}
+
+.policy-fingerprint{overflow-wrap:anywhere}

@@ -1,24 +1,18 @@
+import {ADOPTION_SCOPE_KEYS,policyDay,validPolicyDate,validPublicSource,validSourceDigest,assessPlanAdoption} from './plan-adoption.mjs';
 // Offline policy review only. No result from this module authorizes procurement.
 export const FULFILLMENT_PATHS = Object.freeze({BUY_AND_BILL:'buy-and-bill',SPECIALTY_PHARMACY:'specialty-pharmacy',BOTH:'both-permitted',RESTRICTED:'restricted',UNKNOWN:'unknown'});
 const paths=new Set(Object.values(FULFILLMENT_PATHS));
-const keys=['payer','planId','productId','benefit'];
-const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Pacific/Honolulu',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const keys=ADOPTION_SCOPE_KEYS;
+const today=policyDay;
 const text=v=>typeof v==='string'&&v.trim().length>0;
-export function validPolicyDate(value){
- if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
- const ms=Date.parse(value+'T00:00:00Z');
- return Number.isFinite(ms)&&new Date(ms).toISOString().slice(0,10)===value;
-}
-function publicSource(value){
- try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.hash;}catch{return false;}
-}
+export {validPolicyDate} from './plan-adoption.mjs';
 const blocked=reason=>({path:FULFILLMENT_PATHS.UNKNOWN,verified:false,orderingAllowed:false,sourceUrl:null,blockers:[reason]});
 export function resolveFulfillment(input={}){
- const {payer,planId,productId,benefit,serviceDate,policies=[],asOf=today()}=input||{};
- if(![payer,planId,productId].every(text)||!['Medical','Pharmacy'].includes(benefit)||!validPolicyDate(serviceDate)||!validPolicyDate(asOf))
-  return blocked('Exact payer, plan, product, Medical/Pharmacy benefit and valid service date are required');
+ const {payer,planId,productId,benefit,serviceDate,line,setting,state,policies=[],adoptions=[],asOf=today()}=input||{};
+ if(![payer,planId,productId,line,setting,state].every(text)||!['Medical','Pharmacy'].includes(benefit)||!validPolicyDate(serviceDate)||!validPolicyDate(asOf))
+  return blocked('Exact payer, plan, product, Medical/Pharmacy benefit, coverage line, setting, state and valid service date are required');
  if(!Array.isArray(policies))return blocked('Malformed fulfillment policy registry');
- const scope={payer,planId,productId,benefit};
+ const scope={payer,planId,productId,benefit,line,setting,state,serviceDate};
  const scoped=policies.filter(p=>p&&keys.every(k=>p[k]===scope[k]));
  // Invalid dates in a scoped record cannot silently disappear and hide a conflict.
  if(scoped.some(p=>!validPolicyDate(p.effectiveFrom)||!validPolicyDate(p.effectiveTo)||p.effectiveFrom>p.effectiveTo))
@@ -26,10 +20,13 @@ export function resolveFulfillment(input={}){
  const active=scoped.filter(p=>p.effectiveFrom<=serviceDate&&serviceDate<=p.effectiveTo);
  if(active.length!==1)return blocked('Exact plan/product/benefit fulfillment policy not uniquely verified for service date');
  const p=active[0];
- if(p.verified!==true||p.planPrecision!=='exact-product'||!text(p.id)||!text(p.version)||!text(p.reviewedBy)||!publicSource(p.sourceUrl)||!paths.has(p.path)||
+ if(p.verified!==true||p.planPrecision!=='exact-product'||!text(p.id)||!text(p.version)||!text(p.reviewedBy)||!validPublicSource(p.sourceUrl)||!validSourceDigest(p.sourceSha256)||!paths.has(p.path)||
    !validPolicyDate(p.reviewedAt)||!validPolicyDate(p.reviewDue)||p.reviewedAt>asOf||p.reviewDue<asOf||p.reviewDue<serviceDate||p.reviewDue<p.reviewedAt||
    (Date.parse(p.reviewDue)-Date.parse(p.reviewedAt))/86400000>90)
   return blocked('Policy provenance or current review is incomplete; authoritative policy review required');
+ if(benefit==='Pharmacy'&&['buy-and-bill','both-permitted'].includes(p.path))return blocked('Buy-and-bill requires verified medical-benefit drug reimbursement, not pharmacy-benefit coverage');
+ const adoption=assessPlanAdoption(scope,p,adoptions,asOf);
+ if(!adoption.verified)return blocked(adoption.blockers[0]);
  const blockers=['Synthetic trial: patient-specific eligibility, authorization, supplier and reimbursement must be verified in an approved clinical workflow before ordering'];
  if(['unknown','restricted'].includes(p.path))blockers.push('Supply route is unknown or restricted; do not purchase or ship medication');
  return {path:p.path,verified:true,orderingAllowed:false,sourceUrl:p.sourceUrl,policyId:p.id,version:p.version,

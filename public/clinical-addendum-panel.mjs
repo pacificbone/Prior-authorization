@@ -1,9 +1,17 @@
+import {staffGetPlan,staffPlanProgramLine} from '../shared/staff-workflow.mjs';
+import {payerEvidenceFor,payerVerificationWorksheet} from '../shared/payer-policy-evidence.mjs';
 import {AUTH_TEMPLATE_CATALOG,authTemplateForService,findAuthTemplate,renderAuthTemplateNote} from '../shared/authorization-template-catalog.mjs';
 import {resolveFulfillment,fulfillmentChecklist} from '../shared/fulfillment-policy.mjs';
 const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function selectedClinicalTemplate(state){
  return state.clinicalTemplateId?findAuthTemplate(state.clinicalTemplateId):authTemplateForService(state.serviceId,state.gelProductId);
 }
+export function staffVerificationScope(state){
+ const template=selectedClinicalTemplate(state);
+ return {payer:state.payer,planId:state.planId,line:staffPlanProgramLine(staffGetPlan(state.payer,state.planId,state.year||2026)),benefit:state.benefit,
+  productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,medication:!!template&&template.category!=='surgery'};
+}
+export function staffVerificationWorksheet(state){return payerVerificationWorksheet(staffVerificationScope(state));}
 export function staffClinicalAddendum(state){
  const template=selectedClinicalTemplate(state);
  if(!template)throw new Error('Choose a clinical template first');
@@ -12,12 +20,18 @@ export function staffClinicalAddendum(state){
 }
 export function renderClinicalAddendumPanel(state){
  const template=selectedClinicalTemplate(state);
- const fulfillment=resolveFulfillment({payer:state.payer,planId:state.planId,productId:template?.id,benefit:state.benefit,serviceDate:state.serviceDate});
+ const scope=staffVerificationScope(state);
+ const fulfillment=resolveFulfillment(scope);
+ const refs=payerEvidenceFor(scope);
  return `<section class="panel staff-stage" id="staff-clinical-addendum"><div class="panel-title-row"><h2 class="section-title">Clinical addendum & medication supply review</h2></div><div class="panel-content">
  <p class="notice amber"><strong>Synthetic only — not for submission.</strong> Print a blank product-specific or procedure-specific addendum to complete in an approved clinical system. No patient information or clinical findings are entered here.</p>
  <label>Clinical template library<select id="staff-clinical-template"><option value="">Use selected treatment (choose a gel brand when applicable)</option>${AUTH_TEMPLATE_CATALOG.map(t=>`<option value="${h(t.id)}" ${state.clinicalTemplateId===t.id?'selected':''}>${h(t.name)}</option>`).join('')}</select></label>
  <label>Planned service date (policy context only)<input type="date" id="staff-service-date" value="${h(state.serviceDate||'')}"></label>
  ${template?`<h3>${h(template.name)}</h3><p class="helper">${h(template.notes)} Candidate codes: ${h(template.codes.join(', ')||'Coding determination required')}.</p><details><summary>Preview blank clinical addendum (${template.fields.length} fields)</summary><pre class="clinical-template-preview">${h(staffClinicalAddendum(state))}</pre></details><div class="local-buttons"><button class="button secondary" data-action="staff-print-addendum">Print / Save addendum as PDF</button><button class="button secondary" data-action="staff-download-addendum">Download blank clinical addendum</button></div>`:'<p class="helper">Choose a supported treatment or a template from the library.</p>'}
+ <section id="staff-policy-evidence"><h3>Source verification and exact-plan adoption</h3>
+ <p><strong>Exact-plan adoption: NOT VERIFIED.</strong> Public document retrieval does not confirm the member's plan, benefits or supply permissions.</p>
+ ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. Snapshot reviewed ${h(s.retrievedAt)}; ${s.reviewOverdue?'REVIEW OVERDUE':'plan applicability unverified'}. ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256)}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
+ <div class="local-buttons"><button class="button secondary" data-action="staff-print-verification">Print payer verification worksheet</button></div></section>
  <h3>Supply route: ${h(fulfillment.path)} / ${fulfillment.verified?'policy verified':'unverified'}</h3>
  <p><strong>Ordering blocked.</strong> No verified exact-plan procurement policy is loaded. A formulary result or completed checklist cannot authorize purchasing, dispensing or shipment.</p>
  <ul>${fulfillment.blockers.map(x=>`<li>${h(x)}</li>`).join('')}</ul>

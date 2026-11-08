@@ -121,7 +121,7 @@ test('Cloudflare Access verification fails closed and only accepts signed identi
  const b64=x=>btoa(String.fromCharCode(...(typeof x==='string'?new TextEncoder().encode(x):new Uint8Array(x))))
    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
  const now=Date.parse('2026-11-07T12:00:00Z');
- const claims={aud:[config.ACCESS_AUD],iss:'https://'+config.ACCESS_TEAM_DOMAIN,
+ const claims={sub:'synthetic-staff-subject',aud:[config.ACCESS_AUD],iss:'https://'+config.ACCESS_TEAM_DOMAIN,
    email:'true-staff@example.com',exp:Math.floor(now/1000)+3600,iat:Math.floor(now/1000)-50};
  const head=b64(JSON.stringify({alg:'RS256',kid}));
  const body=b64(JSON.stringify(claims));

@@ -13,6 +13,11 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
+      - name: Confirm PHI build remains blocked
+        run: |
+          if PATIENT_DATA_ENABLED=true npm run build; then
+            exit 1
+          fi
   browser:
     runs-on: ubuntu-latest
     steps:

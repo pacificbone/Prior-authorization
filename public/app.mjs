@@ -1,4 +1,4 @@
-import {staffClinicalAddendum} from './clinical-addendum-panel.mjs';
+import {staffClinicalAddendum,staffVerificationWorksheet} from './clinical-addendum-panel.mjs';
 import {drugs,payers,lines,policies,sourceDirectory,defaultScope,coverageProfiles,formularyLists,carrierChoices} from '/shared/catalog.mjs';
 import {samples,blankCase} from '/shared/fixtures.mjs';
 import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,buildDocumentationChecklist,policyFreshness,compareMedications,validatePolicy,validateWorkspace,dateToday,MAX_NOTE,applyPolicyPathway} from '/shared/domain.mjs';
@@ -356,6 +356,10 @@ document.addEventListener('click',async event=>{
   const remove=event.target.closest('[data-remove-policy]');if(remove){state.custom=state.custom.filter(p=>p.id!==remove.dataset.removePolicy);invalidate();log('Custom public source removed');render();return;}
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
+  if(action==='staff-print-verification'){
+    if(state.locked)return;
+    $('#print-region').textContent=staffVerificationWorksheet(state.staff);window.print();log('Blank synthetic payer verification worksheet exported');return;
+  }
   if(action==='staff-print-addendum'||action==='staff-download-addendum'){
     if(state.locked)return;
     try{

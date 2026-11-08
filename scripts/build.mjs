@@ -1,3 +1,5 @@
+import {assertSyntheticBuild} from '../shared/release-boundary.mjs';
+assertSyntheticBuild(process.env);
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 const root=new URL('../',import.meta.url);
 await rm(new URL('dist/',root),{recursive:true,force:true});

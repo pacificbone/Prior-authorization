@@ -1,3 +1,4 @@
+import {releaseBoundary} from '../shared/release-boundary.mjs';
 import {createPublishedFormularyService,validateSearchInput} from './formulary.mjs';
 import {samples} from '../shared/fixtures.mjs';
 import {policies} from '../shared/catalog.mjs';
@@ -12,7 +13,7 @@ export function createApi({fetcher=fetch,now=()=>Date.now()}={}) {
   return async function handle(request,env={}) {
     const url=new URL(request.url);
     const reply=(data,status=200)=>secureResponse(json(data,status),request.url);
-    if(url.pathname==='/api/status'&&request.method==='GET') return reply({...aiConfiguration(env),storage:'browser-memory-or-explicit-encrypted-vault',phiRelease:'blocked',version:'0.1.0'});
+    if(url.pathname==='/api/status'&&request.method==='GET') return reply({...aiConfiguration(env),storage:'browser-memory-or-explicit-encrypted-vault',phiRelease:'blocked',releaseReadiness:releaseBoundary(),version:'0.1.0'});
     if(url.pathname==='/api/staff/rates')
       return secureResponse(await handleStaffRateRequest(request,env),request.url);
     if(url.pathname==='/api/formulary/search') {
