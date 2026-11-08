@@ -13,3 +13,18 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test tooling
+        run: npm install --no-save --package-lock=false playwright@1.62.1
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Start local synthetic server
+        run: |
+          node server/local.mjs --port 3088 > /tmp/pbj-browser-test.log 2>&1 &
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://localhost:3088/api/status
+      - run: npm run test:browser

@@ -137,3 +137,7 @@ Tests cover scope isolation, unknown benefits, stale/future/expired/conflicting 
 - No approval probability or payment guarantee is shown. No clinical benefit or denial reduction has been measured.
 
 Source provenance is in [docs/SOURCES.md](docs/SOURCES.md). No real patient records or the supplied messaging screenshot were included in the source repository.
+
+## November 7 authorization audit follow-up
+
+The staff workup now offers a blank printable clinical addendum library for all cataloged gel products, bone-health products and procedures. All exports remain synthetic. Procurement stays blocked without exact-plan source verification and an approved patient-specific workflow. See [audit remediation and remaining release blockers](docs/AUDIT-REMEDIATION-2026-11-07.md) for source checks, test instructions and limitations.

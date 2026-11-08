@@ -7,7 +7,7 @@ export function renderAuthorizationAddendumHtml(service, answers = {}, metadata 
   if (!guide) throw new Error('Unknown service');
   const assessment = assessOfflinePacket(service, answers);
   const rows = guide.questions.map(([id,label]) => {
-    const value = String(answers[id] ?? '').trim();
+    const value = documentedValue(answers?.[id]);
     return '<tr><th scope="row">' + escapeHtml(label) + '</th><td>' +
       (value ? escapeHtml(value) : '<strong class="missing">NOT DOCUMENTED — complete or mark not applicable with rationale</strong>') +
       '</td></tr>';
@@ -15,7 +15,7 @@ export function renderAuthorizationAddendumHtml(service, answers = {}, metadata 
   const missing = assessment.missing.length ? assessment.missing.map(x=>x.label).join('; ') : 'None in the general clinical checklist';
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Prior Authorization Addendum</title>' +
     '<style>body{font:12px/1.45 Arial,sans-serif;color:#17212c;max-width:800px;margin:28px auto}h1{font-size:20px}h2{font-size:14px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bac4cc;padding:9px;vertical-align:top;text-align:left}th{width:38%;background:#f2f5f7}.missing{color:#a12828}.warning{padding:10px;border:1px solid #a12828}footer{margin-top:26px}@media print{body{margin:12mm}.print-hide{display:none}}</style></head><body>' +
-    '<h1>Prior Authorization — Clinical Documentation Addendum</h1>' +
+    '<p><strong>SYNTHETIC ONLY — NOT FOR SUBMISSION</strong></p><h1>Prior Authorization — Clinical Documentation Addendum</h1>' +
     '<p><strong>Requested service:</strong> '+escapeHtml(guide.label)+'<br><strong>Patient:</strong> '+escapeHtml(metadata.patientName || '[PATIENT NAME]')+
     '<br><strong>Date of service:</strong> '+escapeHtml(metadata.date || '[DATE]')+
     '<br><strong>Payer / exact plan:</strong> '+escapeHtml(metadata.plan || '[VERIFY EXACT PRODUCT]')+
@@ -27,4 +27,11 @@ export function renderAuthorizationAddendumHtml(service, answers = {}, metadata 
     '<p class="warning"><strong>Verification required:</strong> This is a clinical documentation aid, not a coverage determination. The exact plan policy, prior authorization requirement, site of service, and benefit must be checked before submission. Unfilled fields must not be represented as findings.</p>' +
     '<footer>Reviewed by: __________________________ &nbsp; Date: __________</footer>' +
     '<p class="print-hide"><button onclick="window.print()">Print / Save as PDF</button></p></body></html>';
+}
+
+// All catalog templates share the same escaped printable output as the staff UI.
+import { findAuthTemplate, renderAuthTemplateNote, documentedValue } from './authorization-template-catalog.mjs';
+export function renderCatalogAddendumHtml(id,values={},metadata={}){
+ if(!findAuthTemplate(id))throw new Error('Unknown authorization template');
+ return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Synthetic authorization addendum</title></head><body><pre>'+escapeHtml(renderAuthTemplateNote(id,values,metadata))+'</pre></body></html>';
 }

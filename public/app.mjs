@@ -1,3 +1,4 @@
+import {staffClinicalAddendum} from './clinical-addendum-panel.mjs';
 import {drugs,payers,lines,policies,sourceDirectory,defaultScope,coverageProfiles,formularyLists,carrierChoices} from '/shared/catalog.mjs';
 import {samples,blankCase} from '/shared/fixtures.mjs';
 import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,buildDocumentationChecklist,policyFreshness,compareMedications,validatePolicy,validateWorkspace,dateToday,MAX_NOTE,applyPolicyPathway} from '/shared/domain.mjs';
@@ -157,6 +158,9 @@ function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ort
 function renderStaff(){$('#page').innerHTML=renderStaffPage(state.staff);}
 function resetStaffPrice(){
   const st=state.staff;
+  $('#print-region').textContent='';
+  st.clinicalTemplateId='';
+  st.serviceDate='';
   st.rateCode='';
   st.rateLookup={result:null,error:'',busy:false};
   const ctx=staffContext(st);
@@ -352,6 +356,16 @@ document.addEventListener('click',async event=>{
   const remove=event.target.closest('[data-remove-policy]');if(remove){state.custom=state.custom.filter(p=>p.id!==remove.dataset.removePolicy);invalidate();log('Custom public source removed');render();return;}
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
+  if(action==='staff-print-addendum'||action==='staff-download-addendum'){
+    if(state.locked)return;
+    try{
+      const note=staffClinicalAddendum(state.staff);
+      if(action==='staff-print-addendum'){$('#print-region').textContent=note;window.print();}
+      else download('pbj-synthetic-clinical-addendum-'+dateToday()+'.txt',note);
+      log('Blank synthetic clinical addendum exported');
+    }catch(error){toast(error.message);}
+    return;
+  }
   if(action==='coverage'){setPage('coverage');return;}
   if(action==='staff-load-rates'){
     const st=state.staff;
@@ -502,6 +516,8 @@ document.addEventListener('input',event=>{
 });
 document.addEventListener('change',event=>{
   const target=event.target;
+  if(target.id==='staff-clinical-template'){state.staff.clinicalTemplateId=target.value;$('#print-region').textContent='';renderStaff();return;}
+  if(target.id==='staff-service-date'){state.staff.serviceDate=target.value;$('#print-region').textContent='';renderStaff();return;}
   if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
   if(target.id==='staff-rate-code'){
     state.aiEpoch++;

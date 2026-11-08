@@ -1,3 +1,4 @@
+import {documentedValue} from './authorization-template-catalog.mjs';
 // Offline clinical preparation guides. These are NOT payer determinations.
 // Payer-specific rules must be separately verified against the exact member product.
 export const OFFLINE_AUTH_GUIDES = Object.freeze({
@@ -54,12 +55,12 @@ export const OFFLINE_AUTH_GUIDES = Object.freeze({
     cautions: ['Some plans exclude viscosupplementation entirely.', 'Brand, product-specific HCPCS, and frequency rules vary by plan.']
   }
 });
-export function getOfflineGuide(key) { return OFFLINE_AUTH_GUIDES[key] || null; }
+export function getOfflineGuide(key) { return Object.hasOwn(OFFLINE_AUTH_GUIDES,key)?OFFLINE_AUTH_GUIDES[key]:null; }
 export function assessOfflinePacket(key, answers = {}) {
   const guide = getOfflineGuide(key);
   if (!guide) return {status:'unknown-service', missing:[], completed:[], payerVerified:false};
-  const completed = guide.questions.filter(([id]) => String(answers[id] ?? '').trim()).map(([id,label]) => ({id,label}));
-  const missing = guide.questions.filter(([id]) => !String(answers[id] ?? '').trim()).map(([id,label]) => ({id,label}));
+  const completed = guide.questions.filter(([id]) => documentedValue(answers?.[id])).map(([id,label]) => ({id,label}));
+  const missing = guide.questions.filter(([id]) => !documentedValue(answers?.[id])).map(([id,label]) => ({id,label}));
   return {status:missing.length ? 'documentation-incomplete' : 'ready-for-payer-review',
     completed,missing,payerVerified:false,
     warning:'Clinical documentation readiness only. Not an insurance coverage or prior-authorization determination.'};
@@ -68,8 +69,8 @@ export function renderOfflineLetter(key, answers = {}) {
   const guide = getOfflineGuide(key);
   if (!guide) throw new Error('Unknown service');
   const assessment = assessOfflinePacket(key,answers);
-  const lines = guide.questions.map(([id,label]) => label + ': ' + (String(answers[id] ?? '').trim() || '[NOT PROVIDED]'));
-  return ['DRAFT — CLINICIAN REVIEW REQUIRED', 'Re: Request for medical necessity review — ' + guide.label,
+  const lines = guide.questions.map(([id,label]) => label + ': ' + (documentedValue(answers?.[id]) || '[NOT PROVIDED]'));
+  return ['SYNTHETIC ONLY — NOT FOR SUBMISSION', 'DRAFT — CLINICIAN REVIEW REQUIRED', 'Re: Request for medical necessity review — ' + guide.label,
     '', ...lines, '', 'Please evaluate this request under the member\'s applicable benefit and current medical policy.',
     'This draft does not certify that any payer criteria have been met.',
     'Missing documentation items: ' + assessment.missing.map(x=>x.label).join('; ')].join('\n');
