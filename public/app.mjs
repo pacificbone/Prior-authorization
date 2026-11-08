@@ -10,6 +10,7 @@ import {newCostCase,validateCostCase,costWorksheet,getCostService,COST_MEDICATIO
 import {renderCostPage} from './cost-page.mjs';
 import {staffContext,staffPlansForPayer,staffGetService,staffDefaultBenefit,staffServices,STAFF_CATEGORY_LABELS,staffAuthorizePacket,staffPatientScript} from '/shared/staff-workflow.mjs';
 import {renderStaffPage} from './staff-page.mjs';
+import {keragonBuildPrompt} from '/shared/keragon-pa.mjs';
 import {COST_PAYERS} from '/shared/patient-cost.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
@@ -382,6 +383,19 @@ document.addEventListener('click',async event=>{
     return;
   }
   if(action==='staff-check-formulary'){await runStaffFormularyLookup();return;}
+
+  if(action==='staff-keragon-blueprint'){
+    try{
+      const {payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance}=state.staff;
+      const ctx=staffContext({payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance});
+      const blueprint=keragonBuildPrompt(ctx,{benefit,requestType});
+      navigator.clipboard.writeText(blueprint).then(
+        ()=>toast('Synthetic Keragon workflow instructions copied. Paste into Keragon’s builder; all live actions require approval.'),
+        ()=>{download('pbj-keragon-synthetic-workflow-'+dateToday()+'.txt',blueprint);toast('Keragon workflow instructions downloaded.');}
+      );
+    }catch(error){toast(error.message||'Choose a valid insurer, plan and service.');}
+    return;
+  }
   if(action==='staff-export-packet'){
     try{
       const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,docs}=state.staff;

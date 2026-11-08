@@ -1,8 +1,10 @@
 # Coverage Desk — Pacific Bone & Joint
 
-## ModMed / SamaCare / Develop Health handoff (pilot guidance)
+## Keragon-first prior authorization orchestration (synthetic design)
 
-A benefit-specific vendor handoff now appears in **Staff workup → Formulary, coverage and PA requirements**. Pharmacy prescriptions route first to ModMed EMA ePA/RTPB, with an optional Develop Health evaluation. Medical-benefit drugs and gel injections use payer checks first with SamaCare evaluation; surgery and imaging remain with payer/RCM authorization workflows unless product-specific support is proven. No vendor, payer or ModMed patient-data integration is active and no PHI is allowed. See [ModMed and vendor integration guide](docs/MODMED-PA-INTEGRATIONS.md).
+The PBJ staff **Formulary, coverage and PA requirements** panel now routes through **Keragon**, not Develop Health or SamaCare. Pharmacy-benefit prescriptions use the verified ModMed EMA ePA/PBM workflow, with Keragon organizing review and follow-up. Medical-benefit drugs/gel and orthopedic procedures use the exact insurer-specific medical PA requirements, optionally leveraging Keragon's **Optum prior authorization** actions where supported; the **TriZetto eligibility** action is conditional on payer access. A copy button produces a synthetic, plan/service-specific prompt to paste into Keragon's AI workflow builder. It does **not** deploy or activate a Keragon workflow, submit PA, send PHI or verify member prices.
+
+See [Keragon setup, workflow design and go-live checklist](docs/KERAGON-PRIOR-AUTH.md). Keragon's ModMed connector requires a **separate ModMed FHIR integration** with approved credentials and scopes. The app remains synthetic-only, and all live connections must meet the [HIPAA release conditions](docs/HIPAA-RELEASE.md).
 
 ## Protected Cuptomize price evidence (optional, currently not activated)
 
