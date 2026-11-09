@@ -13,7 +13,7 @@ export function selectedClinicalTemplate(state){
 export function staffVerificationScope(state){
  const template=selectedClinicalTemplate(state);
  return {payer:state.payer,planId:state.planId,line:staffPlanProgramLine(staffGetPlan(state.payer,state.planId,state.year||2026)),benefit:state.benefit,
-  productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,medication:!!template&&template.category!=='surgery'};
+  productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,medication:!!template&&['viscosupplementation','bone-health'].includes(template.category)};
 }
 function templateOverride(state){
  const template=selectedClinicalTemplate(state);
@@ -46,7 +46,7 @@ export function renderClinicalAddendumPanel(state){
    serviceId:state.serviceId,serviceDate:scope.serviceDate,policies:[]
  }});
  const override=templateOverride(state);
- const groups=[['viscosupplementation','Viscosupplementation (gel brands)'],['bone-health','Bone health medications'],['surgery','Procedures']];
+ const groups=[['viscosupplementation','Viscosupplementation (gel brands)'],['bone-health','Bone health medications'],['surgery','Procedures'],['injection','Office injections & biologics'],['product','Cell / implant product authorization'],['diagnostic','Imaging & diagnostics'],['therapy','Therapy & DME']];
  return `<section class="panel staff-stage" id="staff-clinical-addendum"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">6</span> Blank clinical addendum, payer evidence & supply route</h2></div><div class="panel-content">
  <p class="notice amber"><strong>Synthetic only — not for submission.</strong> Print a blank product-specific or procedure-specific addendum to complete in an approved clinical system. No patient information or clinical findings are entered here.</p>
  <label>Clinical template library<select id="staff-clinical-template"><option value="">Use selected treatment (choose a gel brand when applicable)</option>${groups.map(([cat,label])=>`<optgroup label="${h(label)}">${AUTH_TEMPLATE_CATALOG.filter(t=>t.category===cat).map(t=>`<option value="${h(t.id)}" ${state.clinicalTemplateId===t.id?'selected':''}>${h(t.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>

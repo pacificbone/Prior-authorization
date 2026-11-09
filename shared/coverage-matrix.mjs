@@ -48,7 +48,7 @@ export const MATRIX_PRIORITY_SERVICES=Object.freeze([
  svc('total-hip','Arthroplasty','Primary total hip arthroplasty 27130'),
  svc('revision-hip','Arthroplasty','Revision total hip 27134 / 27137 / 27138'),
  svc('maci-harvest','MACI','MACI stage 1 cartilage harvest S2112'),
- svc('maci-implant','MACI','MACI stage 2 implantation 27412 (+ J7330 when billed together)'),
+ svc('maci-implant','MACI','MACI stage 2 implantation 27412'),
  svc('maci-cell-product','MACI','MACI stage 3 cultured cell product J7330 authorization'),
  svc('acl-reconstruction','Sports knee','ACL reconstruction 29888'),
  svc('bear-acl','Sports knee','BEAR ACL repair / implant'),
@@ -74,7 +74,6 @@ export const MATRIX_STATUSES=Object.freeze({
  'n/a':'n/a — the coverage line cannot pay for this service type (for example Part D for surgery)'
 });
 
-const MEDICAL_DRUG_CODES=Object.freeze({prolia:'J0897',jubbonti:'Q5136',bildyos:'Q5157',evenity:'J3111','zoledronic-acid':'J3489'});
 
 function lineForProgram(program){return staffPlanProgramLine({program});}
 function payerLines(payer){
@@ -89,7 +88,7 @@ function plansFor(payer,line){
 function serviceFor(entry){return STAFF_SERVICES.find(s=>s.id===entry.serviceId)||null;}
 function codesFor(entry,service){
  if(!service)return [];
- if(service.type==='medication')return MEDICAL_DRUG_CODES[service.id]?[MEDICAL_DRUG_CODES[service.id]]:[];
+ if(service.type==='medication')return [...(authTemplateForService(service.id)?.codes||[])];
  if(orthoProcedures.some(p=>p.id===service.id))return getOrthoProcedureCodes({procedureId:service.id,gelProductId:entry.gelProductId,guidance:'without-ultrasound'}).map(c=>c.code);
  return (service.codes||[]).map(c=>c.code);
 }

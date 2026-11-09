@@ -1,5 +1,7 @@
 # Offline authorization audit follow-up — November 7, 2026
 
+> Historical record of the November 7 state. Counts below (67 templates, 248 tests) are superseded; the current catalog, test totals and open items are reported in [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md).
+
 Development only. Draft PR #14 remains the review boundary. No deployment, merge, patient-data ingestion, order, authorization submission or payer account access is part of this change.
 
 ## Implemented

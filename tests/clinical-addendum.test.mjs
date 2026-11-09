@@ -21,7 +21,7 @@ for(const t of AUTH_TEMPLATE_CATALOG)test('template completeness and safe printa
  const values=Object.fromEntries(t.fields.map(f=>[f.id,'Fictional documented evidence with dated record reference']));
  assert.equal(assessAuthTemplate(t.id,values).status,'clinical-fields-complete');assert.equal(assessAuthTemplate(t.id,values).payerVerified,false);
  const id=t.fields[0].id;
- for(const v of [true,false,{},42,[],null,'','  ','[NOT DOCUMENTED]','unknown','N/A','x'.repeat(4001)])assert.ok(assessAuthTemplate(t.id,{...values,[id]:v}).missing.some(f=>f.id===id));
+ for(const v of [true,false,{},42,[],null,'','  ','[NOT DOCUMENTED]','unknown','N/A','N/A - see chart','none','TBD','—','---','see chart','x'.repeat(4001)])assert.ok(assessAuthTemplate(t.id,{...values,[id]:v}).missing.some(f=>f.id===id),String(v));
  const note=renderAuthTemplateNote(t.id);assert.match(note,/SYNTHETIC ONLY/);assert.match(note,/NOT DOCUMENTED/);assert.match(note,/DO NOT ORDER/);assert.match(note,/Clinician review/);
  const html=renderCatalogAddendumHtml(t.id,{[id]:'<img src=x onerror=alert(1)>'},{plan:'<script>bad()</script>'});
  assert.match(html,/&lt;img/);assert.match(html,/&lt;script/);assert.doesNotMatch(html,/<script>|<img/);
@@ -30,7 +30,24 @@ test('brand variants and procedure variants contain their own documentation prom
  assert.notDeepEqual(findAuthTemplate('gel-synvisc').fields,findAuthTemplate('gel-synvisc-one').fields);
  for(const [a,b] of [['total-knee','partial-knee'],['maci-harvest','maci-implant'],['maci-implant','maci-cell-product'],['carpal-open','carpal-endo']])assert.notDeepEqual(authTemplateForService(a).fields,authTemplateForService(b).fields);
  // MACI is three separately authorized stages: harvest (S2112), implantation (27412) and the cell product (J7330).
- assert.deepEqual(authTemplateForService('maci-harvest').codes,['S2112']);assert.deepEqual(authTemplateForService('maci-implant').codes,['27412','J7330']);assert.deepEqual(authTemplateForService('maci-cell-product').codes,['J7330']);
+ assert.deepEqual(authTemplateForService('maci-harvest').codes,['S2112']);assert.deepEqual(authTemplateForService('maci-implant').codes,['27412']);assert.deepEqual(authTemplateForService('maci-cell-product').codes,['J7330']);
+ // Harvest never demands the implantation-stage product field, matching the orthopedic worksheet.
+ assert.equal(authTemplateForService('maci-harvest').fields.some(f=>f.id==='implant'),false);
+ assert.ok(authTemplateForService('maci-implant').fields.some(f=>f.id==='implant'));
+ // Service-specific prompts survive id collisions with the generic scaffold.
+ assert.match(authTemplateForService('si-joint-fusion').fields.find(f=>f.id==='diagnosis').label,/Diagnosis, ICD-10/);
+ assert.ok(authTemplateForService('si-joint-fusion').fields.some(f=>/provocative maneuvers/.test(f.label)));
+ assert.ok(authTemplateForService('si-joint-fusion').fields.some(f=>/transfixation/.test(f.label)));
+ assert.match(authTemplateForService('trigger-finger').fields.find(f=>f.id==='exam').label,/A1-pulley/);
+ // Non-surgical services are not forced through the surgical scaffold.
+ for(const [id,category] of [['dexa','diagnostic'],['mri-knee','diagnostic'],['office-pt','therapy'],['dme-brace','therapy'],['prp','injection'],['corticosteroid-injection','injection'],['maci-cell-product','product']]){
+  const t=authTemplateForService(id);assert.equal(t.category,category,id);
+  assert.equal(t.fields.some(f=>/operative indication/i.test(f.label)||/Proposed procedure, laterality/.test(f.label)),false,id);
+ }
+ assert.equal(authTemplateForService('total-knee').category,'surgery');
+ // Cautionary descriptions are notes, never mandatory field labels.
+ for(const t of AUTH_TEMPLATE_CATALOG)for(const f of t.fields)assert.equal(/\.$/.test(f.label.trim())&&/may vary|require|review/.test(f.label),false,t.id+': '+f.label);
+ assert.deepEqual(authTemplateForService('jubbonti').codes,['Q5136']);assert.deepEqual(authTemplateForService('bildyos').codes,['Q5157']);assert.deepEqual(authTemplateForService('enoby').codes,[]);
  assert.deepEqual(authTemplateForService('si-joint-fusion').codes,['27279','27278']);
  assert.deepEqual(authTemplateForService('carpal-ultrasound-other').codes,[]);assert.deepEqual(authTemplateForService('carpal-balloon').codes,['64728']);
  assert.match(findAuthTemplate('bone-evenity').fields.at(-1).label,/cardiovascular/);
@@ -48,6 +65,9 @@ test('legacy guides and addenda retain synthetic labels, missing evidence and HT
   assert.match(renderOfflineLetter(id),/SYNTHETIC ONLY/);
   const html=renderAuthorizationAddendumHtml(id,{[g.questions[0][0]]:'<script>bad</script>'},{patientName:'<img src=x>'});
   assert.match(html,/SYNTHETIC ONLY/);assert.match(html,/NOT DOCUMENTED/);assert.doesNotMatch(html,/<script>|<img/);
+  // A caller-supplied patient name is never echoed; the placeholder points to the approved system.
+  assert.match(html,/Patient:<\/strong> \[COMPLETE ONLY IN APPROVED CLINICAL SYSTEM\]/);
+  assert.equal(assessOfflinePacket(id,Object.fromEntries(g.questions.map(([k])=>[k,'Fictional dated finding']))).status,'clinical-fields-complete');
  }
 });
 const state={payer:'HMSA',planId:'hmsa-quest',benefit:'Medical',serviceId:'prolia',serviceDate:'2026-11-07'};

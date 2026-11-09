@@ -41,7 +41,10 @@ test('lines that cannot pay for a service type are n/a, and procedures without a
  assert.equal(cell('Humana','Medicare Part D','prolia').status,'n/a');
  assert.ok(cell('HMSA','Commercial','carpal-ultrasound-other').flags.includes('no-candidate-code'));
  assert.ok(cell('HMSA','Commercial','carpal-balloon').codes.includes('64728'));
- assert.deepEqual(cell('HMSA','Commercial','maci-implant').codes,['27412','J7330']);
+ assert.deepEqual(cell('HMSA','Commercial','maci-implant').codes,['27412']);
+ assert.deepEqual(cell('HMSA','Commercial','maci-cell-product').codes,['J7330']);
+ assert.deepEqual(cell('HMSA','Commercial','jubbonti').codes,['Q5136']);
+ assert.deepEqual(cell('HMSA','Commercial','si-joint-fusion').codes,['27279','27278']);
 });
 test('pharmacy-benefit drugs report the exact-plan formulary lookup where one exists, not criteria',()=>{
  const quest=cell('HMSA','QUEST / Medicaid','alendronate');

@@ -8,8 +8,9 @@ export const orthoCategories=Object.freeze([
   {id:'injections',label:'Gel injections'},
   {id:'arthroplasty',label:'Hip & knee replacements'},
   {id:'cartilage',label:'MACI & cartilage'},
-  {id:'hand',label:'Carpal tunnel'},
-  {id:'sports',label:'Sports knee'}
+  {id:'hand',label:'Carpal tunnel & trigger finger'},
+  {id:'sports',label:'Sports knee'},
+  {id:'spine',label:'SI joint'}
 ]);
 export const orthoPayers=Object.freeze([
   'HMSA','UnitedHealthcare','UHA','Curative','HMAA','Kaiser Permanente',
@@ -18,7 +19,7 @@ export const orthoPayers=Object.freeze([
 ]);
 export const orthoLines=Object.freeze([
   'Commercial','Individual Exchange','QUEST / Medicaid','Medicare Advantage',
-  'Traditional Medicare','VA / Community Care','TRICARE','Workers compensation'
+  'Traditional Medicare','Federal employee / postal','VA / Community Care','TRICARE','Workers compensation'
 ]);
 export const orthoSettings=Object.freeze([
   'Office','ASC','Hospital outpatient','Hospital inpatient'
@@ -87,6 +88,21 @@ const carpal=[
   C('technique','Specific release technique','Select open, endoscopic or the specifically described balloon-assisted percutaneous approach; codes are not interchangeable.'),
   C('site-hand','Office procedure and site of service','Verify office or facility medical benefit, professional/facility payment and preauthorization rules.')
 ];
+const trigger=[
+  C('digit','Affected digit and triggering/locking','Record the digit(s), triggering, locking or catching, A1-pulley pain and symptom duration.'),
+  C('exam','Clinical examination: A1-pulley tenderness or nodule, triggering grade, range of motion','Document the examination findings; telehealth findings may not satisfy the payer.'),
+  C('conservativeHand','Splinting, activity modification and corticosteroid injections','Record splinting duration, number and dates of A1-pulley injections and response; some payers require a failed injection before release.'),
+  C('technique','Release technique and site','Specify open versus percutaneous/ultrasound-guided release and office versus facility site; codes are not interchangeable.')
+];
+const sij=[
+  C('provocative','SI joint pain pattern and provocative maneuvers','Document pain over the SI joints below L5 without radiculopathy for at least 3 months and at least 3 positive provocative maneuvers (FABER, Gaenslen, thigh thrust, compression, distraction, Yeoman).'),
+  C('conservativeSij','Conservative therapy and rehabilitation plan','Record at least 4 weeks of conservative care (PT, medications, activity modification) and the ongoing rehabilitation or home exercise plan.'),
+  C('diagnosticBlock','Diagnostic SI joint block','Record guidance with contrast, agent, same-scale pre/post pain scores and ≥75% relief for the anesthetic duration; no more than two diagnostic sessions.'),
+  C('therapeuticInjection','Therapeutic intra-articular injection','Record the corticosteroid injection and ≥50% relief for its expected duration.'),
+  C('sijImaging','Imaging work-up','Record SIJ radiographs plus CT or MRI excluding destructive lesion, fracture, instability or inflammatory arthropathy; an AP pelvis radiograph excluding hip pathology; lumbar CT or MRI excluding neural compression.'),
+  C('device','Technique and device','Specify a transfixation device piercing the iliac and sacral cortices versus an intra-articular-only implant; payer coverage and the 2026 CPT descriptors differ.'),
+  C('painScreen','Generalized pain disorder screen','Document the absence of generalized pain behavior or disorders where the payer requires it.')
+];
 const sports=[
   C('injury','Injury diagnosis and imaging','Identify mechanism and relevant exam/imaging, affected structures and side.'),
   C('symptoms','Mechanical symptoms or instability','Document objective instability, locking, loss of function or other relevant findings.'),
@@ -107,20 +123,21 @@ export const orthoProcedures=Object.freeze([
   P('total-hip','arthroplasty','Primary total hip arthroplasty',[{code:'27130',type:'CPT',label:'Primary total hip'}],'Anterior approach and robotic assistance do not establish separate coverage by themselves.',[...base,...joint]),
   P('revision-knee','arthroplasty','Revision total knee arthroplasty',[
     {code:'27486',type:'CPT',label:'Revision of one component (verify)'},
-    {code:'27487',type:'CPT',label:'Revision of femoral/tibial components (verify)'}
-  ],'Codes are alternatives based on actual component work, not a combined billable set.',[...base,...revision]),
+    {code:'27487',type:'CPT',label:'Revision of femoral/tibial components (verify)'},
+    {code:'27488',type:'CPT',label:'Two-stage revision, stage 1: removal of knee prosthesis with or without spacer (verify)'}
+  ],'Codes are alternatives based on actual component work and stage, not a combined billable set. A staged infected revision uses the removal code for stage 1, not 27486/27487.',[...base,...revision]),
   P('revision-hip','arthroplasty','Revision total hip arthroplasty',[
     {code:'27134',type:'CPT',label:'Revision both components (verify)'},
     {code:'27137',type:'CPT',label:'Revision acetabular component (verify)'},
-    {code:'27138',type:'CPT',label:'Revision femoral component (verify)'}
-  ],'Choose component-specific CPT and staged approach from operative plan.',[...base,...revision]),
+    {code:'27138',type:'CPT',label:'Revision femoral component (verify)'},
+    {code:'27091',type:'CPT',label:'Two-stage revision, stage 1: removal of hip prosthesis, complicated, with or without spacer (verify)'}
+  ],'Choose component-specific CPT and staged approach from the operative plan. A staged infected revision uses the removal code for stage 1, not 27134/27137/27138.',[...base,...revision]),
   P('maci-harvest','cartilage','MACI stage 1: cartilage biopsy / harvest',[
     {code:'S2112',type:'HCPCS',label:'Cartilage harvest arthroscopy (payer-dependent)'}
   ],'Commercial S-code applicability varies. Confirm payer coding and distinct stage authorization.',[...base,...cartilage]),
   P('maci-implant','cartilage','MACI stage 2: autologous chondrocyte implantation',[
-    {code:'27412',type:'CPT',label:'Autologous chondrocyte implantation, knee'},
-    {code:'J7330',type:'HCPCS',label:'Cultured chondrocyte implant'}
-  ],'Verify professional, facility and cellular implant benefit components separately.',[...base,...cartilage]),
+    {code:'27412',type:'CPT',label:'Autologous chondrocyte implantation, knee'}
+  ],'Professional and facility implantation authorization. The cultured cell product (J7330) is authorized and procured separately as MACI stage 3.',[...base,...cartilage]),
   P('carpal-open','hand','Open carpal tunnel release',[
     {code:'64721',type:'CPT',label:'Open carpal tunnel decompression'}
   ],'Coverage and medical necessity depend on the exact benefit and payer.',[...base,...carpal]),
@@ -132,6 +149,17 @@ export const orthoProcedures=Object.freeze([
   ],'Code 64728 is technique-specific. Do not add separate 76942 ultrasound guidance to 64728; some payer policies label the technique unproven.',[...base,...carpal,
     C('device','Balloon-specific technique documentation','Confirm the selected device/technique meets the actual 64728 descriptor, not any generic ultrasound-guided release.')
   ]),
+  P('trigger-finger','hand','Trigger finger release (open)',[
+    {code:'26055',type:'CPT',label:'Tendon sheath incision, A1 pulley (trigger finger)'}
+  ],'Open A1-pulley release. An office percutaneous technique needs its own coding confirmation.',[...base,...trigger]),
+  P('trigger-finger-percutaneous','hand','Percutaneous / ultrasound-guided trigger finger release',[],
+    'No verified universal code: do not assume 26055 covers a device-specific percutaneous or ultrasound-guided technique. Obtain a payer/device-specific coding determination before billing.',
+    [...base,...trigger],
+    'No candidate code is displayed by design; packet completeness is blocked until coding is determined.'),
+  P('si-joint-fusion','spine','Minimally invasive SI joint fusion',[
+    {code:'27279',type:'CPT',label:'Minimally invasive SI joint arthrodesis with transfixation device(s) piercing the iliac and sacral cortices (verify 2026 descriptor)'},
+    {code:'27278',type:'CPT',label:'SI joint stabilization with intra-articular implant(s) WITHOUT transfixation (Noridian L39810: not reasonable and necessary for Original Medicare; verify 2026 descriptor)'}
+  ],'Codes are candidates only and the 2026 CPT descriptors were revised; the technique (transfixation versus intra-articular-only) drives both the code and payer coverage. Commercial and Medicare Advantage criteria require the exact payer policy.',[...base,...sij]),
   P('carpal-ultrasound-other','hand','Ultrasound-guided percutaneous CTR (non-balloon / other technique)',[],
     'No verified universal code supplied. Do not assume CPT 64728 applies to a non-balloon or SX-One style technique. Obtain a current, device-specific payer coding determination before billing.',
     [...base,...carpal],
@@ -217,6 +245,18 @@ export const orthoPayerSources=Object.freeze([
     'CMS Hospital Outpatient Department prior-authorization program',
     'https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/prior-authorization-pre-claim-review-initiatives/prior-authorization-certain-hospital-outpatient-department-opd-services',
     'code-check','CMS OPD PA list is program-specific. The existence of surgery does not imply CMS national OPD prior auth; verify separately from LCD/NCD, ASC and site eligibility.'),
+  D('noridian-sij-lcd','Traditional Medicare',['Traditional Medicare'],[],['si-joint-fusion'],
+    'Noridian JE LCD L39810 Minimally Invasive Arthrodesis of the SI Joint (revision effective 10/23/2025) with LCD L39462 injection criteria',
+    'https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13',
+    'policy-directory','Active LCD whose contractor information lists Hawaiʻi. Covered only WITH a transfixation device when the L39462 injection criteria, a ≥75% diagnostic block, a ≥50% therapeutic injection and three imaging elements are documented; intra-articular-only stabilization is not reasonable and necessary.'),
+  D('hmsa-fep-plan-check','HMSA',['Federal employee / postal'],[],[],
+    'HMSA Federal Plan 87 / BCBS FEP — confirm which federal product applies and its authorization rules',
+    'https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/',
+    'plan-check','Federal Plan 87 is an HMSA FEHB product; the BCBS FEP Service Benefit Plan has national rules administered locally by HMSA. Confirm which product the member holds and whether the HMSA code lookup or the FEP national rules govern the request.'),
+  D('ohana-quest-pa','ʻOhana / Wellcare',['QUEST / Medicaid'],[],[],
+    'ʻOhana / Wellcare QUEST code-level authorization lookup',
+    'https://www.wellcare.com/en/Hawaii/Providers/Authorization-Lookup',
+    'code-check','Code-level lookup for QUEST Integration members (membership ends 12/31/2026). Authorization does not guarantee payment; confirm eligibility and the exact member product.'),
   D('noridian-tka-lcd','Traditional Medicare',['Traditional Medicare'],[],['total-knee','partial-knee','revision-knee'],
     'Noridian JE LCD L36575 Total Knee Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57685',
     'https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21',
@@ -375,7 +415,7 @@ export function validateOrthoCatalog(){
     ids.add(service.id);
     const criteriaIds=service.criteria.map(c=>c.id);
     if(new Set(criteriaIds).size!==criteriaIds.length)throw new Error('Duplicate checklist requirement: '+service.id);
-    if((!service.codes.length&&service.id!=='carpal-ultrasound-other')||service.codes.some(c=>!/^[A-Z]?\d{4,5}$/.test(c.code)))
+    if((!service.codes.length&&!['carpal-ultrasound-other','trigger-finger-percutaneous'].includes(service.id))||service.codes.some(c=>!/^[A-Z]?\d{4,5}$/.test(c.code)))
       throw new Error('Invalid candidate billing codes.');
   }
   for(const source of orthoPayerSources){

@@ -151,6 +151,21 @@ test('service catalog includes common and peripheral work and drug families, eac
   assert.ok(getCostService('drug-'+id),id+' needs cost routing');
  }
  assert.ok(staffServices({query:'MACI'}).some(x=>x.id==='maci-implant'));
+ assert.ok(staffServices({query:'MACI'}).some(x=>x.id==='maci-cell-product'));
+ assert.ok(staffServices({query:'Celebrex'}).some(x=>x.id==='celecoxib'));
+ assert.equal(staffGetService('romosozumab'),null);
+ assert.equal(getCostService('drug-romosozumab'),null);
+ // Trigger finger and SI joint fusion are orthopedic catalog procedures with payer-source routing, not loose extras.
+ const sij=staffContext({payer:'Traditional Medicare',planId:'original-b',year:2026,serviceId:'si-joint-fusion',benefit:'Medical'});
+ assert.ok(sij.sourceLinks.some(x=>/L39810/.test(x.name)));
+ assert.ok(sij.criteria.some(c=>c.id==='diagnosticBlock'));
+ const tf=staffContext({payer:'HMSA',planId:'hmsa-select-choice',year:2026,serviceId:'trigger-finger-percutaneous',benefit:'Medical'});
+ assert.deepEqual(tf.possibleCodes,[]);
+ assert.ok(tf.criteria.some(c=>c.id==='conservativeHand'));
+ const fep=staffContext({payer:'HMSA',planId:'hmsa-fep',year:2026,serviceId:'total-knee',benefit:'Medical'});
+ assert.ok(fep.sourceLinks.some(x=>/Federal Plan 87/.test(x.name)));
+ const noSource=staffContext({payer:'Curative',planId:'curative-commercial',year:2026,serviceId:'si-joint-fusion',benefit:'Medical'});
+ assert.ok(noSource.restrictions.some(x=>/No payer-specific procedure policy or code-list source is cataloged/.test(x))||noSource.sourceLinks.some(x=>x.status==='plan-check'));
  assert.ok(staffServices({query:'carpal'}).some(x=>x.id==='carpal-open'));
  assert.ok(Object.hasOwn(STAFF_CATEGORY_LABELS,'imaging'));
 });

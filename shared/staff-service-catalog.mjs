@@ -2,60 +2,6 @@
 // A listed procedure or drug is NOT a coverage/medical-necessity/coding determination.
 export const EXTRA_PROCEDURES=Object.freeze([
   {
-    "id": "trigger-finger",
-    "type": "procedure",
-    "category": "hand",
-    "name": "Trigger finger release (open)",
-    "codes": [
-      {
-        "code": "26055",
-        "type": "CPT",
-        "label": "Incision of tendon sheath, finger"
-      }
-    ],
-    "description": "Open trigger finger release. Office percutaneous technique may need separate coding confirmation.",
-    "checklist": [
-      [
-        "diagnosis",
-        "Triggering or locking and affected digit"
-      ],
-      [
-        "exam",
-        "Clinical examination and A1-pulley symptoms"
-      ],
-      [
-        "failed-care",
-        "Splinting, injections, duration and response"
-      ],
-      [
-        "technique",
-        "Planned release approach and office site"
-      ]
-    ]
-  },
-  {
-    "id": "trigger-finger-percutaneous",
-    "type": "procedure",
-    "category": "hand",
-    "name": "Percutaneous / ultrasound-guided trigger finger release",
-    "codes": [],
-    "description": "No automatic CPT assumption: verify payer and device-specific technique coding.",
-    "checklist": [
-      [
-        "diagnosis",
-        "Affected digit, examination and stenosing tenosynovitis"
-      ],
-      [
-        "prior-care",
-        "Prior treatment and functional limitation"
-      ],
-      [
-        "technique",
-        "Technique, ultrasound/device and coding determination"
-      ]
-    ]
-  },
-  {
     "id": "knee-meniscectomy",
     "type": "procedure",
     "category": "sports",
@@ -64,7 +10,12 @@ export const EXTRA_PROCEDURES=Object.freeze([
       {
         "code": "29881",
         "type": "CPT",
-        "label": "One compartment meniscectomy"
+        "label": "Arthroscopic meniscectomy, one compartment (medial OR lateral)"
+      },
+      {
+        "code": "29880",
+        "type": "CPT",
+        "label": "Arthroscopic meniscectomy, both compartments (medial AND lateral) — verify"
       }
     ],
     "description": "Do not confuse with meniscus repair or root repair.",
@@ -250,47 +201,6 @@ export const EXTRA_PROCEDURES=Object.freeze([
       [
         "plan",
         "Correction goal and implant plan"
-      ]
-    ]
-  },
-  {
-    "id": "si-joint-fusion",
-    "type": "procedure",
-    "category": "spine",
-    "name": "Minimally invasive SI joint fusion",
-    "codes": [
-      {
-        "code": "27279",
-        "type": "CPT",
-        "label": "Minimally invasive SI joint arthrodesis with transfixation device(s) piercing the iliac and sacral cortices (verify 2026 descriptor)"
-      },
-      {
-        "code": "27278",
-        "type": "CPT",
-        "label": "SI joint stabilization with intra-articular implant(s) WITHOUT transfixation (Noridian L39810: not reasonable and necessary for Original Medicare; verify 2026 descriptor)"
-      }
-    ],
-    "description": "Codes are candidates only and the 2026 CPT descriptors were revised; the technique (transfixation versus intra-articular-only) drives both the code and payer coverage. Surgical criteria require the exact payer policy; no universal PA rule.",
-    "checklist": [
-      [
-        "diagnosis",
-        "SI joint pain diagnosis and provocative findings"
-      ],
-      [
-        "injections",
-        "Diagnostic blocks / response per payer"
-      ],
-      [
-        "care",
-        "PT, medications and other conservative care"
-      ],
-      [
-        "imaging",
-        "Imaging and alternate pain generator evaluation"
-      ],
-      [
-        "device",
-        "Implant approach and place of service"
       ]
     ]
   },
@@ -722,157 +632,152 @@ export const EXTRA_DRUGS=Object.freeze([
   {
     "id": "celecoxib",
     "name": "Celecoxib",
-    "generic": "Celebrex",
+    "brand": "Celebrex",
     "category": "Pain / anti-inflammatory"
   },
   {
     "id": "meloxicam",
     "name": "Meloxicam",
-    "generic": "Mobic",
+    "brand": "Mobic",
     "category": "Pain / anti-inflammatory"
   },
   {
     "id": "diclofenac",
     "name": "Diclofenac",
-    "generic": "Voltaren",
+    "brand": "Voltaren",
     "category": "Pain / anti-inflammatory"
   },
   {
     "id": "naproxen",
     "name": "Naproxen",
-    "generic": "Naprosyn",
+    "brand": "Naprosyn",
     "category": "Pain / anti-inflammatory"
   },
   {
     "id": "gabapentin",
     "name": "Gabapentin",
-    "generic": "Neurontin",
+    "brand": "Neurontin",
     "category": "Neuropathic pain"
   },
   {
     "id": "pregabalin",
     "name": "Pregabalin",
-    "generic": "Lyrica",
+    "brand": "Lyrica",
     "category": "Neuropathic pain"
   },
   {
     "id": "duloxetine",
     "name": "Duloxetine",
-    "generic": "Cymbalta",
+    "brand": "Cymbalta",
     "category": "Neuropathic pain"
   },
   {
     "id": "tramadol",
     "name": "Tramadol",
-    "generic": "Ultram",
+    "brand": "Ultram",
     "category": "Postoperative analgesia"
   },
   {
     "id": "oxycodone",
     "name": "Oxycodone",
-    "generic": "Roxicodone",
+    "brand": "Roxicodone",
     "category": "Postoperative analgesia"
   },
   {
     "id": "acetaminophen",
     "name": "Acetaminophen",
-    "generic": "Tylenol",
+    "brand": "Tylenol",
     "category": "Pain / anti-inflammatory"
   },
   {
     "id": "aspirin",
     "name": "Aspirin",
-    "generic": "ASA",
+    "brand": "ASA",
     "category": "VTE prophylaxis / pain"
   },
   {
     "id": "apixaban",
     "name": "Apixaban",
-    "generic": "Eliquis",
+    "brand": "Eliquis",
     "category": "VTE prophylaxis"
   },
   {
     "id": "rivaroxaban",
     "name": "Rivaroxaban",
-    "generic": "Xarelto",
+    "brand": "Xarelto",
     "category": "VTE prophylaxis"
   },
   {
     "id": "tranexamic-acid",
     "name": "Tranexamic acid",
-    "generic": "Lysteda / TXA",
+    "brand": "Lysteda / TXA",
     "category": "Perioperative medication"
   },
   {
     "id": "methylprednisolone",
     "name": "Methylprednisolone",
-    "generic": "Medrol Dosepak",
+    "brand": "Medrol Dosepak",
     "category": "Corticosteroid"
   },
   {
     "id": "ondansetron",
     "name": "Ondansetron",
-    "generic": "Zofran",
+    "brand": "Zofran",
     "category": "Antiemetic"
   },
   {
     "id": "cephalexin",
     "name": "Cephalexin",
-    "generic": "Keflex",
+    "brand": "Keflex",
     "category": "Perioperative antibiotic"
   },
   {
     "id": "methocarbamol",
     "name": "Methocarbamol",
-    "generic": "Robaxin",
+    "brand": "Robaxin",
     "category": "Muscle relaxant"
   },
   {
     "id": "ibuprofen",
     "name": "Ibuprofen",
-    "generic": "Advil / Motrin",
+    "brand": "Advil / Motrin",
     "category": "Pain / anti-inflammatory"
   },
   {
     "id": "lidocaine",
     "name": "Lidocaine",
-    "generic": "Xylocaine",
+    "brand": "Xylocaine",
     "category": "Local anesthetic"
   },
   {
     "id": "bupivacaine",
     "name": "Bupivacaine",
-    "generic": "Marcaine / Exparel is a distinct liposomal product",
+    "brand": "Marcaine",
+    "note": "Exparel is a distinct liposomal product with its own entry",
     "category": "Local anesthetic"
   },
   {
     "id": "exparel",
     "name": "Exparel",
-    "generic": "Liposomal bupivacaine",
+    "brand": "Liposomal bupivacaine",
     "category": "Long-acting local anesthetic"
   },
   {
     "id": "ibandronate",
     "name": "Ibandronate",
-    "generic": "Boniva",
+    "brand": "Boniva",
     "category": "Bone health"
   },
   {
     "id": "risedronate",
     "name": "Risedronate",
-    "generic": "Actonel",
-    "category": "Bone health"
-  },
-  {
-    "id": "romosozumab",
-    "name": "Romosozumab",
-    "generic": "Evenity (same molecule)",
+    "brand": "Actonel",
     "category": "Bone health"
   },
   {
     "id": "calcitonin",
     "name": "Calcitonin salmon",
-    "generic": "Miacalcin",
+    "brand": "Miacalcin",
     "category": "Bone health"
   }
 ]);

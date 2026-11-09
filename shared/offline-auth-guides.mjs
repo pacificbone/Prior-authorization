@@ -61,7 +61,7 @@ export function assessOfflinePacket(key, answers = {}) {
   if (!guide) return {status:'unknown-service', missing:[], completed:[], payerVerified:false};
   const completed = guide.questions.filter(([id]) => documentedValue(answers?.[id])).map(([id,label]) => ({id,label}));
   const missing = guide.questions.filter(([id]) => !documentedValue(answers?.[id])).map(([id,label]) => ({id,label}));
-  return {status:missing.length ? 'documentation-incomplete' : 'ready-for-payer-review',
+  return {status:missing.length ? 'documentation-incomplete' : 'clinical-fields-complete',
     completed,missing,payerVerified:false,
     warning:'Clinical documentation readiness only. Not an insurance coverage or prior-authorization determination.'};
 }

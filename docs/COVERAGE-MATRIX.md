@@ -23,8 +23,8 @@ Generated from the application registries on **2026-11-09** by `npm run matrix`.
 | STALE | 0 |
 | PARTIAL | 124 |
 | LIVE FORMULARY | 12 |
-| ROUTE ONLY | 869 |
-| MISSING | 385 |
+| ROUTE ONLY | 874 |
+| MISSING | 380 |
 | n/a | 88 |
 
 Registries behind the matrix: 17 public payer evidence records (6 fingerprinted PDF snapshots, 11 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 60 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
@@ -78,7 +78,7 @@ Services with no reviewed or partial source for a focus payer and line. Each is 
 ### MACI
 
 - **MACI stage 1 cartilage harvest S2112** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **MACI stage 2 implantation 27412 (+ J7330 when billed together)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **MACI stage 2 implantation 27412** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **MACI stage 3 cultured cell product J7330 authorization** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 
 ### Sports knee
@@ -143,7 +143,7 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Revision total hip 27134 / 27137 / 27138 | PARTIAL (1) | ROUTE ONLY | PARTIAL (1) | PARTIAL (1) | n/a | ROUTE ONLY |
 | **MACI** |  |  |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | n/a | ROUTE ONLY |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | PARTIAL (2) | ROUTE ONLY (1) | PARTIAL (2) | PARTIAL (2) | n/a | ROUTE ONLY |
+| MACI stage 2 implantation 27412 | PARTIAL (2) | ROUTE ONLY (1) | PARTIAL (2) | PARTIAL (2) | n/a | ROUTE ONLY |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | n/a | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |  |  |
 | ACL reconstruction 29888 | PARTIAL (1) | ROUTE ONLY | PARTIAL (1) | PARTIAL (1) | n/a | ROUTE ONLY |
@@ -226,7 +226,7 @@ Carrier / integrated delivery. Lines with plan sources: Commercial, Individual E
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **MACI** |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |
 | ACL reconstruction 29888 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
@@ -295,7 +295,7 @@ Carrier / managed care. Lines with plan sources: QUEST / Medicaid, Medicare Adva
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY | ROUTE ONLY |
 | **MACI** |  |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 | ROUTE ONLY (1) | ROUTE ONLY (1) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |
 | ACL reconstruction 29888 | ROUTE ONLY | ROUTE ONLY |
@@ -364,7 +364,7 @@ Plan-specific verification. Lines with plan sources: Commercial, Medicare Advant
 | Revision total hip 27134 / 27137 / 27138 | MISSING | MISSING |
 | **MACI** |  |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) | MISSING (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) | MISSING (1) |
+| MACI stage 2 implantation 27412 | MISSING (1) | MISSING (1) |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING | MISSING |
 | **Sports knee** |  |  |
 | ACL reconstruction 29888 | MISSING | MISSING |
@@ -433,7 +433,7 @@ Plan-specific verification. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 2 implantation 27412 | MISSING (1) |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
@@ -502,7 +502,7 @@ Plan-specific verification. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 2 implantation 27412 | MISSING (1) |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
@@ -571,7 +571,7 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Revision total hip 27134 / 27137 / 27138 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | **MACI** |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | PARTIAL (2) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | PARTIAL (3) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
+| MACI stage 2 implantation 27412 | PARTIAL (3) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |
 | ACL reconstruction 29888 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
@@ -650,8 +650,8 @@ Carrier / managed care. Lines with plan sources: QUEST / Medicaid.
 | Primary total hip arthroplasty 27130 | ROUTE ONLY |
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
-| MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 | ROUTE ONLY (1) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -720,7 +720,7 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 | ROUTE ONLY (1) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -791,7 +791,7 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 | ROUTE ONLY (1) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -860,7 +860,7 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 | ROUTE ONLY (1) |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -873,10 +873,10 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Endoscopic carpal tunnel release 29848 | ROUTE ONLY |
 | Balloon-assisted ultrasound-guided CTR 64728 | ROUTE ONLY |
 | Non-balloon ultrasound-guided CTR (no code) | ROUTE ONLY · no code |
-| Trigger finger release, open 26055 | MISSING |
-| Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
+| Trigger finger release, open 26055 | ROUTE ONLY |
+| Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 <details><summary>Records behind Curative (1)</summary>
 
@@ -929,7 +929,7 @@ Carrier / Medicare plan. Lines with plan sources: Medicare Advantage, Medicare P
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY | n/a |
 | **MACI** |  |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) | n/a |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) | n/a |
+| MACI stage 2 implantation 27412 | MISSING (1) | n/a |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | n/a |
 | **Sports knee** |  |  |
 | ACL reconstruction 29888 | ROUTE ONLY | n/a |
@@ -998,7 +998,7 @@ Carrier / Medicare plan. Lines with plan sources: Medicare Advantage.
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 2 implantation 27412 | MISSING (1) |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
@@ -1067,7 +1067,7 @@ Original Medicare benefit. Lines with plan sources: Traditional Medicare.
 | Revision total hip 27134 / 27137 / 27138 | PARTIAL (2) |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 2 implantation 27412 | ROUTE ONLY |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -1083,9 +1083,9 @@ Original Medicare benefit. Lines with plan sources: Traditional Medicare.
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | PARTIAL (2) |
+| Minimally invasive SI joint fusion | PARTIAL (3) |
 
-<details><summary>Records behind Traditional Medicare (9)</summary>
+<details><summary>Records behind Traditional Medicare (10)</summary>
 
 | Record | Kind | Version / effective | Review | Flags |
 | --- | --- | --- | --- | --- |
@@ -1098,6 +1098,7 @@ Original Medicare benefit. Lines with plan sources: Traditional Medicare.
 | [Noridian JE LCD L34163 Total Hip Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57683](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33) | policy-link | — | checked 2026-11-07 | — |
 | [Noridian JE LCD L39810 — Minimally Invasive Arthrodesis of the Sacroiliac Joint](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13) | directory-reference | L39810 v13; revision effective 10/23/2025; Billing and Coding Article A59695 v12 effective 01/01/2026 (descriptor changes to CPT 27278 and 27279) · 2025-10-23 | due 2027-02-05 | — |
 | [Noridian JE LCD L39462 — Sacroiliac Joint Injections and Procedures](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39462&ver=9) | directory-reference | L39462 v9; revision effective 03/05/2026 (L39464 retired 03/05/2026) · 2026-03-05 | due 2027-02-05 | — |
+| [Noridian JE LCD L39810 Minimally Invasive Arthrodesis of the SI Joint (revision effective 10/23/2025) with LCD L39462 injection criteria](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13) | policy-link | — | checked 2026-11-07 | — |
 
 </details>
 
@@ -1142,7 +1143,7 @@ Supplement only; not primary coverage. Lines with plan sources: Traditional Medi
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING |
+| MACI stage 2 implantation 27412 | MISSING |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
@@ -1201,7 +1202,7 @@ VA health system. Lines with plan sources: VA / Community Care.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 2 implantation 27412 | ROUTE ONLY |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -1262,7 +1263,7 @@ Military benefit. Lines with plan sources: TRICARE.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 2 implantation 27412 | ROUTE ONLY |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -1323,7 +1324,7 @@ Third-party administrator (underlying plan required). Lines with plan sources: D
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING |
+| MACI stage 2 implantation 27412 | MISSING |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
@@ -1384,7 +1385,7 @@ Delegated administrator (underlying carrier required). Lines with plan sources: 
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 2 implantation 27412 | ROUTE ONLY |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
@@ -1445,7 +1446,7 @@ Employer/PBM must be identified. Lines with plan sources: Delegated / claim-spec
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING |
+| MACI stage 2 implantation 27412 | MISSING |
 | MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
@@ -1506,7 +1507,7 @@ Carrier/claim administrator required. Lines with plan sources: Delegated / claim
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 2 implantation 27412 | ROUTE ONLY |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |

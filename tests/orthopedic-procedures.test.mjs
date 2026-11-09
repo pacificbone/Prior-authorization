@@ -15,7 +15,7 @@ test('orthopedic catalog validates and covers gels, hips, knees, MACI, hand and 
   const codes=(id)=>getOrthoProcedure(id).codes.map(x=>x.code);
   assert.deepEqual(codes('total-knee'),['27447']);
   assert.deepEqual(codes('total-hip'),['27130']);
-  assert.deepEqual(codes('maci-implant'),['27412','J7330']);
+  assert.deepEqual(codes('maci-implant'),['27412']);
   assert.deepEqual(codes('maci-harvest'),['S2112']);
   assert.deepEqual(codes('carpal-open'),['64721']);
   assert.deepEqual(codes('carpal-endo'),['29848']);

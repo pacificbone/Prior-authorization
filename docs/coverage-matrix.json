@@ -7,8 +7,8 @@
   "stale": 0,
   "partial": 124,
   "live-formulary": 12,
-  "routing-only": 869,
-  "missing": 385,
+  "routing-only": 874,
+  "missing": 380,
   "n/a": 88
  },
  "registry": {
@@ -1901,7 +1901,7 @@
   {
    "serviceId": "maci-implant",
    "gelProductId": "",
-   "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
+   "label": "MACI stage 2 implantation 27412",
    "group": "MACI",
    "byPayer": [
     {
@@ -5488,7 +5488,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -5506,7 +5507,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -5527,7 +5529,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -5549,7 +5552,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -5567,7 +5571,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -5676,7 +5681,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -5695,7 +5701,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -5713,7 +5720,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -5734,7 +5742,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -5753,7 +5762,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -5863,8 +5873,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -5883,8 +5892,7 @@
    ],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -5901,8 +5909,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -5922,8 +5929,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -5940,8 +5946,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -6381,7 +6386,8 @@
    ],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -6398,7 +6404,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -6414,7 +6421,8 @@
    ],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -6433,7 +6441,8 @@
    ],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -6450,7 +6459,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -8757,7 +8767,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -8772,7 +8783,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -8787,7 +8799,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -8805,7 +8818,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -8886,7 +8900,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -8902,7 +8917,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -8918,7 +8934,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -8937,7 +8954,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -9026,8 +9044,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -9043,8 +9060,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -9060,8 +9076,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -9080,8 +9095,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -9412,7 +9426,8 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -9426,7 +9441,8 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -9440,7 +9456,8 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -9457,7 +9474,8 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -10849,7 +10867,8 @@
    "routes": 3,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -10867,7 +10886,8 @@
    "routes": 3,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -10920,7 +10940,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -10939,7 +10960,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -10996,8 +11018,7 @@
    ],
    "routes": 3,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -11016,8 +11037,7 @@
    ],
    "routes": 3,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -11202,7 +11222,8 @@
    "records": [],
    "routes": 3,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -11219,7 +11240,8 @@
    "records": [],
    "routes": 3,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -12409,7 +12431,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -12427,7 +12450,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -12480,7 +12504,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -12499,7 +12524,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -12556,8 +12582,7 @@
    ],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -12576,8 +12601,7 @@
    ],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -12762,7 +12786,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -12779,7 +12804,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -13501,7 +13527,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -13537,7 +13564,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -13575,8 +13603,7 @@
    ],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -13677,7 +13704,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -14281,7 +14309,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -14317,7 +14346,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -14355,8 +14385,7 @@
    ],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -14457,7 +14486,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -16495,7 +16525,8 @@
    "routes": 3,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -16515,7 +16546,8 @@
    "routes": 2,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -16532,7 +16564,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -16550,7 +16583,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -16640,7 +16674,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -16661,7 +16696,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -16677,7 +16713,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -16696,7 +16733,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -16793,8 +16831,7 @@
    ],
    "routes": 3,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -16814,8 +16851,7 @@
    ],
    "routes": 2,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -16832,8 +16868,7 @@
    ],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -16852,8 +16887,7 @@
    ],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -17211,7 +17245,8 @@
    ],
    "routes": 3,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -17228,7 +17263,8 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -17242,7 +17278,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -17259,7 +17296,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -18209,7 +18247,8 @@
    "routes": 3,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -18245,7 +18284,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -18255,7 +18295,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "maci-harvest",
    "benefit": "Medical",
-   "status": "missing",
+   "status": "routing-only",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -18274,7 +18314,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "missing",
+   "status": "routing-only",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -18283,8 +18323,7 @@
    ],
    "routes": 3,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -18385,7 +18424,8 @@
    "records": [],
    "routes": 3,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -18993,7 +19033,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -19029,7 +19070,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -19067,8 +19109,7 @@
    ],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -19169,7 +19210,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -19773,7 +19815,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -19809,7 +19852,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -19847,8 +19891,7 @@
    ],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -19949,7 +19992,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -20553,7 +20597,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -20589,7 +20634,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -20627,8 +20673,7 @@
    ],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -20729,7 +20774,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -20806,7 +20852,7 @@
    "line": "Commercial",
    "serviceId": "trigger-finger",
    "benefit": "Medical",
-   "status": "missing",
+   "status": "routing-only",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -20823,7 +20869,7 @@
    "line": "Commercial",
    "serviceId": "trigger-finger-percutaneous",
    "benefit": "Medical",
-   "status": "missing",
+   "status": "routing-only",
    "flags": [
     "no-candidate-code",
     "plan-family-sources-only"
@@ -20839,7 +20885,7 @@
    "line": "Commercial",
    "serviceId": "si-joint-fusion",
    "benefit": "Medical",
-   "status": "missing",
+   "status": "routing-only",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -21378,7 +21424,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -21414,7 +21461,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -21452,8 +21500,7 @@
    ],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -21554,7 +21601,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -22158,7 +22206,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -22194,7 +22243,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -22232,8 +22282,7 @@
    ],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -22334,7 +22383,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -22976,7 +23026,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -23018,7 +23069,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -23052,8 +23104,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -23154,7 +23205,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -23270,7 +23322,8 @@
    ],
    "records": [
     "medicare-noridian-sij-fusion-l39810",
-    "medicare-noridian-sij-injections-l39462"
+    "medicare-noridian-sij-injections-l39462",
+    "noridian-sij-lcd"
    ],
    "routes": 1,
    "codes": [
@@ -23716,7 +23769,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -23752,7 +23806,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -23786,8 +23841,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -23888,7 +23942,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -24492,7 +24547,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -24528,7 +24584,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -24562,8 +24619,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -24664,7 +24720,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -25268,7 +25325,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -25304,7 +25362,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -25338,8 +25397,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -25440,7 +25498,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -26044,7 +26103,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -26080,7 +26140,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -26114,8 +26175,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -26216,7 +26276,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -26820,7 +26881,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -26856,7 +26918,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -26890,8 +26953,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -26992,7 +27054,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -27596,7 +27659,8 @@
    "routes": 0,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -27632,7 +27696,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -27666,8 +27731,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -27768,7 +27832,8 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"
@@ -28372,7 +28437,8 @@
    "routes": 1,
    "codes": [
     "27486",
-    "27487"
+    "27487",
+    "27488"
    ],
    "template": "procedure-revision-knee",
    "formulary": "n/a"
@@ -28408,7 +28474,8 @@
    "codes": [
     "27134",
     "27137",
-    "27138"
+    "27138",
+    "27091"
    ],
    "template": "procedure-revision-hip",
    "formulary": "n/a"
@@ -28442,8 +28509,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "27412",
-    "J7330"
+    "27412"
    ],
    "template": "procedure-maci-implant",
    "formulary": "n/a"
@@ -28544,7 +28610,8 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "29881"
+    "29881",
+    "29880"
    ],
    "template": "procedure-knee-meniscectomy",
    "formulary": "n/a"

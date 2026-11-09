@@ -9,7 +9,7 @@ Open the new **Orthopedic procedures** sidebar page. Select a procedure category
 The app shows:
 
 1. **Candidate CPT/HCPCS codes**, correctly distinguishing injection administration from brand-specific product J-codes. Codes and number of units are not automatically payable; confirm current year, laterality, billing units, modifiers, dispensing model and actual documented technique.
-2. **Procedure-specific document checklist**: whether the needed source records have been located for OA injections, primary/revision hip or knee arthroplasty, two-stage MACI, carpal tunnel, ACL reconstruction or meniscus repair. Checking a box is **not evidence** that a clinical criterion is satisfied.
+2. **Procedure-specific document checklist**: whether the needed source records have been located for OA injections, primary/revision hip or knee arthroplasty, three-stage MACI (harvest, implantation and the separately authorized J7330 cell product), open, endoscopic, balloon-assisted and non-balloon ultrasound-guided carpal tunnel release, trigger finger release, minimally invasive SI joint fusion, ACL reconstruction or meniscus repair. Checking a box is **not evidence** that a clinical criterion is satisfied.
 3. **Scoped public payer sources**: a current required-PA code lookup, an applicable medical policy or authorization route, with its role made explicit.
 4. **Unresolved blockers** and two downloadable **synthetic-only** text files: a gap worksheet and an authorization outline. These files contain no pasted medical notes or member details and are **not submitted**.
 

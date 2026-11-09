@@ -521,7 +521,7 @@ export function createCostItems(selection){
  } else {
    if(selection.setting!=='Office')item('facility','Hospital or ASC facility fee (confirm included implants)','', 'facility');
    if(selection.setting!=='Office')item('anesthesia','Anesthesia professional / facility services','', 'anesthesia',!service.category||!['hand'].includes(service.category));
-   if(selection.procedureId==='maci-implant')item('maci-cell','MACI cellular product (if separately billed)','J7330','cell-product');
+   if(selection.procedureId==='maci-implant')item('maci-cell','MACI cellular product (J7330) — normally authorized and estimated as MACI stage 3; include only if billed with implantation','J7330','cell-product',false);
    if(service.category==='arthroplasty'||service.category==='cartilage')item('therapy','Postoperative PT / rehabilitation','', 'rehab',false);
    if(service.category==='arthroplasty')item('implant-extra','Implant or implant-related charge ONLY if separately billable','', 'implant',false);
  }

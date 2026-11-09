@@ -16,7 +16,7 @@ export function renderAuthorizationAddendumHtml(service, answers = {}, metadata 
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Prior Authorization Addendum</title>' +
     '<style>body{font:12px/1.45 Arial,sans-serif;color:#17212c;max-width:800px;margin:28px auto}h1{font-size:20px}h2{font-size:14px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bac4cc;padding:9px;vertical-align:top;text-align:left}th{width:38%;background:#f2f5f7}.missing{color:#a12828}.warning{padding:10px;border:1px solid #a12828}footer{margin-top:26px}@media print{body{margin:12mm}.print-hide{display:none}}</style></head><body>' +
     '<p><strong>SYNTHETIC ONLY — NOT FOR SUBMISSION</strong></p><h1>Prior Authorization — Clinical Documentation Addendum</h1>' +
-    '<p><strong>Requested service:</strong> '+escapeHtml(guide.label)+'<br><strong>Patient:</strong> '+escapeHtml(metadata.patientName || '[PATIENT NAME]')+
+    '<p><strong>Requested service:</strong> '+escapeHtml(guide.label)+'<br><strong>Patient:</strong> [COMPLETE ONLY IN APPROVED CLINICAL SYSTEM]'+
     '<br><strong>Date of service:</strong> '+escapeHtml(metadata.date || '[DATE]')+
     '<br><strong>Payer / exact plan:</strong> '+escapeHtml(metadata.plan || '[VERIFY EXACT PRODUCT]')+
     '<br><strong>Clinician:</strong> '+escapeHtml(metadata.clinician || '[CLINICIAN]')+'</p>' +

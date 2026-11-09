@@ -94,7 +94,10 @@ test('cost hero never presents an unverified total as the estimate and keeps the
 });
 test('step order is plan, service, coverage, costs, packet, then the blank addendum library; PA routes get real styles',()=>{
  const html=renderStaffPage(state('AlohaCare','aloha-quest','carpal-open','Medical'));
- const order=['id="staff-plan"','id="staff-service"','id="staff-coverage"','id="staff-cost"','id="staff-packet"','id="staff-clinical-addendum"'].map(x=>html.indexOf(x));
+ const order=['id="staff-plan"','id="staff-service"','id="staff-requirements"','id="staff-cost"','id="staff-packet"','id="staff-clinical-addendum"'].map(x=>html.indexOf(x));
+ // Every element id on the staff screen is unique (the cost Coverage select once shared its id with step 3).
+ const ids=[...html.matchAll(/ id="([^"]+)"/g)].map(m=>m[1]);
+ assert.deepEqual(ids.filter((v,i)=>ids.indexOf(v)!==i),[]);
  assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])),JSON.stringify(order));
  assert.match(html,/<span class="staff-number">6<\/span> Blank clinical addendum/);
  assert.match(html,/data-action="staff-sample"/);

@@ -1,4 +1,4 @@
-import { orthoGelProducts, orthoProcedures } from './orthopedic-procedures.mjs';
+import { orthoGelProducts, orthoProcedures, getOrthoActiveCriteria } from './orthopedic-procedures.mjs';
 import { EXTRA_PROCEDURES } from './staff-service-catalog.mjs';
 
 // Product- and procedure-specific note templates; clinical aids, not payer coverage rules.
@@ -14,10 +14,11 @@ const gelFields=[
  field('benefit','Medical versus pharmacy benefit and supply route')
 ];
 const boneProducts=[
- ['bildyos','Bildyos (denosumab-nxxp)',null],
+ // Q-codes for Jubbonti and Bildyos are cited in the reviewed MDX/UHC Medicare Advantage PA list; Enoby and Stoboclo codes are not yet verified.
+ ['bildyos','Bildyos (denosumab-nxxp)','Q5157'],
  ['enoby','Enoby (denosumab-qbde)',null],
  ['stoboclo','Stoboclo (denosumab-bmwo)',null],
- ['jubbonti','Jubbonti (denosumab-bbdz)',null],
+ ['jubbonti','Jubbonti (denosumab-bbdz)','Q5136'],
  ['alendronate','Alendronate',null],
  ['risedronate','Risedronate',null],
  ['ibandronate','Ibandronate (route to be specified)',null],
@@ -51,6 +52,39 @@ const surgicalFields=[
  field('setting','Requested site of service and justification when needed'),
  field('records','Supporting office note, imaging, studies and records to attach')
 ];
+// Non-surgical services get a scaffold that matches what a payer actually reviews for them.
+const diagnosticFields=[
+ field('diagnosis','Diagnosis, ICD-10, side and affected anatomy'),
+ field('history','Symptoms, duration and examination findings prompting the study'),
+ field('priorImaging','Prior imaging or studies, dates and results'),
+ field('question','Clinical question and how the result will change management'),
+ field('setting','Ordering provider, performing site and protocol'),
+ field('records','Supporting office note and records to attach')
+];
+const therapyFields=[
+ field('diagnosis','Diagnosis, ICD-10, side and affected anatomy'),
+ field('function','Functional limitation and measurable goals'),
+ field('history','Surgery or injury date and prior therapy or devices tried'),
+ field('prescription','Prescription: frequency, duration, visit count or device specification'),
+ field('setting','Treating facility or supplier and network status'),
+ field('records','Supporting office note, operative report and records to attach')
+];
+const injectionFields=[
+ field('diagnosis','Diagnosis, ICD-10, side and affected joint'),
+ field('history','Symptoms, duration and examination findings'),
+ field('imaging','Relevant imaging and date'),
+ field('conservative','Conservative care, dates, response or contraindication'),
+ field('priorInjections','Prior injections or biologic treatments, dates and response'),
+ field('product','Product, preparation, dose, guidance and administration technique'),
+ field('setting','Site of service and separately billed drug or supply'),
+ field('records','Supporting office note, imaging and records to attach')
+];
+const productFields=[
+ field('diagnosis','Diagnosis, ICD-10, side and affected anatomy'),
+ field('records','Supporting operative, pathology and order records to attach')
+];
+const SCAFFOLDS={diagnostic:diagnosticFields,therapy:therapyFields,injection:injectionFields,product:productFields};
+const TEMPLATE_CATEGORY={imaging:'diagnostic',support:'therapy',injections:'injection'};
 const boneDetails={
  prolia:'Denosumab: document mineral/renal risk review, last dose, monitoring and interruption/transition plan',
  evenity:'Romosozumab: document cardiovascular history review, prior exposure, planned course and subsequent therapy',
@@ -74,18 +108,50 @@ const procedureDetails={
  'carpal-balloon':'Document actual intracarpal balloon technique; do not substitute other percutaneous techniques',
  'carpal-ultrasound-other':'Document actual non-balloon device and obtain payer-specific coding determination',
  'acl-reconstruction':'Document ACL instability, graft choice and associated ligament/meniscal work',
- 'meniscus-repair':'Document tear morphology, reparability and repair of medial/lateral compartments'
+ 'meniscus-repair':'Document tear morphology, reparability and repair of medial/lateral compartments',
+ 'trigger-finger':'Document the digit, A1-pulley findings, splinting and injection history and the open release plan',
+ 'trigger-finger-percutaneous':'Document the device and technique and record the payer/device-specific coding determination; no CPT is assumed',
+ 'knee-meniscectomy':'Document tear type, compartments involved (one versus both) and why meniscectomy rather than repair',
+ 'meniscus-root':'Document root tear type, extrusion, cartilage status and the specific root repair technique and coding determination',
+ 'bear-acl':'Document the tear pattern, implant-specific indication and the payer coverage and coding determination for the BEAR implant',
+ 'cartiheal':'Document lesion site and size, device-specific indication and the implant authorization and coding determination',
+ 'osteochondral-allograft':'Document lesion site and size, graft source and procurement, approach and payer-specific coding',
+ 'knee-osteotomy':'Document alignment measurements, compartment disease, bone and osteotomy technique and device coding',
+ 'pns-knee':'Document pain pattern, prior treatments, lead type (temporary or permanent), implantation technique and device coding',
+ 'iovera':'Document target nerves, timing relative to surgery, prior treatments and the applicable billing code',
+ 'genicular-rfa':'Document diagnostic genicular block results, prior treatments and the medical-necessity criteria of the payer',
+ 'prp':'Document the indication, prior treatments and the plan coverage or self-pay status before any cost promise',
+ 'bmac':'Document the indication, prior treatments, harvest and preparation details and the payer coverage and coding review',
+ 'a2m':'Document the indication, prior treatments and the investigational or noncovered status under the exact plan',
+ 'corticosteroid-injection':'Document the joint, laterality, drug and dose (J-code), guidance and interval since the last injection',
+ 'ultrasound-diagnostic':'Document the indication, complete versus limited study and the clinical question',
+ 'mri-knee':'Document the clinical question, prior imaging and treatment, and why MRI will change management',
+ 'xray-knee':'Document the views requested, laterality and indication',
+ 'dexa':'Document the indication, risk conditions, prior DXA date and the plan frequency rule',
+ 'dme-brace':'Document the indication, custom-fitted versus custom-fabricated need, L-code and supplier/benefit',
+ 'office-pt':'Document the diagnosis, functional goals, visit frequency and duration, and plan visit limits or authorization',
+ 'core-decompression':'Document osteonecrosis stage and imaging, prior care, graft or biologic use and facility coverage',
+ 'osseointegration':'Document amputation level, prior prosthetic use and failure, staged implant plan and negotiated coding'
 };
+const SURGICAL_CATEGORIES=new Set(['arthroplasty','cartilage','hand','sports','pain','spine']);
 const allProcedures=[...orthoProcedures,...EXTRA_PROCEDURES];
-const procedureFields=p=>p.criteria||p.checklist.map(([id,label])=>field(id,label));
+// Orthopedic catalog procedures use the stage-aware criteria (for example MACI harvest excludes the
+// implantation-stage product field); extra services use their checklist.
+const procedureFields=p=>p.criteria?getOrthoActiveCriteria({procedureId:p.id,requestType:'Initial'}).map(c=>field(c.id,c.label)):p.checklist.map(([id,label])=>field(id,label));
+const templateCategory=p=>p.id==='maci-cell-product'?'product':TEMPLATE_CATEGORY[p.category]||(SURGICAL_CATEGORIES.has(p.category)?'surgery':'surgery');
+// Service-specific prompts never disappear behind the generic scaffold: a colliding id keeps both labels.
+const mergeFields=(scaffold,specific)=>[
+ ...scaffold.map(f=>{const own=specific.find(c=>c.id===f.id);return own&&own.label!==f.label?field(f.id,f.label+' — '+own.label):f;}),
+ ...specific.filter(c=>!scaffold.some(f=>f.id===c.id))
+];
 export const AUTH_TEMPLATE_CATALOG=Object.freeze([
  ...orthoGelProducts.map(p=>Object.freeze({id:'gel-'+p.id,category:'viscosupplementation',name:p.name,codes:[p.code],fields:[...gelFields,field('course-'+p.id,p.name+': document exact formulation, labeled course, requested dose, injection count and '+p.code+' billing units ('+p.unit+'); verify current labeling')],notes:'Verify brand-specific dose, HCPCS billing units, payer preference and repeat-series rules.'})),
  ...boneProducts.map(([id,name,code])=>Object.freeze({id:'bone-'+id,category:'bone-health',name,codes:code?[code]:[],fields:[...boneFields,field('product-'+id,boneDetails[id]||(name+': document exact formulation/route, product-specific safety review, prior exposure and follow-up; verify current labeling'))],notes:'Verify current product labeling, indication, benefit channel, and payer-specific step therapy.'})),
- ...allProcedures.filter(p=>p.id!=='knee-gel').map(p=>Object.freeze({
-   id:'procedure-'+p.id,category:'surgery',name:p.name,codes:p.codes.map(c=>c.code),
-   fields:[...surgicalFields,...procedureFields(p).filter(c=>!surgicalFields.some(f=>f.id===c.id)).map(c=>field(c.id,c.label)),field('specific-'+p.id,procedureDetails[p.id]||p.description)],
-   notes:p.notes||'Confirm payer-specific procedure and site-of-service criteria.'
- }))
+ ...allProcedures.filter(p=>p.id!=='knee-gel').map(p=>{const category=templateCategory(p);return Object.freeze({
+   id:'procedure-'+p.id,category,name:p.name,codes:p.codes.map(c=>c.code),
+   fields:[...mergeFields(SCAFFOLDS[category]||surgicalFields,procedureFields(p)),field('specific-'+p.id,procedureDetails[p.id]||'Document the service-specific indication, technique or product, and the plan')],
+   notes:[p.notes,p.description,'Confirm payer-specific criteria and site-of-service rules.'].filter(Boolean).join(' ')
+ });})
 ]);
 // Catalog defaults are immutable across requests and template selection changes.
 for(const t of AUTH_TEMPLATE_CATALOG){for(const f of t.fields)Object.freeze(f);Object.freeze(t.fields);Object.freeze(t.codes);}
@@ -97,7 +163,8 @@ export function authTemplateForService(serviceId,gelProductId=''){
 export function documentedValue(value){
  if(typeof value!=='string')return '';
  const v=value.trim();
- return !v||v.length>4000||/^\[.*\]$/.test(v)||/^(not documented|not provided|unknown|pending|n\/a|false|true)$/i.test(v)?'':v;
+ // Placeholders, dashes and chart pointers are not documentation; require real letters.
+ return !v||v.length>4000||/^\[.*\]$/.test(v)||!/[\p{L}]{2}/u.test(v)||/^(not documented|not provided|not applicable|unknown|pending|none|null|undefined|tbd|todo|see chart|n\/?a\b.*|false|true)$/i.test(v)?'':v;
 }
 export function findAuthTemplate(id){return AUTH_TEMPLATE_CATALOG.find(x=>x.id===id)||null;}
 export function assessAuthTemplate(id,values={}){

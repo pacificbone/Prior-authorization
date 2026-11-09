@@ -52,7 +52,7 @@ export const STAFF_CATEGORY_LABELS=Object.freeze({
 const fromDrug=d=>({...d,type:'medication',category:'medication',codes:[]});
 const fromProcedure=d=>({...d,type:'procedure'});
 export const STAFF_SERVICES=Object.freeze([
- ...drugs.map(fromDrug),...EXTRA_DRUGS.filter(d=>!drugs.some(x=>x.id===d.id)&&d.id!=='romosozumab').map(fromDrug),
+ ...drugs.map(fromDrug),...EXTRA_DRUGS.filter(d=>!drugs.some(x=>x.id===d.id)).map(fromDrug),
  ...orthoProcedures.map(fromProcedure),...EXTRA_PROCEDURES.map(fromProcedure)
 ]);
 export const STAFF_YEARS=Object.freeze([2026,2027]);
@@ -104,7 +104,7 @@ export function staffServices({type='all',category='all',query=''}={}) {
  const q=String(query).toLowerCase().trim().slice(0,80);
  return STAFF_SERVICES.filter(x=>(type==='all'||x.type===type) &&
    (category==='all'||x.category===category) &&
-   (!q||[x.name,x.generic||'',x.description||'',x.category].join(' ').toLowerCase().includes(q)));
+   (!q||[x.name,x.generic||'',x.brand||'',x.description||'',x.category].join(' ').toLowerCase().includes(q)));
 }
 function policyScope(plan,benefit) {
  const line=staffPlanProgramLine(plan);
@@ -187,6 +187,7 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  const planLine=staffPlanProgramLine(plan);
  const sources=service?.type==='procedure'&&orthoProcedures.some(x=>x.id===service.id)&&plan
   ?getOrthoPayerSources({procedureId:service.id,payer:plan.payer,line:planLine}):[];
+ if(plan&&service?.type==='procedure'&&orthoProcedures.some(x=>x.id===service.id)&&!sources.length)restrictions.push('No payer-specific procedure policy or code-list source is cataloged for '+plan.payer+' on the '+planLine+' line. Research the payer policy manually; absence of a source is not absence of a requirement.');
  const authorizationResources=plan&&service?
   staffAuthResources({payer:plan.payer,program:plan.program,benefit,
     serviceType:service.type}):[];
