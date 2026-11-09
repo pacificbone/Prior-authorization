@@ -64,7 +64,7 @@ test('procedure screen keeps patient price missing and documents separate surgeo
  assert.match(html,/Anesthesia/);
  assert.match(html,/Surgeon:/);
  assert.match(html,/Facility:/);
- assert.match(html,/Implant \/ gel \/ cellular product:/);
+ assert.match(html,/Separately billable implant:/);
  assert.match(html,/Not yet available/);
  assert.match(html,/Download authorization checklist/);
  assert.match(html,/Download conditional cost worksheet/);
@@ -90,7 +90,8 @@ test('cost hero never presents an unverified total as the estimate and keeps the
  med.cost=newCostCase({procedureId:'drug-alendronate',payer:'HMSA',line:'Commercial',benefit:'Pharmacy'});
  const medHtml=renderStaffPage(med);
  assert.doesNotMatch(medHtml,/Surgeon: Not yet available/);
- assert.match(medHtml,/Implant \/ gel \/ cellular product: Not yet available/);
+ assert.match(medHtml,/Medication product: Not yet available/);
+ assert.doesNotMatch(medHtml,/Implant \/ gel \/ cellular product/);
 });
 test('step order is plan, service, coverage, costs, packet, then the blank addendum library; PA routes get real styles',()=>{
  const html=renderStaffPage(state('AlohaCare','aloha-quest','carpal-open','Medical'));

@@ -20,7 +20,7 @@ export function renderCostPage(value,selectedCategory='arthroplasty'){
    return `<div class="cost-item">
      <div class="cost-item-head">
        <div><strong>${escapeCost(line.label)}</strong><span>${escapeCost(line.kind)} ${line.code?' · '+escapeCost(line.code):''} ${line.required?' · required':' · may be separately billed'}</span></div>
-       <span class="pill ${r.patientShare===null?'amber':'neutral'}">${r.patientShare===null?'Unpriced':dollarValue(r.patientShare)}</span>
+       <span class="pill ${r.patientShare===null?'amber':'neutral'}">${r.patientShare===null?'Unpriced':dollarValue(r.patientShare)+(r.oopCapped?' · OOP limit reached':'')}</span>
      </div>
      <div class="cost-item-grid">
        <label>Allowed amount / quoted charge ($)<input type="number" min="0" max="10000000" step="0.01" data-cost-item="${escapeCost(line.id)}" data-cost-field="allowed" value="${line.allowed===null?'':line.allowed}" placeholder="Not verified"></label>
@@ -31,14 +31,16 @@ export function renderCostPage(value,selectedCategory='arthroplasty'){
      </div>
      <div class="cost-item-flags">
       <label><input type="checkbox" data-cost-item="${escapeCost(line.id)}" data-cost-field="deductibleApplies" ${line.deductibleApplies?'checked':''}> Deductible applies to this charge</label>
-      <label><input type="checkbox" data-cost-item="${escapeCost(line.id)}" data-cost-field="oopEligible" ${line.oopEligible?'checked':''}> Counts toward this plan’s medical OOP limit (verify)</label>
+      <label><input type="checkbox" data-cost-item="${escapeCost(line.id)}" data-cost-field="oopEligible" ${line.oopEligible?'checked':''} ${value.benefit==='Pharmacy'?'disabled':''}> Counts toward this plan’s medical OOP limit (verify)${value.benefit==='Pharmacy'?' — not applied to pharmacy-benefit claims':''}</label>
      </div>
      ${hasPrice&&line.source==='unverified'?'<p class="helper">Amount has no documented price source — this remains an illustrative assumption.</p>':''}
      ${r.missing?`<p class="helper">Missing: ${escapeCost(r.missing)}</p>`:''}
    </div>`;
  }).join('');
  const showTotal=result.totalRequired!==null;
- const title=showTotal?'Conditional modeled subtotal':'No complete estimate';
+ const confidence=result.confidence||{level:'incomplete',unverified:[]};
+ const assumptionOnly=showTotal&&confidence.level!=='staff-verified-inputs';
+ const title=!showTotal?'No complete estimate':confidence.level==='staff-verified-inputs'?'Conditional modeled subtotal':confidence.level==='cash-scenario'?'Cash scenario (not a Good Faith Estimate)':'Assumption-only scenario';
  const figure=showTotal?dollarValue(result.totalRequired):'Not available';
  const facility=external.facility;
  const overview=[
@@ -58,7 +60,7 @@ export function renderCostPage(value,selectedCategory='arthroplasty'){
     <label>Insurance company<select id="cost-payer">${costOpt(COST_PAYERS,value.payer)}</select></label>
     <label>Plan line<select id="cost-line">${costOpt(COST_LINES,value.line)}</select></label>
     <label>Benefit year<select id="cost-year">${costOpt(COST_YEARS.map(n=>String(n)),String(value.year))}</select></label>
-    <label>Claim type / benefit<select id="cost-benefit">${costOpt(['Unverified','Medical','Pharmacy'],value.benefit)}</select></label>
+    <label>Claim type / benefit<select id="cost-benefit" ${service.category!=='medication'?'disabled':''}>${costOpt(service.category==='medication'?['Unverified','Medical','Pharmacy']:['Medical'],value.benefit)}</select></label>
     <label>Care setting<select id="cost-setting">${costOpt(COST_SETTINGS,value.setting)}</select></label>
     <label>Actual hospital / facility<select id="cost-facility">${costOpt(COST_FACILITIES,value.facilityId)}</select></label>
     ${value.procedureId==='knee-gel'?`
@@ -68,7 +70,7 @@ export function renderCostPage(value,selectedCategory='arthroplasty'){
     <label>Network status<select id="cost-network">${costOpt([{id:'unknown',name:'Not confirmed'},{id:'in-network',name:'In network / participating'},{id:'out-of-network',name:'Out of network'}],value.network)}</select></label>
     <label>Coverage review<select id="cost-coverage">${costOpt([{id:'unverified',name:'Not verified'},{id:'staff-verified-covered',name:'Staff reports covered (not independently verified)'},{id:'staff-verified-not-covered',name:'Reported not covered / check appeal'}],value.coverage)}</select></label>
     <label>Secondary insurance<select id="cost-secondary">${costOpt([{id:'unknown',name:'Unknown'},{id:'none',name:'None'},{id:'possible',name:'Possibly'},{id:'verified-other',name:'Exists; not modeled'}],value.secondary)}</select></label>
-    <label>Remaining deductible ($)<input type="number" id="cost-deductible" min="0" max="10000000" step="0.01" value="${value.deductibleRemaining===null?'':value.deductibleRemaining}" placeholder="Verify in payer portal"></label>
+    <label>Remaining medical deductible ($)<input type="number" id="cost-deductible" min="0" max="10000000" step="0.01" value="${value.deductibleRemaining===null?'':value.deductibleRemaining}" placeholder="Verify in payer portal"></label>
     <label>Remaining medical OOP limit ($)<input type="number" id="cost-oop" min="0" max="10000000" step="0.01" value="${value.oopRemaining===null?'':value.oopRemaining}" placeholder="Verify in payer portal"></label>
    </div>
    <label class="cost-plan-label">Plan name or employer product (NO member ID)<input id="cost-plan" maxlength="80" autocomplete="off" value="${escapeCost(value.planLabel)}" placeholder="e.g., HMSA Choice, UHA employer HMO"></label>
@@ -76,8 +78,8 @@ export function renderCostPage(value,selectedCategory='arthroplasty'){
  </div></section>
  <div class="cost-summary">
  <section class="panel"><div class="panel-title-row"><h2 class="section-title">2 · Estimated responsibility</h2></div><div class="panel-content">
-   <span class="cost-total-label">${escapeCost(title)}</span><div class="cost-total">${escapeCost(figure)}</div>
-   <p class="helper">${showTotal?'Conditional covered-service calculation using staff-entered inputs only. Not a verified patient responsibility, final price or collected amount.':'Required charges or cost-share inputs remain missing. Known items do NOT support a full surgery estimate.'}</p>
+   <span class="cost-total-label">${escapeCost(title)}</span><div class="cost-total ${assumptionOnly?'cost-total-assumption':''}">${escapeCost(figure)}</div>
+   <p class="helper">${!showTotal?'Required charges or cost-share inputs remain missing. Known items do NOT support a full surgery estimate.':confidence.level==='assumption-only'?'Unverified: '+escapeCost(confidence.unverified.join(', '))+'. Do not read this as the patient’s expected bill.':confidence.level==='cash-scenario'?'Staff-entered cash quotes only. The patient may be entitled to a formal Good Faith Estimate from each provider.':'Conditional covered-service calculation using staff-entered inputs only. Not a verified patient responsibility, final price or collected amount.'}</p>
    ${showTotal?`<p class="cost-tiny">Core items priced: ${result.components.filter(x=>x.required&&x.patientShare!==null).length}. Optional charges excluded unless priced. Exact final claim depends on eligibility, network, paid claims, authorization and medical necessity.</p>`:''}
  </div></section>
  <section class="panel"><div class="panel-title-row"><h2 class="section-title">Estimate completeness</h2></div><div class="panel-content">
@@ -93,7 +95,7 @@ export function renderCostPage(value,selectedCategory='arthroplasty'){
    ${facility?.sourceUrl?`<div class="cost-source-row"><strong>${escapeCost(facility.name)}</strong><p>${escapeCost(facility.note)}</p><a class="source-link" href="${escapeCost(facility.sourceUrl)}" target="_blank" rel="noopener noreferrer">Hospital rate / estimate source</a></div>`:
       `<p class="helper">Choose the exact facility and plan; an anonymous hospital MRF does not tell us the patient's bill.</p>`}
    ${external.facts.map(x=>`<div class="cost-source-row"><strong>${escapeCost(x.title)}</strong><p>${escapeCost(x.note)}</p><a class="source-link" href="${escapeCost(x.url)}" target="_blank" rel="noopener noreferrer">Official benefits and rule source</a>
-       ${x.partBDeductible?`<p class="cost-tiny">2026 Part B deductible: $${x.partBDeductible}; usual coinsurance: ${x.usualPartBCoinsurancePercent}% · Part A inpatient deductible: $${x.partADeductible} per benefit period</p>`:''}
+       ${x.partBDeductible?`<p class="cost-tiny">${x.year} Part B deductible: $${Number(x.partBDeductible).toLocaleString()}; usual coinsurance: ${x.usualPartBCoinsurancePercent}% · Part A inpatient deductible: $${Number(x.partADeductible).toLocaleString()} per benefit period</p>`:''}
        ${x.individualFederalCeiling?`<p class="cost-tiny">Federal statutory annual maximum: $${x.individualFederalCeiling.toLocaleString()} individual. This is NOT the selected plan’s remaining OOP balance.</p>`:''}
      </div>`).join('')}
    ${external.tools.filter(x=>x.payers.length>0).map(x=>`<div class="cost-source-row"><strong>${escapeCost(x.title)}</strong><p>${escapeCost(x.note)}</p><a class="source-link" href="${escapeCost(x.url)}" target="_blank" rel="noopener noreferrer">Official cost tool</a></div>`).join('')}

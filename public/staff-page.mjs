@@ -35,8 +35,8 @@ function renderRateEvidence(st,ctx){
         <div><strong>Hospital facility evidence (${fs.length})</strong>
           ${fs.length?`<div class="table-scroll"><table><thead><tr><th>Published payer label</th><th>Price or benchmark</th><th>Source date</th></tr></thead><tbody>
           ${fs.map(x=>`<tr><td>${h(x.payerLabel)}<small>${h(x.description)}${x.billingClassVerified?'':' · class unverified'}</small></td>
-            <td>${x.amount!==null?moneyOrUnknown(x.amount):x.percent!==null?h(x.percent)+'% of charges':x.medianAllowed!==null?'Median '+moneyOrUnknown(x.medianAllowed):'No dollar rate'}<small>${h(x.methodology||'unspecified methodology')}</small></td>
-            <td>${h(x.sourceUpdated||'Unknown')}${x.sourceUrl?` <a href="${h(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source</a>`:''}</td></tr>`).join('')}
+            <td>${Number.isFinite(x.amount)?moneyOrUnknown(x.amount):Number.isFinite(x.percent)?h(x.percent)+'% of charges':Number.isFinite(x.medianAllowed)?'Median '+moneyOrUnknown(x.medianAllowed):'No dollar rate'}<small>${h(x.methodology||'unspecified methodology')}</small></td>
+            <td>${h(x.sourceUpdated||'Unknown')}${typeof x.sourceUrl==='string'&&/^https:\/\//.test(x.sourceUrl)?` <a href="${h(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source</a>`:''}</td></tr>`).join('')}
           </tbody></table></div>`:'<p class="helper">No exact code, setting, hospital and insurer-label match found.</p>'}</div>
         <div><strong>Professional market benchmark (${ps.length})</strong>
           ${ps.length?`<div class="table-scroll"><table><thead><tr><th>Published plan</th><th>Min / median / max</th><th>Observations</th></tr></thead><tbody>
@@ -91,17 +91,17 @@ export function renderStaffPage(state){
    <p class="helper">Opens the payer's site. Check the exact plan and CPT/NDC/HCPCS before using it. No member data is sent from this trial.</p>
   </div>`:'';
  const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(sourceStatusLabel(x.status))}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
- const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages].slice(0,9):[];
+ const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages]:[];
  const rateEvidence=renderRateEvidence(state,ctx);
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
    ${!costShown?`<p class="helper">${state.costUnavailable?h(state.costUnavailable):'Choose the insurer, plan and treatment above to begin. No price will be invented.'}</p>`:`
    ${(()=>{const total=estimate?.totalRequired??null;const verified=estimate?.isScenario===true;
      const value=total===null?'Not yet available':verified?money(total):'Assumption-only scenario: '+money(total);
      const note=total===null?'Core allowed amounts or plan benefits are missing.':verified?'Conditional scenario — not a verified patient quote.':'Coverage, network, rate sources or secondary status are still unverified. Do not read this as the patient’s expected bill.';
-     const labels={surgeon:'Surgeon',facility:'Facility',anesthesia:'Anesthesia','gel-product':'Implant / gel / cellular product','maci-cell':'Implant / gel / cellular product','drug-product':'Implant / gel / cellular product','implant-extra':'Implant / gel / cellular product'};
+     const labels={surgeon:'Surgeon',facility:'Facility',anesthesia:'Anesthesia','gel-product':'Gel product','maci-cell':'MACI cell product','drug-product':'Medication product','implant-extra':'Separately billable implant','imaging-global':'Imaging','service':'Therapy / DME'};
      const labelFor=id=>labels[id];
      // Only components that exist for this case are listed; a drug workup no longer shows surgeon/facility/anesthesia rows.
-     const rows=cost.items.filter(x=>x.required||labels[x.id]||estimate?.components?.some(c=>c.id===x.id)).map(x=>`<small>${h(labelFor(x.id)||x.label)}: ${money(estimate?.components?.find(c=>c.id===x.id)?.patientShare)}</small>`).join('');
+     const rows=cost.items.filter(x=>x.required||labels[x.id]||estimate?.components?.some(c=>c.id===x.id)).map(x=>{const c=estimate?.components?.find(c=>c.id===x.id);return `<small>${h(labelFor(x.id)||x.label)}: ${money(c?.patientShare)}${c?.oopCapped?' (OOP limit reached)':''}</small>`;}).join('');
      return `<div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong class="${verified||total===null?'':'staff-cost-assumption'}">${value}</strong><small>${note}</small></div><div><strong>Separate billing estimates</strong>${rows}<small>Unknown is not $0; missing items remain unpriced.</small></div></div>`;})()}
    <div class="staff-cost-setup">
      <label>Hospital / ASC<select id="staff-facility">${opts(COST_FACILITIES,cost.facilityId,'',x=>({v:x.id,label:x.name}))}</select></label>

@@ -343,6 +343,7 @@ export const COST_PAYER_TOOLS=Object.freeze([
   {
     "id": "uha-rx",
     "payers": ["UHA"],
+    "benefits": ["Pharmacy","Unverified"],
     "title": "UHA Drug Out-of-Pocket Estimator",
     "url": "https://www.uhahealth.com/members/provider-search/member-drug-tools",
     "note": "This drug tool is only an estimate, and may not match the member's exact PBM benefit. Confirm drug and dispensing channel."
@@ -359,6 +360,7 @@ export const COST_PAYER_TOOLS=Object.freeze([
     "payers": [
       "HMSA"
     ],
+    "lines": ["Commercial","Individual Exchange"],
     "title": "HMSA Procedure Cost Estimator (member-specific)",
     "url": "https://hmsa.com/help-center/compare-out-of-pocket-costs-of-certain-medical-items-and-services/",
     "note": "Commercial members can log into My Account to estimate plan-specific deductible, copay and coinsurance."
@@ -368,6 +370,7 @@ export const COST_PAYER_TOOLS=Object.freeze([
     "payers": [
       "HMSA"
     ],
+    "lines": ["Medicare Advantage"],
     "title": "HMSA Akamai Advantage 2026–2027 Evidence of Coverage",
     "url": "https://www.hmsa.com/prc/plan-library-medicare/hmsa-akamai-advantage/",
     "note": "Find the exact Akamai plan and year; hospital, ASC and physician cost shares can differ."
@@ -440,11 +443,13 @@ export const COST_PAYER_TOOLS=Object.freeze([
       "AlohaCare",
       "Kaiser Permanente",
       "HMSA",
-      "UnitedHealthcare"
+      "UnitedHealthcare",
+      "ʻOhana / Wellcare"
     ],
-    "title": "Hawaiʻi Medicaid cost-sharing FAQ",
+    "lines": ["QUEST / Medicaid"],
+    "title": "Hawaiʻi Insurance Division consumer FAQ (DCCA) — general reference, not the Med-QUEST member handbook",
     "url": "https://cca.hawaii.gov/ins/faqs/",
-    "note": "Only use for verified QUEST members and covered, authorized services; exceptions apply."
+    "note": "State consumer-protection FAQ only. QUEST cost-sharing rules are in each QUEST plan's member handbook (HMSA, Kaiser, AlohaCare, UnitedHealthcare, ʻOhana); the Med-QUEST site could not be re-verified from this environment. Use only for verified QUEST members and covered, authorized services."
   },
   {
     "id": "wc",
@@ -470,6 +475,37 @@ export const COST_MEDICATIONS=Object.freeze([
   {id:'drug-zoledronic-acid',name:'Zoledronic acid (Reclast)',category:'medication',drugId:'zoledronic-acid',settingNote:'Infusion and medication may be billed separately.'},
   {id:'drug-teriparatide',name:'Teriparatide (Forteo/generic)',category:'medication',drugId:'teriparatide',settingNote:'Self-administered prescription: pharmacy formulary/PBM and quantity matter.'}
 ]);
+// Program lines that belong to exactly one payer. A Medicare Advantage or Commercial line must
+// never inherit Original Medicare cost sharing, and a commercial carrier cannot sit on the
+// Original Medicare, VA, TRICARE, workers' compensation or self-pay line.
+const LINE_BOUND_PAYERS=Object.freeze({
+  'Traditional Medicare':'Traditional Medicare',
+  'Self-pay':'Uninsured / self-pay',
+  'Workers compensation':'Workers compensation',
+  'Veterans Affairs':'VA / Community Care',
+  'TRICARE':'TRICARE'
+});
+export function costPayerLineConsistent(payer,line){
+  const bound=LINE_BOUND_PAYERS[payer];
+  if(bound)return line===bound;
+  return !Object.values(LINE_BOUND_PAYERS).includes(line);
+}
+export const COST_PAYER_ALIAS=Object.freeze({'MDX Hawaiʻi':'MDX','Medigap':'Traditional Medicare'});
+// Only these program lines have a matching cost line; Part D, federal/postal and delegated/claim
+// pathways are not medical payers for the estimator and must not be relabeled as one.
+export const COST_LINE_FOR_PLAN_LINE=Object.freeze({'Commercial':'Commercial','Individual Exchange':'Individual Exchange','QUEST / Medicaid':'QUEST / Medicaid','Medicare Advantage':'Medicare Advantage','Traditional Medicare':'Traditional Medicare','VA / Community Care':'VA / Community Care','TRICARE':'TRICARE'});
+// Staff hand-off: which estimator payer/line a selected plan maps to. Medigap is a supplement to
+// Original Medicare, so it keeps every Original Medicare safeguard and is flagged as an unmodeled
+// secondary rather than being downgraded to payer "Other".
+export function costContextForPlan(planPayer,planLine){
+  if(planPayer==='Workers compensation')return {payer:'Workers compensation',line:'Workers compensation',secondary:'unknown'};
+  const line=COST_LINE_FOR_PLAN_LINE[planLine]||null;
+  if(!line)return {unavailable:'No cost scenario for a '+planLine+' selection: it is not the medical payer for this service. Identify the member’s medical plan (or the underlying carrier for an administrator) and select it in step 1.'};
+  const aliased=COST_PAYER_ALIAS[planPayer]||planPayer;
+  const payer=COST_PAYERS.includes(aliased)?aliased:'Other';
+  if(!costPayerLineConsistent(payer,line))return {unavailable:'No cost scenario: '+planPayer+' cannot be estimated on the '+line+' line without a verified medical plan.'};
+  return {payer,line,secondary:planPayer==='Medigap'?'verified-other':'unknown'};
+}
 export function getCostService(id){
   const existing=getOrthoProcedure(id)||EXTRA_PROCEDURES.find(x=>x.id===id)||COST_MEDICATIONS.find(x=>x.id===id);
   if(existing)return existing;
@@ -487,22 +523,26 @@ export function createCostItems(selection){
  const items=[];
  const medication=service.category==='medication';
  function item(id,label,code,kind,required=true){
-   const medicare=selection.payer==='Traditional Medicare' && selection.year===2026;
+   const medicare=selection.payer==='Traditional Medicare'&&selection.line==='Traditional Medicare'&&selection.year===2026;
+   const selfPay=selection.payer==='Self-pay'&&selection.line==='Uninsured / self-pay';
    const partA=medicare&&kind==='facility'&&selection.setting==='Hospital inpatient';
-   const usesPartB=medicare&&!partA&&selection.benefit==='Medical';
+   // OPPS facility coinsurance is set per APC (it can exceed 20% and is capped per service at the
+   // Part A deductible), so the hospital-outpatient facility line is never pre-filled at 20%.
+   const opps=medicare&&kind==='facility'&&selection.setting==='Hospital outpatient';
+   const usesPartB=medicare&&!partA&&!opps&&selection.benefit==='Medical';
    items.push({
      id,label,code,kind,required,
      allowed:null,
      source:'unverified',
-     method:partA?'part-a-review':usesPartB?'coinsurance':selection.payer==='Self-pay'?'cash':'unknown',
+     method:partA?'part-a-review':usesPartB?'coinsurance':selfPay?'cash':'unknown',
      percentage:usesPartB?20:null,
      copay:null,
-     deductibleApplies:usesPartB,
+     deductibleApplies:usesPartB||opps,
      oopEligible:!partA
    });
  }
  if(medication){
-   item('drug-product',service.name+' medication product (per planned course)', '', 'medical-drug');
+   item('drug-product',service.name+' medication product (single claim / first dose; verify the planned course)', '', 'medical-drug');
    if(service.drugId==='evenity'||service.drugId==='prolia'||service.drugId==='zoledronic-acid')
      item('administration','Injection / infusion administration (if separately billed)','', 'professional',false);
    item('related-visit','Office/infusion visit if separately billed','', 'other',false);
@@ -512,6 +552,24 @@ export function createCostItems(selection){
    // Product-only authorization: the implantation professional and facility fees belong to MACI stage 2.
    item('maci-cell','MACI cultured chondrocyte product (J7330; verify units and benefit channel)','J7330','cell-product');
    item('related-visit','Implantation professional/facility fees are estimated under MACI stage 2','', 'other',false);
+   return items;
+ }
+ // Components follow the service type: imaging and therapy have no surgeon or anesthesia line,
+ // office injections and pain procedures need no anesthesia, and only true surgery requires one.
+ if(service.category==='imaging'){
+   item('imaging-global','Imaging global or technical component (facility or imaging center)',surgicalCode,'technical');
+   item('imaging-read','Radiologist interpretation, if separately billed','', 'professional',false);
+   return items;
+ }
+ if(service.category==='support'){
+   item('service','Therapy visit or DME / brace supplier charge (per visit or item)',surgicalCode,'professional');
+   return items;
+ }
+ if((service.category==='injections'||service.category==='pain')&&selection.procedureId!=='knee-gel'){
+   item('surgeon','Professional procedure fee',surgicalCode,'professional');
+   item('product','Injected drug, biologic or device product, if separately billed',gelCode,'medical-drug',false);
+   if(selection.setting!=='Office')item('facility','Facility fee for a facility-based procedure','', 'facility');
+   if(selection.setting!=='Office')item('anesthesia','Sedation / anesthesia, only if used','', 'anesthesia',false);
    return items;
  }
  item('surgeon','Surgeon / professional procedure fee',surgicalCode,'professional');
@@ -561,11 +619,13 @@ export function validateCostCase(value){
     !COST_COVERAGE.includes(value.coverage)||!['Medical','Pharmacy','Unverified'].includes(value.benefit)||!COST_SECONDARY.includes(value.secondary)||
     !COST_FACILITIES.some(f=>f.id===value.facilityId))
    throw Error('Invalid payer, service, facility or coverage context.');
+ if(!costPayerLineConsistent(value.payer,value.line))throw Error('The plan line does not belong to this payer: '+value.payer+' cannot be estimated on the '+value.line+' line.');
+ if(getCostService(value.procedureId).category!=='medication'&&value.benefit!=='Medical')throw Error('Procedures are estimated on the medical benefit only.');
  if(typeof value.planLabel!=='string'||value.planLabel.length>80||!(/^[\p{L}\p{N} /&+().,'’ʻ_-]*$/u).test(value.planLabel)||/\d{7,}/.test(value.planLabel))
     throw Error('Enter a general plan product name only; not a member number or PHI.');
  for(const field of ['deductibleRemaining','oopRemaining']){
    const n=value[field];
-   if(n!==null&&(!Number.isFinite(n)||n<0||n>1e7||Math.round(n*100)!==n*100))throw Error('Invalid remaining deductible / out-of-pocket balance.');
+   if(n!==null&&(!Number.isFinite(n)||n<0||n>1e7||Math.abs(n*100-Math.round(n*100))>1e-6))throw Error('Invalid remaining deductible / out-of-pocket balance.');
  }
  if(typeof value.gelProductId!=='string'||!['with-ultrasound','without-ultrasound'].includes(value.guidance))
    throw Error('Invalid gel configuration.');
@@ -582,12 +642,26 @@ export function validateCostCase(value){
      if(p[key]!==null&&(!Number.isFinite(p[key])||p[key]<0||p[key]>1e7||Math.abs(p[key]*100-Math.round(p[key]*100))>1e-6))
        throw Error('Invalid dollar amount.');
    }
-   if(p.percentage!==null&&(!Number.isFinite(p.percentage)||p.percentage<0||p.percentage>100||Math.round(p.percentage*100)!==p.percentage*100))
+   if(p.percentage!==null&&(!Number.isFinite(p.percentage)||p.percentage<0||p.percentage>100||Math.abs(p.percentage*100-Math.round(p.percentage*100))>1e-6))
      throw Error('Invalid coinsurance percentage.');
  }
  return value;
 }
 
+// Confidence is reported separately from arithmetic: a complete total built on unverified
+// coverage, network, sources or secondary status is an assumption-only scenario, never a quote.
+export function estimateConfidence(data,requiredComplete){
+ const selfPay=data.payer==='Self-pay'&&data.line==='Uninsured / self-pay';
+ if(!requiredComplete)return {level:'incomplete',unverified:[]};
+ const unverified=[];
+ if(!selfPay&&data.coverage!=='staff-verified-covered')unverified.push('coverage');
+ if(!selfPay&&data.network!=='in-network')unverified.push('network');
+ if(!selfPay&&data.secondary!=='none')unverified.push('secondary coverage');
+ if(!String(data.planLabel||'').trim())unverified.push('plan product');
+ if(data.benefit==='Unverified')unverified.push('benefit channel');
+ if(data.items.some(x=>x.required&&x.source==='unverified'))unverified.push('rate source');
+ return {level:selfPay?'cash-scenario':unverified.length?'assumption-only':'staff-verified-inputs',unverified};
+}
 export function estimatePatientCost(data){
  validateCostCase(data);
  const messages=[],components=[],missingRequired=[],missingOptional=[];
@@ -609,7 +683,8 @@ export function estimatePatientCost(data){
  if(service.category==='medication'&&data.benefit==='Unverified')messages.push('Medication billing is not classified as Medical vs Pharmacy. The correct plan benefit, billing route and specialty pharmacy must be established.');
  if(service.category==='medication'&&data.benefit==='Pharmacy'&&originalMedicare)messages.push('Original Medicare does not provide a standalone pharmacy formulary. Enter the actual Part D PDP and its pharmacy cost-sharing to estimate this prescription.');
  if(service.category==='medication'&&data.benefit==='Pharmacy'&&data.line==='Medicare Advantage')messages.push('For Medicare Advantage Part D medicines, confirm formulary/tier, LIS/Extra Help and the separate annual Part D out-of-pocket threshold.');
- if(service.category==='medication')messages.push('This is one treatment course: course length, dose, units and authorization period affect total cost. Manufacturer assistance was not modeled.');
+ if(service.category==='medication')messages.push('The medication line is priced as a single claim (first dose). Each dose is a separate claim, so the deductible and out-of-pocket balances were applied as if the whole course were one claim, and a course that crosses the benefit year resets them. Course length, dose, units and authorization period affect total cost. Manufacturer assistance was not modeled.');
+ if(originalMedicare&&data.setting==='Hospital outpatient')messages.push('Hospital outpatient (OPPS) facility coinsurance under Original Medicare is set per APC: it can exceed 20% and is capped per service at the Part A inpatient deductible. Enter the APC copayment from the Medicare procedure price lookup or the MAC; it is not pre-filled.');
 
  if(originalMedicare&&data.network==='in-network')messages.push('Original Medicare has no annual medical out-of-pocket maximum; Medicare assignment and supplemental coverage must be confirmed.');
  if(service.id==='carpal-ultrasound-other')messages.push('Coding for this non-balloon ultrasound technique is not verified; no billable CPT should be inferred.');
@@ -624,10 +699,11 @@ export function estimatePatientCost(data){
    if(line.required&&line.id==='surgeon'&&!line.code)missingReason='No verified procedure code.';
    if(line.required&&line.id==='gel-product'&&!line.code)missingReason='Gel J-code not selected.';
    if(line.allowed===null)missingReason=missingReason||'Negotiated allowed amount / cash quote missing.';
-   if(!['cash','none','part-a-review'].includes(line.method) && line.method==='unknown')missingReason=missingReason||'Member cost-share rule missing.';
+   if(line.method==='unknown')missingReason=missingReason||'Member cost-share rule missing.';
    if((line.method==='coinsurance'||line.method==='both')&&line.percentage===null)missingReason=missingReason||'Coinsurance percentage missing.';
    if((line.method==='copay'||line.method==='both')&&line.copay===null)missingReason=missingReason||'Copay missing.';
-   if(line.deductibleApplies&&line.method!=='none'&&remainingDed===null)missingReason=missingReason||'Remaining annual deductible unknown.';
+   if(line.deductibleApplies&&!['none','cash'].includes(line.method)&&data.benefit==='Pharmacy')missingReason=missingReason||'Pharmacy-benefit deductible is separate from the medical deductible entered here and is unknown; uncheck "deductible applies" only once the pharmacy deductible is confirmed met.';
+   if(line.deductibleApplies&&!['none','cash'].includes(line.method)&&remainingDed===null)missingReason=missingReason||'Remaining annual medical deductible unknown.';
    if(line.method==='part-a-review')missingReason=missingReason||'Inpatient Part A benefit-period calculation requires manual verification.';
    if(originalMedicare&&data.setting==='Hospital inpatient'&&line.kind==='facility')missingReason='Original Medicare Part A inpatient facility requires benefit-period and admission-specific calculation; no percentage approximation permitted.';
    if(missingReason){
@@ -649,25 +725,30 @@ export function estimatePatientCost(data){
    else if(line.method==='both')share=deductiblePaid+Math.min(remainder,Math.round(line.copay*100)+Math.round(remainder*line.percentage/100));
    else if(line.method==='none')share=0;
    share=Math.max(0,Math.min(allowed,share));
+   const preCapShare=share/100;
+   let oopCapped=false;
    if(remainingOop!==null&&line.oopEligible&&line.method!=='cash'){
      const adjusted=Math.min(share,remainingOop);
+     oopCapped=adjusted<share;
      remainingOop-=adjusted;share=adjusted;
    }
    const patientShare=share/100;
    total+=share;
-   knownShare+=share;
+   // knownComponentShare is the share of the priced REQUIRED lines only (optional extras excluded).
+   if(line.required){knownShare+=share;pricedRequired++;}
    priced++;
-   if(line.required)pricedRequired++;
    components.push({
-     id:line.id,label:line.label,allowed:line.allowed,patientShare,
+     id:line.id,label:line.label,allowed:line.allowed,patientShare,preCapShare,oopCapped,
      deductibleShare:deductiblePaid/100,required:line.required,rateSource:line.source,missing:null
    });
  }
  const requiredComplete=missingRequired.length===0&&(data.coverage!=='staff-verified-not-covered'||selfPay);
- const isScenario=requiredComplete&&data.coverage==='staff-verified-covered'&&data.network==='in-network'&&data.secondary==='none'&&data.planLabel.trim()!==''&&data.benefit!=='Unverified'&&data.items.filter(x=>x.required).every(x=>x.source!=='unverified')&&!selfPay;
+ const confidence=estimateConfidence(data,requiredComplete);
+ const isScenario=requiredComplete&&confidence.level==='staff-verified-inputs';
  const sourceMissing=data.items.filter(x=>x.required&&x.source==='unverified').map(x=>x.label);
  if(data.benefit==='Unverified')messages.push('Exact benefit channel has not been identified; do not interpret modeled shares as payable amounts.');
  if(sourceMissing.length)messages.push('At least one required price lacks a verified source; amounts are assumptions, not validated contracted prices.');
+ if(components.some(x=>x.oopCapped))messages.push('One or more lines were reduced by the remaining medical out-of-pocket limit; a $0.00 line means the limit was reached, not that the service is free.');
  if(missingOptional.length)messages.push('Optional or separately billed services remain unpriced; shown core costs exclude them.');
  if(selfPay)messages.push('For uninsured/self-pay, this modeled cash quote is NOT a formal No Surprises Act Good Faith Estimate. Request facility and surgeon estimates separately.');
  if(originalMedicare&&data.setting==='Hospital inpatient')messages.push('2026 Part A $1,736 deductible is per benefit period; do not use it as an automatic per-surgery copay. Part B physician fees may still be owed.');
@@ -680,6 +761,7 @@ export function estimatePatientCost(data){
    messages,
    priced,
    isScenario,
+   confidence,
    quoteReady:false,
    deductibleLeftAfterKnown:remainingDed===null?null:remainingDed/100,
    oopLeftAfterKnown:remainingOop===null?null:remainingOop/100
@@ -687,7 +769,7 @@ export function estimatePatientCost(data){
 }
 
 export function selectCostGuidance(value){
- const related=COST_PAYER_TOOLS.filter(t=>t.payers.length===0||t.payers.includes(value.payer));
+ const related=COST_PAYER_TOOLS.filter(t=>(t.payers.length===0||t.payers.includes(value.payer))&&(!t.lines||t.lines.includes(value.line))&&(!t.benefits||t.benefits.includes(value.benefit)));
  const special=COST_FACTS.filter(x=>x.kind===(
    value.payer==='Traditional Medicare'?'medicare':
    value.payer==='Veterans Affairs'?'va':
@@ -719,14 +801,16 @@ export function costWorksheet(value,{generated='2026-11-07'}={}){
  'Location: '+value.setting+' / '+(COST_FACILITIES.find(f=>f.id===value.facilityId)?.name||'Not selected'),
  'Network: '+value.network+' / Coverage: '+value.coverage,
  'Claimed benefit channel (verify): '+value.benefit,
- 'Known remaining deductible (staff-entered): '+(value.deductibleRemaining===null?'unknown':value.deductibleRemaining),
+ 'Known remaining medical deductible (staff-entered): '+(value.deductibleRemaining===null?'unknown':value.deductibleRemaining),
  'Known in-network remaining out-of-pocket limit (staff-entered): '+(value.oopRemaining===null?'unknown':value.oopRemaining),
  'Secondary coverage: '+value.secondary,
  '',
  'LINE ITEMS — staff-entered allowed charges and benefit assumptions only',
- ...result.components.map(x=>x.label+' | allowed '+(x.allowed===null?'unknown':'$'+x.allowed.toFixed(2))+' | estimated patient share '+(x.patientShare===null?'UNVERIFIED':'$'+x.patientShare.toFixed(2))),
+ ...result.components.map(x=>x.label+' | allowed '+(x.allowed===null?'unknown':'$'+x.allowed.toFixed(2))+' | estimated patient share '+(x.patientShare===null?'UNVERIFIED ('+x.missing+')':'$'+x.patientShare.toFixed(2)+' | source: '+x.rateSource+' | deductible applied $'+x.deductibleShare.toFixed(2)+(x.oopCapped?' | OOP limit reached':''))),
  '',
- 'ESTIMATE: '+(result.totalRequired===null?'INCOMPLETE — no comprehensive amount':('$'+result.totalRequired.toFixed(2)+' conditional covered-service core scenario')),
+ 'ESTIMATE: '+(result.totalRequired===null?'INCOMPLETE — no comprehensive amount':('$'+result.totalRequired.toFixed(2)+(result.confidence.level==='cash-scenario'?' cash scenario from staff-entered quotes':' conditional covered-service core scenario'))),
+ 'CONFIDENCE: '+(result.confidence.level==='incomplete'?'INCOMPLETE':result.confidence.level==='cash-scenario'?'CASH SCENARIO — not a Good Faith Estimate':result.confidence.level==='assumption-only'?'ASSUMPTION-ONLY (unverified: '+result.confidence.unverified.join(', ')+')':'STAFF-VERIFIED INPUTS — still not a patient quote'),
+ 'Medical deductible left after known items: '+(result.deductibleLeftAfterKnown===null?'unknown':'$'+result.deductibleLeftAfterKnown.toFixed(2))+' / medical OOP left after known items: '+(result.oopLeftAfterKnown===null?'not applied':'$'+result.oopLeftAfterKnown.toFixed(2)),
  'Not included: future or separately billed visits, complications, out-of-network balances, uncovered services, post-op meds and any optional missing line items.',
  ...result.messages.map(x=>'- '+x),
  '',

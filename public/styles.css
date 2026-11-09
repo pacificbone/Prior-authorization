@@ -219,3 +219,7 @@
 .payer-evidence-entry{border-top:1px solid var(--line);padding:10px 0}.payer-evidence-entry summary{cursor:pointer;font-weight:600}.payer-evidence-entry ul{margin:6px 0 6px 18px}
 .staff-cost-hero strong.staff-cost-assumption{font-size:16px;color:var(--amber)}
 @media(max-width:650px){.pill{font-size:12px}.staff-rate-grid table{font-size:12px}.staff-cost-head span{font-size:12px}.trial-banner p{font-size:12px}.subtitle{font-size:12px}.metric-label{font-size:11px}}
+
+/* Assumption-only totals on the Patient costs page share the staff hero treatment. */
+.cost-total.cost-total-assumption{color:#8a5a00;}
+.cost-total.cost-total-assumption::after{content:" (assumption-only)";font-size:.55em;font-weight:600;margin-left:.35em;}

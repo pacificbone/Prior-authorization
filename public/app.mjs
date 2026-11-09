@@ -7,7 +7,7 @@ import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverag
 import {PUBLISHED_FORMULARIES} from '/shared/live-formularies.mjs';
 import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
-import {newCostCase,validateCostCase,costWorksheet,getCostService,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
+import {newCostCase,validateCostCase,costWorksheet,getCostService,costContextForPlan,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
 import {renderCostPage} from './cost-page.mjs';
 import {staffContext,staffPlansForPayer,staffGetService,staffDefaultBenefit,staffServices,STAFF_CATEGORY_LABELS,staffAuthorizePacket,staffPatientScript} from '/shared/staff-workflow.mjs';
 import {renderStaffPage} from './staff-page.mjs';
@@ -149,10 +149,6 @@ function renderCoverage(){
 }
 function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ortho,state.orthoCategory);}
 function renderStaff(){$('#page').innerHTML=renderStaffPage(state.staff);}
-const COST_PAYER_ALIAS={'MDX Hawaiʻi':'MDX'};
-// Only these program lines have a matching cost line; Part D, federal/postal and delegated/claim
-// pathways are not medical payers for the estimator and must not be relabeled as one.
-const COST_LINE_FOR_PLAN_LINE={'Commercial':'Commercial','Individual Exchange':'Individual Exchange','QUEST / Medicaid':'QUEST / Medicaid','Medicare Advantage':'Medicare Advantage','Traditional Medicare':'Traditional Medicare','VA / Community Care':'VA / Community Care','TRICARE':'TRICARE'};
 function resetStaffPrice({keepClinical=false}={}){
   const st=state.staff;
   $('#print-region').textContent='';
@@ -164,23 +160,23 @@ function resetStaffPrice({keepClinical=false}={}){
   st.docs={};
   st.lookup={sourceId:null,term:'',busy:false,result:null,error:''};
   if(!ctx.plan||!ctx.service){st.cost=null;return;}
-  const aliased=COST_PAYER_ALIAS[ctx.plan.payer]||ctx.plan.payer;
-  const payer=ctx.plan.payer==='Workers compensation'?'Workers compensation':COST_PAYERS.includes(aliased)?aliased:'Other';
-  const line=ctx.plan.payer==='Workers compensation'?'Workers compensation':COST_LINE_FOR_PLAN_LINE[ctx.planLine]||null;
-  if(!line){
-    st.cost=null;
-    st.costUnavailable='No cost scenario for a '+ctx.planLine+' selection: it is not the medical payer for this service. Identify the member’s medical plan (or the underlying carrier for an administrator) and select it in step 1.';
-    return;
-  }
+  // The shared hand-off keeps Medigap on Original Medicare (as an unmodeled secondary) and refuses
+  // payer/line pairs the estimator cannot model instead of downgrading them to "Other".
+  const handoff=costContextForPlan(ctx.plan.payer,ctx.planLine);
+  if(handoff.unavailable){st.cost=null;st.costUnavailable=handoff.unavailable;return;}
   const procedureId=ctx.service.type==='medication'?'drug-'+ctx.service.id:ctx.service.id;
   const benefit=ctx.service.type==='procedure'?'Medical':st.benefit;
-  st.cost=newCostCase({procedureId,payer,line,year:st.year,setting:st.setting,
+  const cost=newCostCase({procedureId,payer:handoff.payer,line:handoff.line,year:st.year,setting:st.setting,
     gelProductId:st.gelProductId,guidance:st.guidance,benefit});
+  cost.secondary=handoff.secondary;
   // Prefer the human plan name; fall back to the source id when the name cannot pass the
   // plan-label validator (for example HIOS ids with long digit runs).
   const label=(ctx.plan.payer+' - '+ctx.plan.name).replace(/[·—–]/g,'-').replace(/[^\p{L}\p{N} /&+().,'’ʻ_-]/gu,'').replace(/\s+/g,' ').trim().slice(0,80);
-  try{validateCostCase({...st.cost,planLabel:label});st.cost.planLabel=label;}
-  catch{st.cost.planLabel=(ctx.plan.payer+' '+ctx.plan.id).slice(0,80);}
+  for(const candidate of [label,(ctx.plan.payer+' '+ctx.plan.id).slice(0,80)]){
+    try{validateCostCase({...cost,planLabel:candidate});st.cost={...cost,planLabel:candidate};return;}catch{}
+  }
+  st.cost=null;
+  st.costUnavailable='No cost scenario could be built for this plan and service; verify the plan line and benefit manually.';
 }
 function renderCosts(){$('#page').innerHTML=renderCostPage(state.cost,state.costCategory);}
 function renderExplorer(){
