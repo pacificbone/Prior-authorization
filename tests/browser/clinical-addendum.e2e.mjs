@@ -2,7 +2,9 @@
 // Install Playwright separately or set PBJ_PLAYWRIGHT_MODULE to its module path.
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
-const {chromium}=await import(process.env.PBJ_PLAYWRIGHT_MODULE||'playwright');
+const playwright=await import(process.env.PBJ_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=playwright.chromium?playwright:playwright.default;
+if(!chromium)throw new Error('Playwright module did not expose chromium; set PBJ_PLAYWRIGHT_MODULE to the installed package entry');
 const browser=await chromium.launch({headless:true,...(process.env.PBJ_CHROME_PATH?{executablePath:process.env.PBJ_CHROME_PATH}:{})});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}});
