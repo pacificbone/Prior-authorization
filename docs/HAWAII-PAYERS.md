@@ -11,7 +11,8 @@ Reviewed November 6, 2026. The app starts with HMSA. Organization selection is d
 | UHA | Official drug/medical PA lookup and reviewer-routing resources | No drug-level formulary or clinical policy extract imported yet |
 | UHC | Separate Commercial/Individual Exchange initial Evenity and denosumab clinical-policy extracts | No substitution into Medicare Advantage or Community Plan; member-specific benefits remain unknown |
 | Humana | Official pharmacy PA and medical PA-search links with MDX routing caution | Actual plan, current delegation and drug-specific criteria/formulary |
-| Other selectable organizations | Devoted, AlohaCare, Kaiser, Curative, traditional Medicare and custom organization workflow | Selector availability is not a live integration or a claim that drug records have been loaded |
+| Traditional Medicare (Noridian JE) | Directory-level references to the active Noridian LCDs for total knee (L36575), total hip (L34163) and minimally invasive SI joint arthrodesis (L39810, with L39462 injection criteria), the proposed hyaluronan LCD DL40456 marked not in effect, and a dated negative Medicare Coverage Database search for denosumab, romosozumab and zoledronic acid policies and SAD exclusions. Contractor information for each document lists Hawaiʻi. | Original Medicare performs no prior authorization for these services; the LCDs govern claim review. Confirm the current document version on the MCD. Nothing here applies to Medicare Advantage plans. |
+| Other selectable organizations | Devoted, AlohaCare, Kaiser, Curative and custom organization workflow | Selector availability is not a live integration or a claim that drug records have been loaded |
 
 ## Sources and provenance
 

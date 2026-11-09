@@ -32,7 +32,8 @@ The staff page automatically starts a **public drug lookup** when a selected dru
 
 - Official source directory across payer programs, including public-source links for Hawaiʻi carriers.
 - Four plan-validated public pharmacy machine-readable files from 2026, subject to availability and schema checks at runtime.
-- Reviewed HMSA/UHC medication medical policies and selected payer procedure policy/code routing sources.
+- Reviewed HMSA/UHC medication medical policies and selected payer procedure policy/code routing sources, plus Noridian JE Medicare LCD references for arthroplasty and SI joint fusion.
+- A generated [coverage matrix](COVERAGE-MATRIX.md) that states, per payer, coverage line and priority service, whether a reviewed source, a partial reference, only a routing link, or nothing exists.
 - A clinician-review template with record-location checklists.
 - An itemized **staff-entered** cost scenario with a surgeon/facility distinction.
 

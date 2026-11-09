@@ -219,6 +219,12 @@ export function buildCoverageMatrix({asOf=policyDay(),payers=STAFF_PAYERS.map(p=
  return {asOf,generatedFrom:'shared/coverage-matrix.mjs',sections,counts,gaps,registry,
   caveat:'No cell verifies exact-plan adoption, member eligibility, prior authorization approval, payment or a medication supply route. REVIEWED means a reviewed public source exists for the payer, line and product; staff must still confirm the member product and the current source version.'};
 }
+export function compactCoverageMatrix(matrix){
+ return {asOf:matrix.asOf,generatedFrom:matrix.generatedFrom,caveat:matrix.caveat,counts:matrix.counts,registry:matrix.registry,
+  statuses:MATRIX_STATUSES,gaps:matrix.gaps.map(g=>({serviceId:g.serviceId,gelProductId:g.gelProductId,label:g.label,group:g.group,byPayer:g.byPayer})),
+  cells:matrix.sections.flatMap(s=>s.cells).filter(c=>c.status!=='n/a').map(c=>({payer:c.payer,line:c.line,serviceId:c.serviceId,...(c.gelProductId?{gelProductId:c.gelProductId}:{}),benefit:c.benefit,status:c.status,
+   ...(c.flags.length?{flags:c.flags}:{}),records:c.records.filter(r=>r.kind!=='routing').map(r=>r.id),routes:c.routes.length,codes:c.codes,template:c.template?.id||null,formulary:c.formulary.state}))};
+}
 const STATUS_TOKEN={reviewed:'REVIEWED',stale:'STALE',partial:'PARTIAL','live-formulary':'LIVE FORMULARY','routing-only':'ROUTE ONLY',missing:'MISSING','n/a':'n/a'};
 function cellToken(c){
  if(c.status==='n/a')return 'n/a';

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {buildCoverageMatrix,renderCoverageMatrixMarkdown,assessCoverageCell,MATRIX_PRIORITY_SERVICES,MATRIX_STATUSES,MATRIX_FOCUS_PAYERS} from '../shared/coverage-matrix.mjs';
+import {buildCoverageMatrix,renderCoverageMatrixMarkdown,compactCoverageMatrix,assessCoverageCell,MATRIX_PRIORITY_SERVICES,MATRIX_STATUSES,MATRIX_FOCUS_PAYERS} from '../shared/coverage-matrix.mjs';
 import {STAFF_SERVICES,STAFF_PAYERS} from '../shared/staff-workflow.mjs';
 const committed=JSON.parse(readFileSync(new URL('../docs/coverage-matrix.json',import.meta.url),'utf8'));
 const asOf=committed.asOf;
@@ -9,7 +9,8 @@ const matrix=buildCoverageMatrix({asOf});
 const cells=matrix.sections.flatMap(s=>s.cells);
 const cell=(payer,line,serviceId,gelProductId='')=>cells.find(c=>c.payer===payer&&c.line===line&&c.serviceId===serviceId&&c.gelProductId===gelProductId);
 test('committed coverage matrix documents match the registries for their as-of date',()=>{
- assert.equal(JSON.stringify(matrix,null,1)+'\n',readFileSync(new URL('../docs/coverage-matrix.json',import.meta.url),'utf8'));
+ assert.equal(JSON.stringify(compactCoverageMatrix(matrix),null,1)+'\n',readFileSync(new URL('../docs/coverage-matrix.json',import.meta.url),'utf8'));
+ assert.ok(committed.cells.every(c=>c.status!=='n/a'&&Array.isArray(c.records)));
  assert.equal(renderCoverageMatrixMarkdown(matrix),readFileSync(new URL('../docs/COVERAGE-MATRIX.md',import.meta.url),'utf8'));
 });
 test('every priority service exists in the staff catalog and every focus payer in the selector',()=>{
