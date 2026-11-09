@@ -7,14 +7,26 @@ import {verifyPolicySnapshot} from '../server/policy-snapshot.mjs';
 const scope={payer:'HMSA',line:'Commercial',benefit:'Medical',planId:'Unverified fictional plan',productId:'gel-monovisc',serviceDate:'2026-11-07',setting:'Office',state:'HI',medication:true};
 const refs=(patch={})=>payerEvidenceFor({...scope,...patch},'2026-11-07');
 test('reviewed evidence contains source identity and digest, never procurement permissions',()=>{
- assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,7);
+ assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,11);
  const sums=JSON.parse(readFileSync(new URL('../docs/policy-source-checksums.json',import.meta.url))).snapshots.map(x=>x.sha256);
- for(const s of PAYER_POLICY_EVIDENCE){assert.ok(sums.includes(s.sourceSha256),s.id);assert.equal(s.sourceRetrieved,true);assert.equal(s.orderingAllowed,false);assert.equal(s.planAdoptionVerified,false);assert.ok(Object.isFrozen(s));}
+ const fingerprinted=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly!==true),directoryOnly=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly===true);
+ assert.equal(fingerprinted.length,6);assert.equal(directoryOnly.length,5);
+ // hmsa-evolent-matrix-2026 is directory-only in code although docs/policy-source-checksums.json still lists a matrix digest;
+ // restoring the binding requires re-downloading the public PDF and matching that digest.
+ assert.ok(directoryOnly.some(s=>s.id==='hmsa-evolent-matrix-2026'));
+ for(const s of fingerprinted)assert.ok(sums.includes(s.sourceSha256),s.id);
+ // Directory-only references never carry an invented digest and are never promoted to a fingerprinted snapshot.
+ for(const s of directoryOnly){assert.equal(s.sourceSha256,null,s.id);assert.equal(sums.includes(s.sourceSha256),false);}
+ for(const s of PAYER_POLICY_EVIDENCE){assert.equal(s.sourceRetrieved,true);assert.equal(s.orderingAllowed,false);assert.equal(s.planAdoptionVerified,false);assert.ok(Object.isFrozen(s));assert.equal(new URL(s.sourceUrl).hostname.startsWith('ams-gateway'),false,s.id);}
 });
 test('HMSA gel preferences and clinical evidence stay in their reviewed coverage lines and benefit',()=>{
  assert.deepEqual(refs().map(s=>s.id),['hmsa-gel-preference-2026','hmsa-gel-clinical-2026']);
  assert.equal(refs({line:'QUEST / Medicaid'}).length,2);
- for(const patch of [{line:'Medicare Advantage'},{benefit:'Pharmacy'},{payer:'AlohaCare'},{serviceDate:'bad'},{productId:'bone-prolia'}])assert.equal(refs(patch).some(s=>s.id.startsWith('hmsa-gel')),false);
+ const cqGel=['hmsa-gel-preference-2026','hmsa-gel-clinical-2026'];
+ for(const patch of [{line:'Medicare Advantage'},{benefit:'Pharmacy'},{payer:'AlohaCare'},{serviceDate:'bad'},{productId:'bone-prolia'}])assert.equal(refs(patch).some(s=>cqGel.includes(s.id)),false,JSON.stringify(patch));
+ // Medicare Advantage gets only its own directory-level gel references, never the Commercial/QUEST clinical rules.
+ assert.deepEqual(refs({line:'Medicare Advantage'}).map(s=>s.id).sort(),['hmsa-gel-ma-2026','hmsa-gel-ma-preference-2026']);
+ assert.ok(refs({line:'Medicare Advantage'}).every(s=>s.directoryOnly===true&&s.sourceSha256===null));
  assert.equal(refs({serviceDate:'2026-01-01'}).length,1);
  assert.match(refs()[0].summary,/Euflexxa, Synvisc and Synvisc One/);
  assert.match(refs()[1].summary,/last injection/);
@@ -23,7 +35,10 @@ test('knee guideline cannot become hip, MA gel, or UHC surgical criteria',()=>{
  const knee=refs({productId:'procedure-total-knee',medication:false});assert.equal(knee.length,2);
  assert.equal(knee.find(s=>s.id==='hmsa-evolent-knee-2025').versionConfirmationRequired,true);
  assert.equal(refs({productId:'procedure-total-hip',medication:false}).some(s=>s.id==='hmsa-evolent-knee-2025'),false);
- assert.equal(refs({payer:'UnitedHealthcare',productId:'procedure-total-knee',medication:false}).length,0);
+ const uhcKnee=refs({payer:'UnitedHealthcare',productId:'procedure-total-knee',medication:false});
+ assert.deepEqual(uhcKnee.map(s=>s.id),['uhc-knee-2026']);
+ assert.equal(uhcKnee.some(s=>s.id.startsWith('hmsa-')),false);
+ assert.equal(new URL(uhcKnee[0].sourceUrl).hostname,'www.uhcprovider.com');
 });
 test('publication code is not silently converted to an effective date or buy-and-bill authority',()=>{
  const source=refs({payer:'UnitedHealthcare'})[0];assert.equal(source.effectiveFrom,null);
