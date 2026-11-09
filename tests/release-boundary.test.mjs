@@ -9,7 +9,7 @@ test('no environment switch or mutable report can grant a PHI or production rele
  assert.equal(releaseBoundary().orderingAllowed,false);
  assert.ok(releaseBoundary().controls.every(c=>c.status==='blocked'));
  const response=await createApi()(new Request('https://app.example/api/status'),{PATIENT_DATA_ENABLED:'true',PHI_ENABLED:'true',PRODUCTION_RELEASE_ALLOWED:'true',DEPLOYMENT_MODE:'production',OPENAI_API_KEY:'must-not-leak'});
- const data=await response.json();assert.equal(data.phiRelease,'blocked');assert.equal(data.releaseReadiness.productionReleaseAllowed,false);assert.doesNotMatch(JSON.stringify(data),/must-not-leak/);
+ const data=await response.json();assert.equal(data.phiRelease,'blocked');assert.equal(data.mode,'synthetic-only');assert.deepEqual(Object.keys(data).sort(),['accessConfigured','configured','mode','phiRelease','pricingBridgeConfigured','provider']);assert.doesNotMatch(JSON.stringify(data),/must-not-leak|production/);
 });
 for(const key of ['PATIENT_DATA_ENABLED','PHI_ENABLED','PRODUCTION_RELEASE_ALLOWED'])test('build rejects active or unrecognized release flags: '+key,()=>{
  for(const value of ['true','TRUE','1','yes','approved',true,{},1])assert.throws(()=>assertSyntheticBuild({[key]:value}),/blocked/);

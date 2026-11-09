@@ -4,6 +4,9 @@ import {readBoundedResponseJson} from './security.mjs';
 // asserted by a mere client header. Missing Access settings fail closed.
 const cache=new Map();
 const TTL=60*60*1000;
+// An unknown kid may force one certificate refetch per team per minute. Inside
+// that window the token is simply rejected, so rogue kids cannot drive traffic.
+const FORCED_REFRESH_MS=60*1000;
 const teamPattern=/^[a-z0-9-]{1,100}\.cloudflareaccess\.com$/i;
 function fromB64url(s){
  if(!/^[A-Za-z0-9_-]+$/.test(s))throw Error('Invalid Access token encoding');
@@ -17,6 +20,11 @@ function jwtJson(s){
 async function keys(team,fetcher,now,refresh=false){
  const c=cache.get(team);
  if(!refresh&&c&&c.expires>now)return c.keys;
+ if(refresh){
+   if(c&&now-c.forcedAt<FORCED_REFRESH_MS)throw Error('Unknown Access signing key');
+   // Remember the attempt before the network call so failures are limited too.
+   cache.set(team,{expires:c?.expires??0,keys:c?.keys??new Map(),forcedAt:now});
+ }
  const response=await fetcher('https://'+team+'/cdn-cgi/access/certs',{redirect:'error',signal:AbortSignal.timeout(5000)});
  if(!response.ok)throw Error('Cloudflare Access keys are unavailable');
  const body=await readBoundedResponseJson(response);
@@ -31,13 +39,17 @@ async function keys(team,fetcher,now,refresh=false){
    found.set(k.kid,key);
  }
  if(!found.size)throw Error('No usable Cloudflare Access verification keys');
- cache.set(team,{expires:now+TTL,keys:found});
+ cache.set(team,{expires:now+TTL,keys:found,forcedAt:cache.get(team)?.forcedAt??-Infinity});
  return found;
+}
+// Status-page boolean and the verifier's own gate; exposes no values.
+export function accessConfigured(env){
+ const team=env?.ACCESS_TEAM_DOMAIN,aud=env?.ACCESS_AUD;
+ return typeof team==='string'&&teamPattern.test(team)&&typeof aud==='string'&&aud.length>=8&&aud.length<=220;
 }
 export async function verifyStaffAccess(request,env,{fetcher=fetch,now=Date.now()}={}){
  const team=env.ACCESS_TEAM_DOMAIN,aud=env.ACCESS_AUD;
- if(typeof team!=='string'||!teamPattern.test(team)||
-    typeof aud!=='string'||aud.length<8||aud.length>220)
+ if(!accessConfigured(env))
    return {verified:false,reason:'Access is not configured for staff pricing.',configured:false};
  const header=request.headers.get('Cf-Access-Jwt-Assertion');
  // A bare email header or unsignable cookie MUST never authorize rate access.
@@ -61,6 +73,7 @@ export async function verifyStaffAccess(request,env,{fetcher=fetch,now=Date.now(
      throw Error('Staff identity unavailable');
    const validKeys=await keys(team,fetcher,now);
    let key=validKeys.get(head.kid);
+   // Unknown kid: at most one forced refetch per minute, otherwise reject without a network call.
    if(!key)key=(await keys(team,fetcher,now,true)).get(head.kid);
    if(!key)throw Error('Unknown Access signing key');
    const ok=await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,fromB64url(parts[2]),

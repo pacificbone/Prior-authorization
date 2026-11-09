@@ -14,7 +14,7 @@ This is a development handoff, **not a HIPAA certification, legal opinion or pro
 | Session activity | Action names and timestamps in memory, no note content | Not durable, tamper-resistant or adequate for production auditing |
 | Secrets | Server environment or deployment secret store | Browser receives no provider credentials |
 
-Normal local hosting binds to loopback and validates the Host header. APIs require same-origin requests and a trial token for billable AI operations. The app applies CSP, no-referrer, no-store, frame blocking and content-type protections. It does not contact external analytics, fonts or session replay services. The trial uses client encryption, not a production medical-record retention system.
+Normal local hosting (`npm start`) binds to loopback and validates the Host header. Preview mode (`npm run dev`, `--preview`) also binds 127.0.0.1 unless `--host` is given and keeps Host validation; the only relaxation is that it additionally accepts the bound host and any names passed with `--allow-host`, so an isolated preview proxy can reach it. APIs require same-origin requests and a trial token for billable AI operations. The app applies CSP, no-referrer, no-store, frame blocking and content-type protections. It does not contact external analytics, fonts or session replay services. The trial uses client encryption, not a production medical-record retention system.
 
 ## Required production work
 

@@ -8,6 +8,12 @@ const MAX_MATCHES=40;
 
 const REFRESH_MS=6*60*60*1000;
 
+// A failed or malformed public fetch is remembered briefly so repeated staff
+// searches cannot hammer the payer source; each request still fails closed.
+const NEGATIVE_MS=60*1000;
+
+const FETCH_TIMEOUT_MS=15000;
+
 const QUERY_RE=/^[a-zA-Z0-9][a-zA-Z0-9 .,+/()-]{1,69}$/;
 
 export function validateSearchInput(input) {
@@ -75,23 +81,24 @@ export function normalizeQuestRows(payload,{minimum=100,source=QUEST_FORMULARY}=
 
 export function createPublishedFormularyService({fetcher=fetch,now=()=>Date.now(),minimum=100}={}){
   const caches=new Map(),pending=new Map(),urlCaches=new Map(),urlPending=new Map();
+  const remember=(map,key,error)=>{map.set(key,{error,expires:now()+NEGATIVE_MS});throw error;};
   async function loadRaw(source){
     const url=source.sourceUrl;
     const shared=urlCaches.get(url);
-    if(shared&&now()<shared.expires)return shared.payload;
+    if(shared&&now()<shared.expires){if(shared.error)throw shared.error;return shared.payload;}
     if(urlPending.has(url))return urlPending.get(url);
     const work=(async()=>{
       // Public allowlisted source only. Multiple exact Kaiser HIOS plans share
       // a JSON document but MUST still be filtered to their own IDs and year.
-      const response=await fetcher(url,{headers:{accept:'application/json'},redirect:'error'});
+      const response=await fetcher(url,{headers:{accept:'application/json'},redirect:'error',signal:AbortSignal.timeout(FETCH_TIMEOUT_MS)});
       return readPublishedJson(response);
-    })().finally(()=>urlPending.delete(url));
+    })().catch(error=>remember(urlCaches,url,error)).finally(()=>urlPending.delete(url));
     urlPending.set(url,work);
     return work;
   }
   async function load(source){
     const found=caches.get(source.id);
-    if(found&&now()<found.expires)return found;
+    if(found&&now()<found.expires){if(found.error)throw found.error;return found;}
     if(pending.has(source.id))return pending.get(source.id);
     const work=(async()=>{
       const payload=await loadRaw(source);
@@ -103,7 +110,7 @@ export function createPublishedFormularyService({fetcher=fetch,now=()=>Date.now(
       const fresh={rows,checkedAt:new Date(now()).toISOString(),expires:expiry};
       caches.set(source.id,fresh);
       return fresh;
-    })().finally(()=>pending.delete(source.id));
+    })().catch(error=>remember(caches,source.id,error)).finally(()=>pending.delete(source.id));
     pending.set(source.id,work);
     return work;
   }

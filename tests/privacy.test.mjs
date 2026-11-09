@@ -25,8 +25,13 @@ test('encrypted workspace round-trip uses random salt/IV and never stores plaint
 test('AI is disabled by default and patient-data mode stays false even with an env switch',async()=>{
   const api=createApi();assert.equal((await api(request(ids),{})).status,503);
   const response=await api(new Request('https://app.example/api/status'),{...env,PATIENT_DATA_ENABLED:'true'});
-  const status=await response.json();assert.equal(status.patientDataEnabled,false);assert.equal(status.phiRelease,'blocked');
+  const status=await response.json();assert.equal(status.phiRelease,'blocked');assert.equal(status.mode,'synthetic-only');
+  assert.deepEqual(Object.keys(status).sort(),['accessConfigured','configured','mode','phiRelease','pricingBridgeConfigured','provider']);
+  assert.equal(status.accessConfigured,false);assert.equal(status.pricingBridgeConfigured,false);
   assert.ok(!JSON.stringify(status).includes('fake-key'));
+  const wired=await (await api(new Request('https://app.example/api/status'),{ACCESS_TEAM_DOMAIN:'synthetic-team.cloudflareaccess.com',ACCESS_AUD:'synthetic-audience-value',CUP_PRICE_BRIDGE_TOKEN:'bridge-secret-value-that-must-not-leak',CUP_PRICE_SERVICE:{fetch:async()=>new Response()}})).json();
+  assert.equal(wired.accessConfigured,true);assert.equal(wired.pricingBridgeConfigured,true);
+  assert.ok(!JSON.stringify(wired).includes('must-not-leak'));assert.ok(!JSON.stringify(wired).includes('synthetic-team'));
 });
 test('cross-origin, missing-token, wrong-token and oversized requests never call the provider',async()=>{
   let calls=0;const api=createApi({fetcher:async()=>{calls++;throw new Error('Must not call');}});

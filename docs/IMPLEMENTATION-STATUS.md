@@ -25,10 +25,10 @@ Everything below describes a **synthetic-data trial**. No exact-plan adoption, m
 
 | Check | Result at the latest commit on this branch |
 | --- | --- |
-| `npm run check` | All JavaScript modules pass syntax validation; `wrangler.jsonc` keeps preview URLs disabled. |
-| `npm test` | 381 tests pass at commit 1e48346 (the server-hardening batch adds more; see section 4). |
+| `npm run check` | 84 JavaScript modules pass syntax validation; `wrangler.jsonc` keeps preview URLs disabled. |
+| `npm test` | 404 tests pass, including the server-hardening, deployment-gate, local-server, adapter and documentation-link tests added on November 8. |
 | `npm run matrix:check` | Committed matrix documents match the registries for 2026-11-08 (now also run in CI). |
-| `npm run build` and the negative PHI-build guard | Build succeeds; `PATIENT_DATA_ENABLED=true` is refused. |
+| `npm run build` and its guards | Build succeeds; `PATIENT_DATA_ENABLED=true` is refused; `WORKERS_CI=1` without `SYNTHETIC_ONLY_ACK=true` is refused. |
 | `npm run test:browser` | 68 print/download/reset/mobile/lock flows pass against the local server with no external requests or data writes. |
 | GitHub Actions "Verify trial application" | Green on every push to this branch through 3ddd75f (runs 289–293). |
 
@@ -63,7 +63,7 @@ Standing rules preserved throughout: PA code lists are not clinical criteria; a 
 
 - The application is synthetic-only. The build guard refuses PHI or production flags; the release-boundary report is served by `/api/status`; no request bodies are logged; no patient upload, case persistence or ordering endpoint exists.
 - **Repository history scan (all 18 refs, 238 commits, 364 blobs, every path ever committed):** no API keys, tokens, JWTs, private keys, PHI, member identifiers, contracted rates, payer PDFs or `.env` files were ever committed. Items to decide on: `.openai/hosting.json` carries an OpenAI static-hosting project id (not a credential) for an undocumented preview host; 229 historical commits carry the practice mailbox as git author (metadata only — set a GitHub no-reply address going forward); the branch's commit trailers carry an AI session URL (accept or squash at merge); README names the practice's EHR, integration and clearinghouse vendors.
-- **Server hardening batch (November 8):** formulary fetch timeout, negative cache and limiter; Cuptomize bridge responses built from an allowlist with per-row validation and https-only sources; fixed parse-error text; Access key-refresh rate limit; preview-mode host validation; Worker catch-all and uniform Lambda replies; minimized `/api/status`; build guard against unattended Workers Builds; `preview_urls:false`; pinned Wrangler version. See the commit for that batch and [CLOUDFLARE-TRIAL.md](CLOUDFLARE-TRIAL.md).
+- **Server hardening (November 8, committed on this branch):** formulary fetch timeout, 60-second negative cache and a per-isolate search limiter; Cuptomize bridge responses built from an allowlist with strict per-row typing (no zero or malformed amount can render as a price), https-only sources, ASC/office requests refused against a hospital file, the placeholder facility refused; validator-only error messages; Access key-refresh limited to one forced refetch per team per minute; preview-mode Host validation; Worker catch-all and uniform Lambda replies; `/api/status` reduced to provider, two configuration booleans, mode and PHI state; provider responses read through the bounded reader and the bundled-sample identity guard; build guard against unattended Workers Builds; `preview_urls:false` asserted by `npm run check`; Wrangler pinned to 4.158.0. See [CLOUDFLARE-TRIAL.md](CLOUDFLARE-TRIAL.md).
 - Everything in [HIPAA-RELEASE.md](HIPAA-RELEASE.md) remains required before any PHI use: BAAs, managed identity and MFA, roles, protected persistence, durable audit, risk analysis and independent review. Code checks do not establish compliance.
 
 ## 5. Deployment
@@ -106,6 +106,7 @@ A nine-lens audit (staff UI, payer/plan data, clinical criteria evidence, templa
 | 6092199 | Templates by service type, stage-distinct MACI codes, trigger finger and SI fusion |
 | 3ddd75f | Evidence register: fingerprinted vs directory-only records, scoped branches, catalog extracts |
 | 1e48346 | Cost estimator consistency, components, confidence labels |
-| (following commits) | Keragon router and panel, documentation reconciliation, server hardening |
+| bc31a72, 35eb873 | Keragon router and panel, documentation reconciliation, this status page, CMS OPPS cost tool |
+| (next commit) | Server hardening batch listed in section 4 |
 
 Findings not fixed here, because they need the practice's accounts, documents or decisions: everything in section 3's gap list, the Workers Builds / Worker-name / hostname decisions in section 5, the OpenAI preview host, the historical author-email exposure, and the 20-case clinical validation.

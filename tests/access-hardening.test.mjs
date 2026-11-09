@@ -37,6 +37,27 @@ for(const [name,data] of [['duplicate',{keys:[...certs.keys,...certs.keys]}],['o
  const r=await verifyStaffAccess(req(await token({...base,iss:'https://'+cfg.ACCESS_TEAM_DOMAIN})),cfg,{now,fetcher:async()=>Response.json(data)});
  assert.equal(r.verified,false);
 });
+test('an unknown kid forces at most one certificate refetch per team per minute and still picks up rotated keys',async()=>{
+ const cfg={...config,ACCESS_TEAM_DOMAIN:'rotation.cloudflareaccess.com'};const iss='https://'+cfg.ACCESS_TEAM_DOMAIN;
+ const rotated=await crypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']);
+ const rotatedPub=await crypto.subtle.exportKey('jwk',rotated.publicKey);
+ let fetches=0,published=certs;
+ const f=async()=>{fetches++;return Response.json(published);};
+ const v=(t,at=now)=>verifyStaffAccess(req(t),cfg,{now:at,fetcher:f});
+ const good=await token({...base,iss});
+ const rogue=await token({...base,iss},{alg:'RS256',kid:'never-published'});
+ const next=await token({...base,iss},{alg:'RS256',kid:'rotated-key'},rotated.privateKey);
+ assert.equal((await v(good)).verified,true);assert.equal(fetches,1);
+ assert.equal((await v(rogue)).verified,false);assert.equal(fetches,2);
+ for(let i=0;i<5;i++)assert.equal((await v(rogue,now+i*1000)).verified,false);
+ assert.equal(fetches,2);
+ assert.equal((await v(next,now+30000)).verified,false);assert.equal(fetches,2);
+ assert.equal((await v(good,now+30000)).verified,true);assert.equal(fetches,2);
+ published={keys:[...certs.keys,{kid:'rotated-key',kty:'RSA',alg:'RS256',n:rotatedPub.n,e:rotatedPub.e}]};
+ assert.equal((await v(next,now+60000)).verified,true);assert.equal(fetches,3);
+ assert.equal((await v(next,now+61000)).verified,true);assert.equal(fetches,3);
+ assert.equal((await v(rogue,now+61000)).verified,false);assert.equal(fetches,3);
+});
 test('forged signature and a valid JWT for another application never yield identity',async()=>{
  const bad=await crypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']);
  assert.equal((await verifyStaffAccess(req(await token(base,undefined,bad.privateKey)),config,{now,fetcher:async()=>Response.json(certs)})).verified,false);

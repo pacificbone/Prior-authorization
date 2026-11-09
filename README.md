@@ -54,7 +54,7 @@ cd Prior-authorization
 npm start
 ```
 
-Open **http://localhost:3000**. The normal server binds only to `127.0.0.1`. `npm run dev` binds to all interfaces for isolated preview environments; do not use that command on an untrusted network. The app runs without AI credentials.
+Open **http://localhost:3000**. The normal server binds only to `127.0.0.1` and accepts loopback Host values only. `npm run dev` (preview mode) also binds `127.0.0.1` unless you pass `--host 0.0.0.0`, and keeps Host validation, additionally accepting the bound host and any names given with `--allow-host`; do not expose it on an untrusted network. The app runs without AI credentials.
 
 Start in **Staff workup** and select the insurer, its actual plan/year and desired medication or procedure. The app keeps cost and authorization information on that one screen. The legacy **Formulary explorer** is under Advanced reference tools. **Try sample case** opens a completely fictional HMSA Evenity case with a selected qualifying pathway and linked evidence (or the UHC example when UHC is selected). Build a draft, review the facts and scope, then download text or use **Print / PDF**. Every trial export is marked synthetic and unsigned.
 
