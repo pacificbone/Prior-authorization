@@ -171,7 +171,7 @@ export const orthoPayerSources=Object.freeze([
   D('uhc-surgery-knee','UnitedHealthcare',['Commercial','Individual Exchange'],
     [],['total-knee','partial-knee','revision-knee','maci-harvest','maci-implant','acl-reconstruction','meniscus-repair'],
     'UnitedHealthcare Surgery of the Knee (September 2026)',
-    'https://ams-gateway.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
+    'https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
     'policy-directory','2026 knee policy includes total and partial knee, revision, MACI, arthroscopy and meniscal codes; full clinical criteria may be in licensed InterQual.'),
   D('uhc-surgery-hip','UnitedHealthcare',['Commercial','Individual Exchange'],
     [],['total-hip','revision-hip'],

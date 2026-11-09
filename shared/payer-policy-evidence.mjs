@@ -73,7 +73,7 @@ export const PAYER_POLICY_EVIDENCE=Object.freeze([
  {id:'uhc-knee-2026',payer:'UnitedHealthcare',lines:['Commercial'],benefit:'Medical',
   products:['procedure-total-knee','procedure-partial-knee','procedure-revision-knee','procedure-acl-reconstruction','procedure-meniscus-repair','procedure-knee-meniscectomy','procedure-maci-implant'],
   title:'UHC Surgery of the Knee — Commercial and Individual Exchange',version:'2026T0553J',effectiveFrom:'2026-09-10',
-  sourceUrl:'https://ams-gateway.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
+  sourceUrl:'https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
   locator:'Pages 1–3: application, coverage rationale, medical records documentation, applicable codes',
   sourceSha256:null,directoryOnly:true,
   summary:'UHC medical policy refers to InterQual CP and proprietary client-defined criteria for total knee, unicondylar/patellofemoral replacement and other knee surgery. The publicly available policy does not supply the full InterQual thresholds.',

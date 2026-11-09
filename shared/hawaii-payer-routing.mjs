@@ -19,7 +19,7 @@ export const HAWAII_PAYER_ROUTING=Object.freeze([
   note:'2026 provider manual effective March 23: verify drug benefit, requested codes, clinician and facility identifiers, and medical necessity. Authorization does not guarantee payment.',reviewedAt:'2026-11-08'},
  {payer:'UnitedHealthcare',line:'Commercial',category:'surgery',title:'2026 Commercial arthroplasty authorization and knee/hip policy',
   sourceUrl:'https://www.uhcprovider.com/content/dam/provider/docs/public/prior-auth/pa-requirements/commercial/UHC-Commercial-Advance-Notification-PA-Requirements-1-2026.pdf',
-  secondaryUrl:'https://ams-gateway.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
+  secondaryUrl:'https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
   note:'Arthroplasty CPT 27447, 27446, 27486, 27487, 27130 and revision hip codes appear in the published 2026 PA list. Verify exact product, delegation, site and code. Knee policy effective 2026-09-10.',reviewedAt:'2026-11-08'},
  {payer:'AlohaCare',line:'QUEST / Medicaid',category:'surgery',title:'AlohaCare service prior authorization lookup',
   sourceUrl:'https://webconf.alohacare.org/Providers/Authorization',

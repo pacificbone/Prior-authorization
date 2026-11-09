@@ -8,7 +8,7 @@ export const PAYER_SUBMISSION_REQUIREMENTS=Object.freeze([
    ['contact','Provider/facility fax'],['serviceDates','Date(s) of service'],
    ['diagnosis','Diagnosis and ICD codes'],['procedure','CPT codes']],
   note:'Authorization does not guarantee payment; confirm eligibility and exact code lookup.'},
- {payer:'UnitedHealthcare',line:'Commercial',sourceUrl:'https://ams-gateway.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
+ {payer:'UnitedHealthcare',line:'Commercial',sourceUrl:'https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf',
   sourceSection:'Medical Records Documentation Used for Reviews',reviewedAt:'2026-11-08',
   fields:[['procedure','Requested procedure and code'],['laterality','Body part and laterality'],
    ['diagnosis','Diagnosis and code'],['functional','Functional impairment and ADLs'],
