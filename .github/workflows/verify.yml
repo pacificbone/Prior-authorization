@@ -12,6 +12,7 @@ jobs:
           node-version: '22'
       - run: npm run check
       - run: npm test
+      - run: npm run matrix:check
       - run: npm run build
       - name: Confirm PHI build remains blocked
         run: |

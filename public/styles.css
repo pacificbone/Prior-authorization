@@ -223,3 +223,6 @@
 /* Assumption-only totals on the Patient costs page share the staff hero treatment. */
 .cost-total.cost-total-assumption{color:#8a5a00;}
 .cost-total.cost-total-assumption::after{content:" (assumption-only)";font-size:.55em;font-weight:600;margin-left:.35em;}
+
+.staff-connectivity{font-size:.82rem;margin:.4rem 0 .6rem;}
+.staff-connectivity td,.staff-connectivity th{padding:.2rem .5rem;text-align:left;vertical-align:top;}

@@ -1,6 +1,6 @@
 # Source register
 
-Checked November 6, 2026. Only short, manually written extracts are included; the original documents remain authoritative. No payer PDFs are redistributed. Additional Hawaiʻi source scopes and snapshot verification are documented in [HAWAII-PAYERS.md](HAWAII-PAYERS.md).
+Checked November 6, 2026; Medicare Coverage Database rows added November 8, 2026 (HST). Only short, manually written extracts are included; the original documents remain authoritative. No payer PDFs are redistributed. Additional Hawaiʻi source scopes and snapshot verification are documented in [HAWAII-PAYERS.md](HAWAII-PAYERS.md).
 
 | Source | Version / scope used | Treatment in this app |
 | --- | --- | --- |

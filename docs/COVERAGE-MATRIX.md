@@ -1090,7 +1090,7 @@ Original Medicare benefit. Lines with plan sources: Traditional Medicare.
 
 | Record | Kind | Version / effective | Review | Flags |
 | --- | --- | --- | --- | --- |
-| [Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid](https://www.cms.gov/medicare-coverage-database/search.aspx) | directory-reference | CMS Medicare Coverage Database API search, 2026-11-09 | due 2027-02-06 | — |
+| [Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid](https://www.cms.gov/medicare-coverage-database/search.aspx) | directory-reference | CMS Medicare Coverage Database API search, 2026-11-08 (Hawaiʻi policy day) | due 2027-02-06 | — |
 | [Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5) | directory-reference | DL40456 proposed; MCD page updated 09/23/2026; no effective date | due 2027-02-06 | proposed-not-active |
 | [Noridian JE: proposed hyaluronic acid LCD DL40456 (NOT FINAL)](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5) | proposed-only | — | checked 2026-11-07 | proposed-not-active |
 | [Noridian JE LCD L36575 — Total Knee Arthroplasty](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21) | directory-reference | L36575 v21; revision effective 11/06/2025; Billing and Coding Article A57685 v15 effective 01/01/2026 · 2025-11-06 | due 2027-02-06 | — |

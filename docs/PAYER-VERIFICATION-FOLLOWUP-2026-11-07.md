@@ -1,5 +1,7 @@
 # Payer verification follow-up — November 7, 2026
 
+> Historical record of the November 7 state. Since then the evidence registry has grown to 18 records (8 fingerprinted PDF snapshots and 10 directory or web-document entries), the register in `docs/policy-source-checksums.json` holds 11 snapshots (8 bound, 1 pending re-verification, 2 catalog-only extracts), and the **HMSA joint-surgery utilization matrix digest listed below was de-linked from its evidence record on 2026-11-08** after the same digest was found copied onto unrelated records; it is pending re-download and re-verification and is printed as "not bound" on the staff worksheet. The other 2026-11-07 digests remain bound. Current counts and open items are in [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md).
+
 This follow-up supersedes the inaccessible-document status in the earlier audit. The application remains a synthetic-only trial. No exact-member coverage, procurement, production release, merge or deployment is approved.
 
 ## Resolved or reduced blockers
@@ -12,7 +14,7 @@ This follow-up supersedes the inaccessible-document status in the earlier audit.
 
 ## Source register
 
-Seven public references are represented in `shared/payer-policy-evidence.mjs` and cross-checked against `docs/policy-source-checksums.json`.
+Seven public references were represented in `shared/payer-policy-evidence.mjs` on November 7 and cross-checked against `docs/policy-source-checksums.json` (18 records today; see the banner above and the generated [coverage matrix](COVERAGE-MATRIX.md)).
 
 | Reference | Reviewed version and location | Scope boundary |
 | --- | --- | --- |
@@ -52,6 +54,8 @@ A release-boundary report is included in the status API. Every production contro
 [Cloudflare's JWT verification documentation](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/) informed the token validation. [HHS's Security Rule summary](https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html) describes administrative, physical and technical obligations; local code checks do not establish compliance.
 
 ## Validation
+
+Counts in this section are the November 7 snapshot (commit c880cb9); the live totals are in [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md).
 
 - 330 automated tests pass, up from 248 at the previous draft commit.
 - 64 JavaScript modules pass syntax validation; the ordinary synthetic build passes.

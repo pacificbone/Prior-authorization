@@ -1,6 +1,6 @@
 # Staff workup — one payer, one plan, one service
 
-**Pacific Bone & Joint · November 7, 2026 · synthetic trial / no PHI clearance**
+**Pacific Bone & Joint · November 7, 2026, updated November 8, 2026 (HST) · synthetic trial / no PHI clearance**
 
 The default app homepage is now **Staff workup**. Prior modules remain available only under **Advanced reference tools**, not as competing navigation paths.
 
@@ -14,7 +14,7 @@ The default app homepage is now **Staff workup**. Prior modules remain available
 
 ### Keragon automation handoff (synthetic blueprint)
 
-After official payer PA route links, step 3 shows **Keragon authorization workflow**. PBJ reports Keragon is **already attached to ModMed**, and TriZetto is the existing billing/clearinghouse service. The workflow guides staff through plan-specific criteria, optional TriZetto eligibility, separately licensed TriZetto prior-authorization capability when available, payer-portal fallback, evidence review and follow-up. **Optum is not required or automatically selected.** The **Copy workflow instructions for Keragon** button generates a non-PHI natural-language workflow draft for Keragon's builder; it does not connect the app to Keragon, submit a PA or enable any live triggers. See [Keragon workflow/activation guide](KERAGON-PRIOR-AUTH.md).
+After official payer PA route links, step 3 shows **Keragon authorization workflow**. PBJ reports Keragon is **already attached to ModMed**, and TriZetto is the existing billing/clearinghouse service. The workflow guides staff through plan-specific criteria, optional TriZetto eligibility, separately licensed TriZetto prior-authorization capability when available, payer-portal fallback, evidence review and follow-up. **Optum is not required or automatically selected.** The **Copy Keragon workflow instructions** button generates a non-PHI natural-language workflow draft for Keragon's builder; it does not connect the app to Keragon, submit a PA or enable any live triggers. See [Keragon workflow/activation guide](KERAGON-PRIOR-AUTH.md).
 
 The staff page automatically starts a **public drug lookup** when a selected drug and pharmacy benefit match an exact indexed plan, with no member identifiers sent. Next to policy references it also displays **payer-matched official PA check and submission-instruction links** (HMSA medical vs Caremark pharmacy/Novologix specialty, UHA medical vs pharmacy, AlohaCare QUEST CPT code lookup/provider forms, and other scoped resources). This does **not** submit a prior authorization or prove one is required.
 
@@ -37,7 +37,7 @@ The staff page automatically starts a **public drug lookup** when a selected dru
 - A clinician-review template with record-location checklists.
 - An itemized **staff-entered** cost scenario with a surgeon/facility distinction.
 
-**Not connected yet:** any live Coverage Desk–Keragon bridge, Keragon-to-TriZetto eligibility/PA activation and payer-submission workflow (despite PBJ's existing Keragon–ModMed and TriZetto clearinghouse use),  a complete 2026/2027 statewide multi-payer formulary, authenticated PBM and medical-benefit eligibility queries, per-member deductible/OOP accumulators, actual member-specific prices, real payer PA submission/response, ModMed clinical records, production PHI approvals, or all proprietary criteria (including InterQual). The Cuptomize practice reimbursement/medical facility price data exists separately in a private repository and **has not been copied or publicly exposed**. A secure, rate-scoped source adapter is required for using that data automatically.
+**Not connected yet:** any live Coverage Desk–Keragon bridge, Keragon-to-TriZetto eligibility/PA activation and payer-submission workflow (despite PBJ's existing Keragon–ModMed and TriZetto clearinghouse use),  a complete 2026/2027 statewide multi-payer formulary, authenticated PBM and medical-benefit eligibility queries, per-member deductible/OOP accumulators, actual member-specific prices, real payer PA submission/response, ModMed clinical records, production PHI approvals, or all proprietary criteria (including InterQual). The Cuptomize practice reimbursement/medical facility price data exists separately in a private repository and **has not been copied or publicly exposed**. A private Cuptomize evidence bridge (`server/pricing.mjs`) is implemented but **not activated**: it requires a Cloudflare Access application, a same-account service binding and a shared secret, returns public rate evidence only, and never autofills a patient price. See [PRIVATE-CUPTOMIZE-PRICING.md](PRIVATE-CUPTOMIZE-PRICING.md).
 
 ## Verification requirements for a future clinical release
 

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {staffContext} from '../shared/staff-workflow.mjs';
-import {keragonPaRoute,keragonBuildPrompt,KERAGON_LINKS,PRACTICE_CONNECTIVITY} from '../shared/keragon-pa.mjs';
+import {keragonPaRoute,keragonBuildPrompt,KERAGON_LINKS,PRACTICE_CONNECTIVITY,VENDOR_CLAIMS_AS_OF,connectionStatusText} from '../shared/keragon-pa.mjs';
 import {renderKeragonPaPanel} from '../public/keragon-pa-panel.mjs';
 import {renderStaffPage} from '../public/staff-page.mjs';
 
@@ -97,4 +97,35 @@ test('single staff workflow remains intact and no payer prices/PA approvals clai
  assert.match(html,/One workflow: insurer/);
  assert.match(html,/Synthetic trial/);
  assert.doesNotMatch(html,/SamaCare|Develop Health/);
+});
+test('workers compensation reaches the program-specific lane instead of the delegated hold',()=>{
+ const r=keragonPaRoute(ctx('Workers compensation','workers-comp','total-knee'));
+ assert.equal(r.lane,'program-specific');
+ assert.equal(r.steps.some(s=>s.id==='trizetto-pa'),false);
+ assert.match(r.warning,/workers-comp claims is unverified/);
+ // Delegated administrators still hold.
+ assert.equal(keragonPaRoute(ctx('HMA / Verdegard','hma-verdegard','total-knee'))?.lane??'verify-benefit','verify-benefit');
+});
+test('headlines are checks, the status sentence derives from the recorded connectivity values, and vendor claims carry their as-published date',()=>{
+ const r=keragonPaRoute(ctx('UnitedHealthcare','uhc-commercial','total-knee'));
+ assert.match(r.headline,/^Check whether/);
+ assert.doesNotMatch(r.headline,/^Use existing TriZetto/);
+ assert.equal(r.connectionStatus,connectionStatusText());
+ assert.match(r.connectionStatus,/practice-reported, not verified here/);
+ assert.match(r.connectionStatus,/as published on 2026-11-07/);
+ assert.equal(VENDOR_CLAIMS_AS_OF,'2026-11-07');
+ const html=renderKeragonPaPanel(ctx('HMSA','hmsa-select-choice','total-knee'));
+ assert.match(html,/aria-label="Keragon authorization workflow plan \(existing systems; authorization connection not verified\)"/);
+ assert.match(html,/<table class="staff-connectivity">/);
+ assert.match(html,/TriZetto electronic prior authorization \(278 \/ FHIR PAS\)<\/td><td>not verified/);
+ assert.match(html,/as published on 2026-11-07/);
+ assert.match(html,/Keragon Optum connector/);
+});
+test('blueprint for a medical request names the program line, not a pharmacy formulary record, as the plan',()=>{
+ const medical=keragonBuildPrompt(ctx('HMSA','hmsa-select-choice','total-knee'));
+ assert.match(medical,/HMSA \| Commercial program \| Primary total knee arthroplasty \| Medical benefit/);
+ assert.match(medical,/is a pharmacy formulary or plan-directory identifier; confirm the member’s medical plan\/product separately/);
+ const rx=keragonBuildPrompt(ctx('HMSA','hmsa-select-choice','alendronate','Pharmacy'),{benefit:'Pharmacy'});
+ assert.match(rx,/HMSA \| Select \/ Choice commercial formulary \| /);
+ assert.doesNotMatch(rx,/plan-directory identifier/);
 });

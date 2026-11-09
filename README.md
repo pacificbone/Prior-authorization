@@ -1,12 +1,12 @@
 # Coverage Desk — Pacific Bone & Joint
 
-## Repository status — November 9, 2026
+## Repository status — November 8, 2026 (Hawaiʻi policy day)
 
-This branch reconciles the previously unmerged draft PR #14 (67 clinical addenda, payer verification worksheet, fingerprinted HMSA sources, fail-closed fulfillment review) with `main` and repairs the two defects that made every PR #14 CI run fail: a missing comma in `shared/payer-documentation-branches.mjs` and a UHC policy URL on a host the evidence validator rejects. On this branch `npm run check`, `npm test` (367 tests), `npm run build`, the negative PHI-build guard and the Playwright browser flow (68 addenda) all pass locally and in GitHub Actions.
+This branch reconciles the previously unmerged draft PR #14 (67 clinical addenda, payer verification worksheet, fingerprinted HMSA sources, fail-closed fulfillment review) with `main` and repairs the two defects that made every PR #14 CI run fail: a missing comma in `shared/payer-documentation-branches.mjs` and a UHC policy URL on a host the evidence validator rejects. On this branch `npm run check`, `npm test`, `npm run matrix:check`, `npm run build`, the negative PHI-build guard and the Playwright browser flow (68 addenda) all pass locally and in GitHub Actions.
 
 What was added on top of PR #14:
 
-- A generated **[coverage matrix](docs/COVERAGE-MATRIX.md)** (`npm run matrix`) that states, for every selectable payer, each coverage line it has plan sources for, and 45 PBJ priority services, whether the app holds a reviewed source, a partial reference, only a routing link, or nothing. The test suite fails if the document drifts from the registries.
+- A generated **[coverage matrix](docs/COVERAGE-MATRIX.md)** (`npm run matrix`) that states, for every selectable payer, each coverage line it has plan sources for, and 44 PBJ priority services, whether the app holds a reviewed source, a partial reference, only a routing link, or nothing. The test suite fails if the document drifts from the registries.
 - **Traditional Medicare (Noridian JE)** references drawn from the CMS Medicare Coverage Database: LCDs for total knee (L36575), total hip (L34163) and minimally invasive SI joint arthrodesis (L39810 with L39462), the proposed hyaluronan LCD DL40456 marked **not in effect**, and a dated negative search for denosumab, romosozumab and zoledronic acid policies.
 - **MACI as three separately authorized stages** (harvest S2112, implantation 27412, cultured cell product J7330) and candidate **SI joint fusion codes** 27279 / 27278 flagged for 2026 descriptor verification.
 
@@ -14,14 +14,14 @@ Implementation, test, payer-policy, HIPAA and deployment status are reported **s
 
 ## Existing PBJ systems — Keragon + ModMed and TriZetto first
 
-PBJ reports that **Keragon is already connected to ModMed EMA** and that **TriZetto is its billing/clearinghouse service**. Staff workup therefore reuses the existing ModMed connection, not a new integration order. **Optum is not required** in this design.
+PBJ reports that **Keragon is already connected to ModMed EMA** and that **TriZetto is its billing/clearinghouse service**. The Keragon workflow plan reuses PBJ’s practice-reported Keragon–ModMed connection; Coverage Desk itself has no ModMed, Keragon or TriZetto connection. **Optum is not required** in this design.
 
 - Pharmacy-benefit medications use ModMed ePrescribing ePA / the actual PBM where activated, with Keragon tracking checklists and follow-up.
 - Medical-benefit injections/gel and orthopedic surgeries first use the exact insurer's PA rules and evaluate whether the existing TriZetto agreement includes **separately licensed electronic PA (278 or FHIR CRD/DTR/PAS)**. An existing TriZetto claims account is not proof of an authorization subscription.
 - Keragon's published **TriZetto connector currently lists only eligibility requests**. The app does not invent a prior-auth API or automatically route authorization through TriZetto; payer portals/RCM remain the fallback.
 - A copy button generates a synthetic payer/service-specific draft for Keragon's workflow builder. No live connection, patient-specific quote, PA submission or PHI is enabled in Coverage Desk.
 
-See [Keragon and TriZetto activation guide](docs/KERAGON-PRIOR-AUTH.md) and [HIPAA release prerequisites](docs/HIPAA-RELEASE.md).
+See the [Keragon and TriZetto workflow plan and verification checklist](docs/KERAGON-PRIOR-AUTH.md) and [HIPAA release prerequisites](docs/HIPAA-RELEASE.md).
 
 ## Protected Cuptomize price evidence (optional, currently not activated)
 
@@ -29,7 +29,7 @@ The staff cost panel can now **request protected Cuptomize public-rate evidence*
 
 ## Staff-facing experience: one workflow
 
-The staff workup now **auto-checks the official public pharmacy file** when the medication and selected published plan/year match. Exact-plan HIOS IDs are distinguished from plan families. A payer-specific PA resource panel links directly to official authorization code checkers and submission instructions; no PHI or actual prior authorization is submitted by the app.
+The staff workup now **auto-checks the official public pharmacy file** when the medication and selected published plan/year match. Exact published plan keys (HIOS IDs for Marketplace plans; the HMSA QUEST file’s own plan key) are distinguished from plan families. A payer-specific PA resource panel links directly to official authorization code checkers and submission instructions; no PHI or actual prior authorization is submitted by the app.
 
 The default **Staff workup** screen now follows **insurer → insurer-owned plan → medication or procedure → formulary/PA source → itemized patient costs → tailored documentation and patient explanation**. The old modules are preserved as **Advanced reference tools**, not competing primary tabs. Payers cannot display other carriers' plans or use a different insurer's formulary. Unverified plans, medical-necessity rules, billable prices and patient benefits stay explicitly unverified.
 
@@ -63,7 +63,7 @@ Start in **Staff workup** and select the insurer, its actual plan/year and desir
 - **Patient costs** sidebar: financial-counseling estimator with price entries for surgeon, facility, anesthesia, implants/gel/medication and rehabilitation, separate medical versus pharmacy benefits, exact plan and source labels, the 2026 Medicare Part A/Part B rules, incomplete-quote blocking, clear warnings on secondary benefits, and a synthetic text export. Hospital transparency and payer-estimator links cover Queen’s, Castle, Kuakini, HPH, HHSC, Kaiser and others. See [cost sources, scenarios, and limitations](docs/PATIENT-COSTS.md).- **Orthopedic procedures** sidebar workspace: knee hyaluronic-acid gel products (brand-specific J-code + 20610/20611), TKA/THA/partial/revisions, MACI harvest and implant, open/endoscopic/balloon-assisted CTR, distinct *non-balloon* ultrasound-guided CTR coding review, ACL and meniscus repair. Select payer, benefit line and setting; review scoped public policy/routing sources; download a **synthetic-only** documentation gaps checklist and packet outline. PA/eligibility/coverage remains **unverified** regardless of checked items. See [procedure workflow and official sources](docs/ORTHOPEDIC-PROCEDURES.md).
 - Responsive medication explorer with brand/generic search and explicit coverage unknowns.
 - **Hawaiʻi coverage navigator** with public source pathways across commercial HMO/PPO, Marketplace, QUEST Medicaid, MA/D-SNP, Part D, original Medicare, FEHB/Postal, VA, TRICARE, Curative, UHA/HMAA, and self-funded or delegated administrators. Sources carry explicit live/partial/official/unknown states; this is not blanket formulary ingestion. See [coverage navigator details](docs/HAWAII-COVERAGE-NAVIGATOR.md).
-- **Public formulary lookup:** 12 plan/year entries with strict IDs: HMSA QUEST (`22780AA1111111`), UHC Hawaiʻi QUEST (`UCSHIQ1`), Kaiser Hawaiʻi QUEST (`KP-HI-QUEST Medicaid`), Kaiser Hawaiʻi Marketplace Platinum 0/5 Plus CAM (`60612HI0110006`) for 2026, and four Kaiser Standard HIOS IDs (`60612HI0110017`–`60612HI0110020`) each for 2026 and 2027. The Standard plan marketing names are unverified; match by HIOS and year. Search by name or RxNorm; view plan-specific tiers and PA/ST/QL flags. This is published-source data, not member eligibility. Public files are cached for up to six hours, and the internal 90-day source-review warning is not a payer-defined expiration.
+- **Public formulary lookup:** 12 plan/year entries with strict IDs: HMSA QUEST (published file plan key `22780AA1111111`, carried in a HIOS-type field but not a QHP HIOS ID), UHC Hawaiʻi QUEST (`UCSHIQ1`), Kaiser Hawaiʻi QUEST (`KP-HI-QUEST Medicaid`), Kaiser Hawaiʻi Marketplace Platinum 0/5 Plus CAM (`60612HI0110006`) for 2026, and four Kaiser Standard HIOS IDs (`60612HI0110017`–`60612HI0110020`) each for 2026 and 2027. The Standard plan marketing names are unverified; match by HIOS and year. Search by name or RxNorm; view plan-specific tiers and PA/ST/QL flags. This is published-source data, not member eligibility. Public files are cached for up to six hours, and the internal 90-day source-review warning is not a payer-defined expiration.
 - **Coverage matrix** (`docs/COVERAGE-MATRIX.md`, regenerated by `npm run matrix`): per payer × coverage line × priority service, REVIEWED / STALE / PARTIAL / LIVE FORMULARY / ROUTE ONLY / MISSING, with the records behind each cell and a gap list for the focus payers. Every cell carries procurement=unknown and exact-plan adoption, eligibility and PA decision "not verified".
 - **Traditional Medicare (Noridian JE) LCD references** for arthroplasty and SI joint fusion, the proposed hyaluronan LCD (not in effect) and a dated negative Medicare Coverage Database search for Part B osteoporosis drugs. Original Medicare performs no prior authorization for these services; the records support claim-level documentation only and never apply to Medicare Advantage.
 - Separate medical-policy and exact-plan formulary records. No coverage inferred from a medical-necessity policy.
@@ -147,7 +147,7 @@ Tests cover scope isolation, unknown benefits, stale/future/expired/conflicting 
 
 ## Boundaries
 
-- No live **member-specific PBM or eligibility** integration. Four public plan-specific drug-list lookups and limited reviewed extracts do not establish actual member benefits; other plan results stay unknown.
+- No live **member-specific PBM or eligibility** integration. Twelve public exact-plan/year drug-list lookups and limited reviewed extracts do not establish actual member benefits; other plan results stay unknown.
 - No ModMed integration, OCR/document upload, payer submission or outcome feedback feed.
 - Seed criteria cover selected **initial osteoporosis therapy**, not all indications, renewals or appeals. Appeal drafts remain unreleasable until the applicable workflow is implemented.
 - Clinical quote extraction does not establish medical truth, prescribing suitability or fulfillment of a criterion. A clinician must interpret every linked passage.

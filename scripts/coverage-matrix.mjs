@@ -5,9 +5,13 @@ import {buildCoverageMatrix,renderCoverageMatrixMarkdown,compactCoverageMatrix} 
 import {policyDay,validPolicyDate} from '../shared/plan-adoption.mjs';
 const args=process.argv.slice(2);
 const asOfIndex=args.indexOf('--as-of');
-const asOf=asOfIndex>=0?args[asOfIndex+1]:policyDay();
-if(!validPolicyDate(asOf))throw Error('Usage: node scripts/coverage-matrix.mjs [--as-of YYYY-MM-DD] [--check]');
 const root=new URL('../',import.meta.url);
+// --check compares against the committed as-of day unless one is given, so the drift check
+// passes on any calendar day as long as the registries have not changed; regeneration without
+// --as-of uses today's Hawaiʻi policy day.
+async function committedAsOf(){try{return JSON.parse(await readFile(new URL('docs/coverage-matrix.json',root),'utf8')).asOf;}catch{return null;}}
+const asOf=asOfIndex>=0?args[asOfIndex+1]:args.includes('--check')?(await committedAsOf())||policyDay():policyDay();
+if(!validPolicyDate(asOf))throw Error('Usage: node scripts/coverage-matrix.mjs [--as-of YYYY-MM-DD] [--check]');
 const matrix=buildCoverageMatrix({asOf});
 const markdown=renderCoverageMatrixMarkdown(matrix);
 const json=JSON.stringify(compactCoverageMatrix(matrix),null,1)+'\n';
