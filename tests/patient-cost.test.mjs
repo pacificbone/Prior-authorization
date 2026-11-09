@@ -285,6 +285,8 @@ test('payer cost tools are scoped to the plan line and benefit',()=>{
  assert.deepEqual(ids(newCostCase({payer:'HMSA',line:'QUEST / Medicaid'})),['quest']);
  assert.deepEqual(ids(newCostCase({payer:'ʻOhana / Wellcare',line:'QUEST / Medicaid'})),['quest']);
  assert.deepEqual(ids(newCostCase({payer:'UHA',line:'Commercial'})),['uha-medical']);
+ assert.deepEqual(ids(newCostCase({payer:'Traditional Medicare',line:'Traditional Medicare'})),['medicare','medicare-opps']);
+ assert.match(COST_PAYER_TOOLS.find(t=>t.id==='medicare-opps').note,/not pre-filled/);
  assert.deepEqual(ids(newCostCase({procedureId:'drug-prolia',payer:'UHA',line:'Commercial',benefit:'Pharmacy'})),['uha-medical','uha-rx']);
  const quest=COST_PAYER_TOOLS.find(t=>t.id==='quest');
  assert.match(quest.title,/not the Med-QUEST member handbook/);

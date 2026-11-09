@@ -420,6 +420,16 @@ export const COST_PAYER_TOOLS=Object.freeze([
     "note": "Confirm Part A benefit period, Part B deductible, 20% general co-pay and secondary coverage."
   },
   {
+    "id": "medicare-opps",
+    "payers": [
+      "Traditional Medicare"
+    ],
+    "lines": ["Traditional Medicare"],
+    "title": "CMS Hospital Outpatient Prospective Payment System (OPPS) — APC payment and copayment addenda",
+    "url": "https://www.cms.gov/medicare/payment/prospective-payment-systems/hospital-outpatient",
+    "note": "Hospital-outpatient facility coinsurance under Original Medicare is set per APC and capped per service at the Part A deductible; it is not pre-filled in this estimator. Look up the APC copayment for the exact code and year here or in the Medicare.gov procedure price lookup (not re-verified from the build environment), and confirm with the MAC. Page verified reachable 2026-11-08 (HST)."
+  },
+  {
     "id": "va",
     "payers": [
       "Veterans Affairs"
