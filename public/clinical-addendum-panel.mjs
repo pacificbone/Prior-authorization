@@ -15,7 +15,17 @@ export function staffVerificationScope(state){
  return {payer:state.payer,planId:state.planId,line:staffPlanProgramLine(staffGetPlan(state.payer,state.planId,state.year||2026)),benefit:state.benefit,
   productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,medication:!!template&&template.category!=='surgery'};
 }
-export function staffVerificationWorksheet(state){return payerVerificationWorksheet(staffVerificationScope(state));}
+function templateOverride(state){
+ const template=selectedClinicalTemplate(state);
+ const derived=state.serviceId?authTemplateForService(state.serviceId,state.gelProductId):null;
+ return state.clinicalTemplateId&&template&&derived&&derived.id!==template.id?{template,derived}:null;
+}
+export function staffVerificationWorksheet(state){
+ const lines=payerVerificationWorksheet(staffVerificationScope(state)).split('\n');
+ const override=templateOverride(state);
+ if(override)lines.splice(1,0,'TEMPLATE OVERRIDE: this worksheet is for '+override.template.name+'; the step-2 selection is '+override.derived.name+'.');
+ return lines.join('\n');
+}
 export function staffClinicalAddendum(state){
  const template=selectedClinicalTemplate(state);
  if(!template)throw new Error('Choose a clinical template first');
@@ -35,9 +45,12 @@ export function renderClinicalAddendumPanel(state){
    payer:scope.payer,planId:scope.planId,line:scope.line,
    serviceId:state.serviceId,serviceDate:scope.serviceDate,policies:[]
  }});
- return `<section class="panel staff-stage" id="staff-clinical-addendum"><div class="panel-title-row"><h2 class="section-title">Clinical addendum & medication supply review</h2></div><div class="panel-content">
+ const override=templateOverride(state);
+ const groups=[['viscosupplementation','Viscosupplementation (gel brands)'],['bone-health','Bone health medications'],['surgery','Procedures']];
+ return `<section class="panel staff-stage" id="staff-clinical-addendum"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">6</span> Blank clinical addendum, payer evidence & supply route</h2></div><div class="panel-content">
  <p class="notice amber"><strong>Synthetic only — not for submission.</strong> Print a blank product-specific or procedure-specific addendum to complete in an approved clinical system. No patient information or clinical findings are entered here.</p>
- <label>Clinical template library<select id="staff-clinical-template"><option value="">Use selected treatment (choose a gel brand when applicable)</option>${AUTH_TEMPLATE_CATALOG.map(t=>`<option value="${h(t.id)}" ${state.clinicalTemplateId===t.id?'selected':''}>${h(t.name)}</option>`).join('')}</select></label>
+ <label>Clinical template library<select id="staff-clinical-template"><option value="">Use selected treatment (choose a gel brand when applicable)</option>${groups.map(([cat,label])=>`<optgroup label="${h(label)}">${AUTH_TEMPLATE_CATALOG.filter(t=>t.category===cat).map(t=>`<option value="${h(t.id)}" ${state.clinicalTemplateId===t.id?'selected':''}>${h(t.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+ ${override?`<p class="notice amber"><strong>Template override:</strong> the addendum, payer references, supply-route review and worksheet below are for <strong>${h(override.template.name)}</strong>, not the step-2 selection (${h(override.derived.name)}). Choose “Use selected treatment” to return to the selected service.</p>`:''}
  <label>Planned service date (policy context only)<input type="date" id="staff-service-date" value="${h(state.serviceDate||'')}"></label>
  ${template?`<h3>${h(template.name)}</h3><p class="helper">${h(template.notes)} Candidate codes: ${h(template.codes.join(', ')||'Coding determination required')}.</p><details><summary>Preview blank clinical addendum (${template.fields.length} fields)</summary><pre class="clinical-template-preview">${h(staffClinicalAddendum(state))}</pre></details><div class="local-buttons"><button class="button secondary" data-action="staff-print-addendum">Print / Save addendum as PDF</button><button class="button secondary" data-action="staff-download-addendum">Download blank clinical addendum</button></div>`:'<p class="helper">Choose a supported treatment or a template from the library.</p>'}
  <section id="staff-auth-preflight"><h3>Authorization packet preflight</h3>

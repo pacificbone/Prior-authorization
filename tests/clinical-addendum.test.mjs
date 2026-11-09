@@ -5,7 +5,7 @@ import {renderCatalogAddendumHtml,renderAuthorizationAddendumHtml} from '../shar
 import {OFFLINE_AUTH_GUIDES,assessOfflinePacket,renderOfflineLetter,getOfflineGuide} from '../shared/offline-auth-guides.mjs';
 import {STAFF_SERVICES} from '../shared/staff-workflow.mjs';
 import {orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
-import {renderClinicalAddendumPanel,staffClinicalAddendum,selectedClinicalTemplate} from '../public/clinical-addendum-panel.mjs';
+import {renderClinicalAddendumPanel,staffClinicalAddendum,selectedClinicalTemplate,staffVerificationWorksheet} from '../public/clinical-addendum-panel.mjs';
 test('every procedure, gel brand and bone-health service has a template',()=>{
  assert.equal(new Set(AUTH_TEMPLATE_CATALOG.map(t=>t.id)).size,AUTH_TEMPLATE_CATALOG.length);
  for(const s of STAFF_SERVICES.filter(s=>s.type==='procedure'&&s.id!=='knee-gel'))assert.ok(authTemplateForService(s.id),s.id);
@@ -59,5 +59,13 @@ test('staff print/export uses selected service and exact template, never checkbo
  assert.throws(()=>staffClinicalAddendum({...state,clinicalTemplateId:'wrong'}));
  const html=renderClinicalAddendumPanel(state);assert.match(html,/staff-print-addendum/);assert.match(html,/staff-download-addendum/);assert.match(html,/Ordering blocked/);assert.doesNotMatch(html,/<textarea/);
  assert.match(renderClinicalAddendumPanel({...state,serviceDate:'invalid'}),/valid service date/);
+ // A library template that differs from the step-2 service is announced on screen and in the printed worksheet.
+ const overridden={...state,clinicalTemplateId:'gel-synvisc-one'};
+ assert.match(renderClinicalAddendumPanel(overridden),/Template override:/);
+ assert.match(renderClinicalAddendumPanel(overridden),/Synvisc-One/);
+ assert.doesNotMatch(renderClinicalAddendumPanel(state),/Template override:/);
+ assert.match(staffVerificationWorksheet(overridden),/TEMPLATE OVERRIDE: this worksheet is for Synvisc-One; the step-2 selection is Prolia/);
+ assert.doesNotMatch(staffVerificationWorksheet(state),/TEMPLATE OVERRIDE/);
+ assert.match(renderClinicalAddendumPanel(state),/<optgroup label="Bone health medications">/);
  assert.match(renderClinicalAddendumPanel({...state,payer:'<script>bad</script>'}),/&lt;script/);
 });

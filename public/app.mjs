@@ -62,7 +62,7 @@ function renderNav(){
 }
 function render(){
   renderNav();
-  if(state.locked){$('#page').innerHTML=`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. Restore an encrypted file or start a new fictional case.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`;return;}
+  if(state.locked){$('#page').innerHTML=`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. The staff workup (insurer, plan, service, entered amounts and checkmarks) is never saved and cannot be restored; the encrypted workspace covers only the legacy authorization case and custom sources. Start a new session and re-enter the selections.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`;return;}
   ({workup:renderStaff,formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,costs:renderCosts,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderStaff)();
 }
 function setPage(page){if(!nav.some(n=>n[0]===page))return;state.page=page;history.replaceState(null,'',`#${page}`);render();window.scrollTo({top:0});}
@@ -149,29 +149,38 @@ function renderCoverage(){
 }
 function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ortho,state.orthoCategory);}
 function renderStaff(){$('#page').innerHTML=renderStaffPage(state.staff);}
-function resetStaffPrice(){
+const COST_PAYER_ALIAS={'MDX Hawaiʻi':'MDX'};
+// Only these program lines have a matching cost line; Part D, federal/postal and delegated/claim
+// pathways are not medical payers for the estimator and must not be relabeled as one.
+const COST_LINE_FOR_PLAN_LINE={'Commercial':'Commercial','Individual Exchange':'Individual Exchange','QUEST / Medicaid':'QUEST / Medicaid','Medicare Advantage':'Medicare Advantage','Traditional Medicare':'Traditional Medicare','VA / Community Care':'VA / Community Care','TRICARE':'TRICARE'};
+function resetStaffPrice({keepClinical=false}={}){
   const st=state.staff;
   $('#print-region').textContent='';
-  st.clinicalTemplateId='';
-  st.serviceDate='';
+  if(!keepClinical){st.clinicalTemplateId='';st.serviceDate='';}
+  st.costUnavailable='';
   st.rateCode='';
   st.rateLookup={result:null,error:'',busy:false};
   const ctx=staffContext(st);
   st.docs={};
   st.lookup={sourceId:null,term:'',busy:false,result:null,error:''};
   if(!ctx.plan||!ctx.service){st.cost=null;return;}
-  const payer=COST_PAYERS.includes(ctx.plan.payer)?ctx.plan.payer:'Other';
-  const lines={'Commercial':'Commercial','Individual Exchange':'Individual Exchange',
-    'QUEST / Medicaid':'QUEST / Medicaid','Medicare Advantage':'Medicare Advantage',
-    'Traditional Medicare':'Traditional Medicare','Medicare Part D':'Traditional Medicare',
-    'VA / Community Care':'VA / Community Care','TRICARE':'TRICARE',
-    'Federal employee / postal':'Commercial','Delegated / claim-specific':'Commercial'};
-  const line=lines[ctx.planLine]||'Commercial';
+  const aliased=COST_PAYER_ALIAS[ctx.plan.payer]||ctx.plan.payer;
+  const payer=ctx.plan.payer==='Workers compensation'?'Workers compensation':COST_PAYERS.includes(aliased)?aliased:'Other';
+  const line=ctx.plan.payer==='Workers compensation'?'Workers compensation':COST_LINE_FOR_PLAN_LINE[ctx.planLine]||null;
+  if(!line){
+    st.cost=null;
+    st.costUnavailable='No cost scenario for a '+ctx.planLine+' selection: it is not the medical payer for this service. Identify the member’s medical plan (or the underlying carrier for an administrator) and select it in step 1.';
+    return;
+  }
   const procedureId=ctx.service.type==='medication'?'drug-'+ctx.service.id:ctx.service.id;
   const benefit=ctx.service.type==='procedure'?'Medical':st.benefit;
   st.cost=newCostCase({procedureId,payer,line,year:st.year,setting:st.setting,
     gelProductId:st.gelProductId,guidance:st.guidance,benefit});
-  st.cost.planLabel=ctx.plan.payer+' '+ctx.plan.id;
+  // Prefer the human plan name; fall back to the source id when the name cannot pass the
+  // plan-label validator (for example HIOS ids with long digit runs).
+  const label=(ctx.plan.payer+' - '+ctx.plan.name).replace(/[·—–]/g,'-').replace(/[^\p{L}\p{N} /&+().,'’ʻ_-]/gu,'').replace(/\s+/g,' ').trim().slice(0,80);
+  try{validateCostCase({...st.cost,planLabel:label});st.cost.planLabel=label;}
+  catch{st.cost.planLabel=(ctx.plan.payer+' '+ctx.plan.id).slice(0,80);}
 }
 function renderCosts(){$('#page').innerHTML=renderCostPage(state.cost,state.costCategory);}
 function renderExplorer(){
@@ -328,7 +337,8 @@ async function runStaffFormularyLookup({automatic=false}={}){
     const response=await fetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({source:source.id,drug:term}),credentials:'same-origin',cache:'no-store'});
     const data=await response.json();
-    if(epoch!==state.aiEpoch||state.locked||state.page!=='workup')return;
+    // A newer lookup or a lock owns the state; merely being on another page must not strand busy:true.
+    if(epoch!==state.aiEpoch||state.locked)return;
     const current=staffContext(state.staff);
     if(current.liveSource?.id!==source.id||current.service?.id!==serviceId||
        current.plan?.id!==planId||state.staff.year!==year||state.staff.benefit!==benefit)return;
@@ -379,7 +389,7 @@ document.addEventListener('click',async event=>{
         body:JSON.stringify(payload),credentials:'same-origin',cache:'no-store'
       });
       const result=await response.json();
-      if(epoch!==state.aiEpoch||state.page!=='workup'||state.locked)return;
+      if(epoch!==state.aiEpoch||state.locked)return;
       if(st.payer!==payload.payer||st.planId!==payload.planId||st.serviceId!==payload.serviceId||
          st.cost?.facilityId!==payload.facilityId||st.setting!==payload.setting)return;
       if(!response.ok)throw Error(result.error||'Protected price-evidence service is unavailable.');
@@ -387,10 +397,10 @@ document.addEventListener('click',async event=>{
         throw Error('Server returned an invalid rate-evidence state.');
       st.rateLookup={result,error:'',busy:false};
     }catch(error){
-      if(epoch!==state.aiEpoch||state.page!=='workup'||state.locked)return;
+      if(epoch!==state.aiEpoch||state.locked)return;
       st.rateLookup={result:null,error:error.message||'Could not verify source rates.',busy:false};
     }
-    renderStaff();
+    if(state.page==='workup')renderStaff();
     return;
   }
   if(action==='staff-check-formulary'){await runStaffFormularyLookup();return;}
@@ -465,7 +475,8 @@ document.addEventListener('click',async event=>{
   if(action==='coverage-to-lookup'){state.publicLookup={sourceId:button.dataset.sourceId||PUBLISHED_FORMULARIES[0].id,term:state.coverage.drug,busy:false,result:null,error:''};setPage('formulary');if(state.publicLookup.term.trim().length>=2)await runPublicFormularyLookup();return;}
   if(action==='sample'){loadSample();return;}
   if(action==='authorization'){setPage('authorization');return;}
-  if(action==='new-session'){state.locked=false;resetIdle();setPage('formulary');return;}
+  if(action==='new-session'){state.locked=false;resetIdle();setPage('workup');return;}
+  if(action==='staff-sample'){loadStaffSample();return;}
   if(action==='add-source'){openSourceDialog();return;}
   if(action==='save'||action==='save-browser'){openVault(action==='save-browser'?'browser':'save');return;}
   if(action==='restore-file'){$('#vault-file').click();return;}
@@ -501,6 +512,7 @@ document.addEventListener('input',event=>{
     field?.setSelectionRange(target.selectionStart??state.staff.search.length,target.selectionStart??state.staff.search.length);
     return;
   }
+  if(target.id==='staff-drug-lookup'){state.staff.lookup={...state.staff.lookup,term:target.value};return;}
   if(target.id==='ortho-plan-label'){state.ortho.planLabel=target.value;return;}
   if(target.id==='cost-plan'){state.cost.planLabel=target.value;return;}
   if(target.id==='coverage-query'){state.coverage.query=target.value;const result=$('#coverage-results');if(result)result.innerHTML=coverageCardsMarkup();return;}
@@ -543,7 +555,9 @@ document.addEventListener('change',event=>{
     if(id==='staff-plan-select'&&st.planId&&!staffPlansForPayer(st.payer,st.year).some(x=>x.id===st.planId)){
       st.planId='';toast('Plan does not belong to that insurer.');}
     state.aiEpoch++;
-    resetStaffPrice();renderStaff();
+    // Request type, care setting, gel brand and guidance do not change the plan or service, so the
+    // clinical template and planned service date survive; everything plan- or service-dependent resets.
+    resetStaffPrice({keepClinical:['staff-request-type','staff-setting','staff-gel','staff-guidance'].includes(id)});renderStaff();
     // Public plan ID and drug name only. No patient information is sent.
     if(['staff-payer','staff-year','staff-plan-select','staff-service-select','staff-benefit'].includes(id))
       void runStaffFormularyLookup({automatic:true});
@@ -571,6 +585,7 @@ document.addEventListener('change',event=>{
         candidate.items=candidate.items.map(line=>({...line,allowed:null,source:'unverified'}));
         candidate.coverage='unverified';
         candidate.deductibleRemaining=null;candidate.oopRemaining=null;
+        toast('Facility or network changed: entered allowed amounts, coverage status and benefit figures were cleared and must be reverified.');
       }
     }
     try{validateCostCase(candidate);state.staff.cost=candidate;}
@@ -652,7 +667,10 @@ document.addEventListener('change',event=>{
   if(target.dataset.evidenceQuote){refreshEvidence();return;}
   if(target.id==='review-facts'||target.id==='review-scope'){state.review[target.id==='review-facts'?'facts':'scope']=target.checked;$('#packet-content').innerHTML=packetMarkup();}
 });
-document.addEventListener('keydown',event=>{if(event.target.id==='public-drug-query'&&event.key==='Enter'){event.preventDefault();runPublicFormularyLookup();}});
+document.addEventListener('keydown',event=>{
+  if(event.target.id==='public-drug-query'&&event.key==='Enter'){event.preventDefault();runPublicFormularyLookup();}
+  if(event.target.id==='staff-drug-lookup'&&event.key==='Enter'){event.preventDefault();void runStaffFormularyLookup();}
+});
 function loadStaffSample(){
   state.staff={payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'alendronate',
     benefit:'Pharmacy',requestType:'Initial',setting:'Office',

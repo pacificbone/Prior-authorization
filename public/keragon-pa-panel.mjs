@@ -30,7 +30,7 @@ export function renderKeragonPaPanel(ctx,{benefit='Medical',requestType='Initial
      '<p>'+h(s.detail)+'</p>'+(s.url?link(s.url,'Official product information'):'')+'</li>'
    ).join('')+'</ol>'+
   '<p class="notice amber"><strong>Current boundary:</strong> '+h(route.connectionStatus)+' '+h(route.warning)+'</p>'+
-  '<div class="local-buttons"><button class="button primary" data-action="staff-keragon-blueprint">Copy Keragon workflow instructions</button>'+
+  '<div class="local-buttons"><button class="button secondary" data-action="staff-keragon-blueprint">Copy Keragon workflow instructions</button>'+
   link(KERAGON_LINKS.app,'Open Keragon workspace')+'</div>'+
   '<p class="helper">The blueprint contains only public payer/plan categories and the selected procedure or medication. No patient charts, credentials, member IDs, or real submissions leave this trial.</p>'+
   '<details class="staff-vendor-details"><summary>Use existing connections — administrator checklist</summary>'+

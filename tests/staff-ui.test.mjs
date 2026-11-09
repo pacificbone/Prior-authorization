@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {renderStaffPage} from '../public/staff-page.mjs';
 import {newCostCase} from '../shared/patient-cost.mjs';
 import {staffContext,staffPlansForPayer,staffGetService} from '../shared/staff-workflow.mjs';
@@ -68,6 +69,38 @@ test('procedure screen keeps patient price missing and documents separate surgeo
  assert.match(html,/Download authorization checklist/);
  assert.match(html,/Download conditional cost worksheet/);
  assert.match(html,/Remaining|Deductible remaining/);
+});
+test('cost hero never presents an unverified total as the estimate and keeps the caveats open',()=>{
+ const st=state('HMSA','hmsa-select-choice','total-knee','Medical');
+ st.setting='ASC';
+ const cost=newCostCase({procedureId:'total-knee',payer:'HMSA',line:'Commercial',setting:'ASC'});
+ cost.items=cost.items.map(x=>x.required?{...x,allowed:1000,method:'coinsurance',percentage:20,deductibleApplies:false}:x);
+ st.cost=cost;
+ const html=renderStaffPage(st);
+ assert.match(html,/Assumption-only scenario: \$600\.00/);
+ assert.match(html,/staff-cost-assumption/);
+ assert.match(html,/Do not read this as the patient’s expected bill/);
+ assert.match(html,/<details class="staff-checks" open>/);
+ assert.doesNotMatch(html,/<strong class="">\$600\.00</);
+ const verified={...cost,planLabel:'Fictional plan',coverage:'staff-verified-covered',network:'in-network',secondary:'none',items:cost.items.map(x=>x.required?{...x,source:'payer-negotiated-rate'}:x)};
+ const html2=renderStaffPage({...st,cost:verified});
+ assert.doesNotMatch(html2,/Assumption-only scenario/);
+ assert.match(html2,/Conditional scenario — not a verified patient quote/);
+ const med=state('HMSA','hmsa-select-choice','alendronate','Pharmacy');
+ med.cost=newCostCase({procedureId:'drug-alendronate',payer:'HMSA',line:'Commercial',benefit:'Pharmacy'});
+ const medHtml=renderStaffPage(med);
+ assert.doesNotMatch(medHtml,/Surgeon: Not yet available/);
+ assert.match(medHtml,/Implant \/ gel \/ cellular product: Not yet available/);
+});
+test('step order is plan, service, coverage, costs, packet, then the blank addendum library; PA routes get real styles',()=>{
+ const html=renderStaffPage(state('AlohaCare','aloha-quest','carpal-open','Medical'));
+ const order=['id="staff-plan"','id="staff-service"','id="staff-coverage"','id="staff-cost"','id="staff-packet"','id="staff-clinical-addendum"'].map(x=>html.indexOf(x));
+ assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])),JSON.stringify(order));
+ assert.match(html,/<span class="staff-number">6<\/span> Blank clinical addendum/);
+ assert.match(html,/data-action="staff-sample"/);
+ assert.match(html,/<details class="staff-sources"><summary>Keragon authorization workflow/);
+ const css=readFileSync(new URL('../public/styles.css',import.meta.url),'utf8');
+ for(const cls of ['staff-pa-route','staff-pa-actions','staff-pa-action','staff-vendor-pa','staff-vendor-steps','staff-vendor-details','payer-evidence-entry','staff-cost-assumption'])assert.ok(css.includes('.'+cls),cls);
 });
 test('selected MA plan is shown with plan scope but never called a covered drug',()=>{
  const ma=staffPlansForPayer('HMSA',2026).find(x=>x.id==='hmsa-ma-individual');
