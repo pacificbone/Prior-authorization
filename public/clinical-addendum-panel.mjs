@@ -1,4 +1,6 @@
-import {staffGetPlan,staffPlanProgramLine} from '../shared/staff-workflow.mjs';
+import {staffGetPlan,staffPlanProgramLine,staffContext} from '../shared/staff-workflow.mjs';
+import {evidenceDigestStatus} from '../shared/payer-policy-evidence.mjs';
+import {policyDay} from '../shared/plan-adoption.mjs';
 import {payerEvidenceFor,payerVerificationWorksheet} from '../shared/payer-policy-evidence.mjs';
 import {AUTH_TEMPLATE_CATALOG,authTemplateForService,findAuthTemplate,renderAuthTemplateNote} from '../shared/authorization-template-catalog.mjs';
 import {resolveFulfillment,fulfillmentChecklist} from '../shared/fulfillment-policy.mjs';
@@ -20,10 +22,20 @@ function templateOverride(state){
  const derived=state.serviceId?authTemplateForService(state.serviceId,state.gelProductId):null;
  return state.clinicalTemplateId&&template&&derived&&derived.id!==template.id?{template,derived}:null;
 }
-export function staffVerificationWorksheet(state){
- const lines=payerVerificationWorksheet(staffVerificationScope(state)).split('\n');
+// Reviewed criteria extracts that live in the medication catalog (no PDF fingerprint) for the same selection.
+export function catalogCriteriaExtracts(state){
+ if(!state.payer||!state.planId||!state.serviceId)return [];
+ try{return staffContext({payer:state.payer,planId:state.planId,year:state.year||2026,serviceId:state.serviceId,benefit:state.benefit||'Medical'}).matchedPolicies;}catch{return [];}
+}
+export function staffVerificationWorksheet(state,asOf=policyDay()){
+ const lines=payerVerificationWorksheet(staffVerificationScope(state),asOf).split('\n');
  const override=templateOverride(state);
  if(override)lines.splice(1,0,'TEMPLATE OVERRIDE: this worksheet is for '+override.template.name+'; the step-2 selection is '+override.derived.name+'.');
+ const extracts=override?[]:catalogCriteriaExtracts(state);
+ if(extracts.length){
+  const at=lines.findIndex(l=>l.startsWith('Verification attachments'));
+  lines.splice(at<0?lines.length:at,0,...extracts.flatMap(p=>['',`CATALOG CRITERIA EXTRACT (no PDF fingerprint): ${p.title}`,`Policy: ${p.policyNumber||'n/a'}; effective ${p.effective||'n/a'}; reviewed ${p.reviewed}; ${p.locator||''}`,p.url,p.limitations]),'');
+ }
  return lines.join('\n');
 }
 export function staffClinicalAddendum(state){
@@ -37,7 +49,9 @@ export function renderClinicalAddendumPanel(state){
  const scope=staffVerificationScope(state);
  const fulfillment=resolveFulfillment(scope);
  const refs=payerEvidenceFor(scope);
- const branches=documentationBranchesFor(refs.map(r=>r.id),state.requestType||'Initial');
+ const override=templateOverride(state);
+ const branches=documentationBranchesFor(refs.map(r=>r.id),state.requestType||'Initial',template?.id||'');
+ const extracts=override?[]:catalogCriteriaExtracts(state);
  const routes=payerRoutingFor({payer:scope.payer,line:scope.line,category:scope.medication?'medication':'surgery'});
  const submissionFields=submissionRequirementsFor(scope);
  // No unverified reference documents are promoted into authoritative criteria.
@@ -45,7 +59,6 @@ export function renderClinicalAddendumPanel(state){
    payer:scope.payer,planId:scope.planId,line:scope.line,
    serviceId:state.serviceId,serviceDate:scope.serviceDate,policies:[]
  }});
- const override=templateOverride(state);
  const groups=[['viscosupplementation','Viscosupplementation (gel brands)'],['bone-health','Bone health medications'],['surgery','Procedures'],['injection','Office injections & biologics'],['product','Cell / implant product authorization'],['diagnostic','Imaging & diagnostics'],['therapy','Therapy & DME']];
  return `<section class="panel staff-stage" id="staff-clinical-addendum"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">6</span> Blank clinical addendum, payer evidence & supply route</h2></div><div class="panel-content">
  <p class="notice amber"><strong>Synthetic only — not for submission.</strong> Print a blank product-specific or procedure-specific addendum to complete in an approved clinical system. No patient information or clinical findings are entered here.</p>
@@ -72,7 +85,8 @@ export function renderClinicalAddendumPanel(state){
  <p class="helper">Public routing information only. Exact member product, delegated administrator, code-level PA and buy-and-bill or pharmacy sourcing remain unverified.</p></section>
  <section id="staff-policy-evidence"><h3>Source verification and exact-plan adoption</h3>
  <p><strong>Exact-plan adoption: NOT VERIFIED.</strong> Public document retrieval does not confirm the member's plan, benefits or supply permissions.</p>
- ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. Snapshot reviewed ${h(s.retrievedAt)}; ${s.reviewOverdue?'REVIEW OVERDUE':'plan applicability unverified'}. ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256)}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
+ ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. ${s.directoryOnly?'Directory entry / web document checked':'Fingerprinted snapshot reviewed'} ${h(s.retrievedAt)}; ${s.reviewOverdue?'REVIEW OVERDUE':'plan applicability unverified'}. ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}${s.referenceType==='sourcing'?' Sourcing reference only — not a coverage or criteria source.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256||(evidenceDigestStatus(s)==='unbound-pending-reverification'?'register digest '+s.registerSha256+' pending re-verification (not bound)':'none — directory entry or web document'))}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
+ ${extracts.length?`<details class="staff-sources" open><summary>Reviewed criteria extracts from the medication catalog (${extracts.length}) — no PDF fingerprint</summary>${extracts.map(p=>`<section class="payer-evidence-entry"><strong>${h(p.title)}</strong><p class="helper">${h(p.policyNumber||'')}; effective ${h(p.effective||'n/a')}; reviewed ${h(p.reviewed)}; ${h(p.locator||'')}</p><p>${h(p.summary)}</p><p class="helper">${h(p.limitations)}</p><a href="${h(p.url)}" target="_blank" rel="noopener noreferrer">Open policy directory</a></section>`).join('')}</details>`:''}
  <details class="staff-sources"><summary>Source-linked documentation prompts (${branches.length})</summary>
  <p class="helper">Research aids only: the exact member plan has not been confirmed to adopt these criteria. Verify the current policy before submission.</p>
  ${branches.map(b=>`<section class="payer-evidence-entry"><strong>${h(b.title)}</strong><ul>${b.fields.map(f=>`<li>${h(f.label)}</li>`).join("")}</ul><p class="helper">${h(b.notes)}</p></section>`).join("")||"<p>No matching branch for this request type; review the source policy manually.</p>"}

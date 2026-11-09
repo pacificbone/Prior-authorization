@@ -30,6 +30,13 @@ test('clinical prompts never promote public evidence to exact-plan criteria',()=
  assert.equal(documentationBranchesFor(['hmsa-gel-clinical-2026'],'Initial').length,1);
  assert.equal(documentationBranchesFor(['hmsa-gel-clinical-2026'],'Repeat / continuation').length,1);
  assert.equal(documentationBranchesFor(['hmsa-gel-clinical-2026'],'Reconsideration / appeal').length,0);
+ // Exception prompts apply at initial precertification; product-scoped branches never cross procedures.
+ for(const type of ['Initial','Repeat / continuation','Reconsideration / appeal'])assert.equal(documentationBranchesFor(['hmsa-gel-preference-2026'],type).length,1,type);
+ assert.deepEqual(documentationBranchesFor(['hmsa-evolent-knee-2025'],'Initial','procedure-total-knee').map(b=>b.id),['hmsa-tka']);
+ assert.deepEqual(documentationBranchesFor(['hmsa-evolent-knee-2025'],'Initial','procedure-partial-knee').map(b=>b.id),['hmsa-partial-knee']);
+ assert.deepEqual(documentationBranchesFor(['hmsa-evolent-knee-2025'],'Initial','procedure-revision-knee').map(b=>b.id),['hmsa-revision-knee']);
+ assert.deepEqual(documentationBranchesFor(['medicare-noridian-tka-l36575'],'Initial','procedure-partial-knee').map(b=>b.id),['medicare-partial-knee-l36575-note']);
+ assert.deepEqual(documentationBranchesFor(['hmsa-prolia-ma-2026'],'Initial','bone-prolia').map(b=>b.id),['hmsa-prolia-ma-initial']);
  assert.ok(PAYER_DOCUMENTATION_BRANCHES.every(b=>b.fields.length>0&&b.fields.every(f=>f.id&&f.label)));
 });
 test('staff screen renders fail-closed preflight and payer-specific public routing',()=>{

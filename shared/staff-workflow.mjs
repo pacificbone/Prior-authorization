@@ -13,7 +13,7 @@ import {staffAuthResources} from './staff-auth-resources.mjs';
 
 const NON_PLANS=new Set(['uha-medical-pa','aloha-wrap','va-cfuses','original-d','other-ma']);
 // Older catalogs key the same organizations differently; the staff selector names are canonical.
-const CATALOG_PAYER=Object.freeze({'MDX Hawaiʻi':'MDX','HMA / Verdegard':'HMA'});
+const CATALOG_PAYER=Object.freeze({'MDX Hawaiʻi':'MDX','HMA / Verdegard':'HMA','Kaiser Permanente':'Kaiser','Traditional Medicare':'Medicare'});
 const PAYER_ROLES=Object.freeze({
  'HMSA':'Carrier / managed care',
  'UnitedHealthcare':'Carrier / managed care',

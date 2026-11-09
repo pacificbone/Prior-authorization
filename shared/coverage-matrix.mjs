@@ -100,7 +100,7 @@ function lineAllows(line,service,benefit){
 }
 function evidenceRecords({payer,line,benefit,productId,medication,asOf}){
  return payerEvidenceFor({payer,line,benefit,productId,medication,serviceDate:asOf,planId:'matrix',setting:'Office',state:'HI'},asOf).map(s=>({
-  kind:s.directoryOnly===true?'directory-reference':'reviewed-snapshot',id:s.id,title:s.title,version:s.version,effective:s.effectiveFrom,
+  kind:s.referenceType==='sourcing'?'general-reference':s.directoryOnly===true?'directory-reference':'reviewed-snapshot',id:s.id,title:s.title,version:s.version,effective:s.effectiveFrom,
   reviewDue:s.reviewDue,sourceUrl:s.sourceUrl,
   flags:[...(s.reviewOverdue?['stale']:[]),...(s.versionConfirmationRequired?['version-confirmation-required']:[]),...(s.allProducts?['general-reference']:[]),...(s.proposed?['proposed-not-active']:[])]
  }));
@@ -146,7 +146,7 @@ function rollup(records){
  if(reviewed.length){
   return reviewed.every(r=>r.flags.includes('stale'))?'stale':'reviewed';
  }
- if(['directory-reference','policy-link','restrictive-review','proposed-only','code-list','formulary-entry'].some(k=>kinds.has(k)))return 'partial';
+ if(['directory-reference','general-reference','policy-link','restrictive-review','proposed-only','code-list','formulary-entry'].some(k=>kinds.has(k)))return 'partial';
  if(kinds.has('routing')||kinds.has('resource'))return 'routing-only';
  return 'missing';
 }

@@ -1,6 +1,6 @@
 # Coverage matrix — payer × coverage line × PBJ priority service
 
-Generated from the application registries on **2026-11-09** by `npm run matrix`. Do not edit by hand; edit the registries and regenerate. The test suite fails if this file drifts from the registries.
+Generated from the application registries on **2026-11-08** by `npm run matrix`. Do not edit by hand; edit the registries and regenerate. The test suite fails if this file drifts from the registries.
 
 > No cell verifies exact-plan adoption, member eligibility, prior authorization approval, payment or a medication supply route. REVIEWED means a reviewed public source exists for the payer, line and product; staff must still confirm the member product and the current source version.
 
@@ -19,15 +19,15 @@ Generated from the application registries on **2026-11-09** by `npm run matrix`.
 
 | Status | Cells |
 | --- | ---: |
-| REVIEWED | 62 |
+| REVIEWED | 61 |
 | STALE | 0 |
-| PARTIAL | 124 |
+| PARTIAL | 126 |
 | LIVE FORMULARY | 12 |
-| ROUTE ONLY | 874 |
+| ROUTE ONLY | 873 |
 | MISSING | 380 |
 | n/a | 88 |
 
-Registries behind the matrix: 17 public payer evidence records (6 fingerprinted PDF snapshots, 11 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 60 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
+Registries behind the matrix: 18 public payer evidence records (8 fingerprinted PDF snapshots, 10 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 60 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
 
 ## Priority gaps (focus payers)
 
@@ -87,7 +87,7 @@ Services with no reviewed or partial source for a focus payer and line. Each is 
 - **BEAR ACL repair / implant** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **Meniscus repair 29882 / 29883** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **Meniscus root repair** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Arthroscopic partial meniscectomy 29881** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Arthroscopic partial meniscectomy 29881** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 
 ### Hand
 
@@ -112,7 +112,7 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Prolia (denosumab) J0897 | REVIEWED (2) | ROUTE ONLY | REVIEWED (2) | REVIEWED (2) | n/a | ROUTE ONLY |
 | Jubbonti (denosumab-bbdz) biosimilar | REVIEWED (2) | ROUTE ONLY | REVIEWED (2) | REVIEWED (2) | n/a | ROUTE ONLY |
 | Bildyos (denosumab-nxxp) biosimilar | REVIEWED (2) | ROUTE ONLY | REVIEWED (2) | REVIEWED (2) | n/a | ROUTE ONLY |
-| Evenity (romosozumab) J3111 | REVIEWED (2) | ROUTE ONLY | REVIEWED (2) | REVIEWED (1) | n/a | ROUTE ONLY |
+| Evenity (romosozumab) J3111 | REVIEWED (2) | ROUTE ONLY | REVIEWED (2) | REVIEWED (2) | n/a | ROUTE ONLY |
 | Reclast (zoledronic acid) J3489 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | n/a | ROUTE ONLY |
 | **Osteoporosis oral / pharmacy benefit** |  |  |  |  |  |  |
 | Alendronate (oral, pharmacy benefit) | ROUTE ONLY | ROUTE ONLY | LIVE FORMULARY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
@@ -161,16 +161,17 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | **SI joint** |  |  |  |  |  |  |
 | Minimally invasive SI joint fusion | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | n/a | ROUTE ONLY |
 
-<details><summary>Records behind HMSA (15)</summary>
+<details><summary>Records behind HMSA (16)</summary>
 
 | Record | Kind | Version / effective | Review | Flags |
 | --- | --- | --- | --- | --- |
 | [HMSA Prolia and Biosimilars — HMO/PPO/QUEST](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies-m-z/) | reviewed-snapshot | 2026-04-01 · 2026-04-01 | due 2027-02-05 | — |
 | [HMSA denosumab · initial postmenopausal osteoporosis](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies-m-z/) | reviewed-extract | Prolia and biosimilars · HMO/PPO/QUEST · 04/01/2026 · 2026-04-01 | reviewed 2026-11-06 | 6 alternative pathways |
-| [HMSA Prolia and Biosimilars — Medicare Advantage](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/) | directory-reference | 2026-10-01 · 2026-10-01 | due 2027-02-05 | — |
+| [HMSA Prolia and Biosimilars — Medicare Advantage](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies-m-z/) | reviewed-snapshot | 2026-10-01 · 2026-10-01 | due 2027-02-04 | — |
 | [HMSA denosumab · Medicare Advantage osteoporosis treatment](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies-m-z/) | reviewed-extract | Prolia and biosimilars · Medicare Advantage · 10/01/2026 · 2026-10-01 | reviewed 2026-11-06 | — |
 | [HMSA Evenity — HMO/PPO/QUEST](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/) | reviewed-snapshot | 2025-12-19 · 2025-12-19 | due 2027-02-05 | — |
 | [HMSA Evenity · initial postmenopausal osteoporosis](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/) | reviewed-extract | Evenity · HMO/PPO/QUEST · 12/19/2025 · 2025-12-19 | reviewed 2026-11-06 | 6 alternative pathways, pathway-needs-clarification |
+| [HMSA Evenity — Medicare Advantage](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/) | reviewed-snapshot | 2025-06-27 · 2025-06-27 | due 2027-02-04 | — |
 | [HMSA Evenity · Medicare Advantage initial therapy](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/) | reviewed-extract | Evenity · Medicare Advantage · 06/27/2025 · 2025-06-27 | reviewed 2026-11-06 | — |
 | [HMSA Hyaluronate Products — Exceptions Criteria](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/) | reviewed-snapshot | 2026-01-01 · 2026-01-01 | due 2027-02-05 | — |
 | [HMSA Hyaluronate Products — Clinical Policy](https://www.hmsa.com/prc/pharmacy/medical-specialty-drug-policies/) | reviewed-snapshot | 2026-06-26 · 2026-06-26 | due 2027-02-05 | — |
@@ -541,7 +542,7 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Jubbonti (denosumab-bbdz) biosimilar | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
 | Bildyos (denosumab-nxxp) biosimilar | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
 | Evenity (romosozumab) J3111 | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
-| Reclast (zoledronic acid) J3489 | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
+| Reclast (zoledronic acid) J3489 | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Osteoporosis oral / pharmacy benefit** |  |  |  |  |
 | Alendronate (oral, pharmacy benefit) | MISSING | MISSING | LIVE FORMULARY | MISSING |
 | Teriparatide / Forteo (pharmacy benefit) | MISSING | MISSING | LIVE FORMULARY | MISSING |
@@ -564,21 +565,21 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Triluron (J7332) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | Visco-3 (J7321) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | **Arthroplasty** |  |  |  |  |
-| Primary total knee arthroplasty 27447 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
-| Partial / unicompartmental knee 27446 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
-| Revision total knee 27486 / 27487 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| Primary total knee arthroplasty 27447 | PARTIAL (2) | PARTIAL (2) | PARTIAL (1) | ROUTE ONLY |
+| Partial / unicompartmental knee 27446 | PARTIAL (2) | PARTIAL (2) | PARTIAL (1) | ROUTE ONLY |
+| Revision total knee 27486 / 27487 | PARTIAL (2) | PARTIAL (2) | PARTIAL (1) | ROUTE ONLY |
 | Primary total hip arthroplasty 27130 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | Revision total hip 27134 / 27137 / 27138 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | **MACI** |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | PARTIAL (2) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
-| MACI stage 2 implantation 27412 | PARTIAL (3) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
+| MACI stage 2 implantation 27412 | PARTIAL (3) | PARTIAL (3) | PARTIAL (2) | MISSING (1) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |
-| ACL reconstruction 29888 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| ACL reconstruction 29888 | PARTIAL (2) | PARTIAL (2) | PARTIAL (1) | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
-| Meniscus repair 29882 / 29883 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| Meniscus repair 29882 / 29883 | PARTIAL (2) | PARTIAL (2) | PARTIAL (1) | ROUTE ONLY |
 | Meniscus root repair | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
-| Arthroscopic partial meniscectomy 29881 | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
+| Arthroscopic partial meniscectomy 29881 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | **Hand** |  |  |  |  |
 | Open carpal tunnel release 64721 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | Endoscopic carpal tunnel release 29848 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
@@ -593,7 +594,7 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 
 | Record | Kind | Version / effective | Review | Flags |
 | --- | --- | --- | --- | --- |
-| [UHC Commercial Medication Sourcing Protocol](https://www.uhcprovider.com/content/dam/provider/docs/public/resources/pharmacy/UHC-Admin-Drug-Chart.pdf) | reviewed-snapshot | PCA-1-26-01739-E&I-QRG_09102026 | due 2027-02-05 | general-reference |
+| [UHC Commercial Medication Sourcing Protocol](https://www.uhcprovider.com/content/dam/provider/docs/public/resources/pharmacy/UHC-Admin-Drug-Chart.pdf) | general-reference | PCA-1-26-01739-E&I-QRG_09102026 | due 2027-02-05 | general-reference |
 | [Denosumab · initial osteoporosis therapy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/denosumab-prolia-xgeva.pdf) | reviewed-extract | 2026D0068U · 2026-10-01 | reviewed 2026-11-06 | — |
 | [Evenity · initial therapy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/evenity-romosozumab-aqqg.pdf) | reviewed-extract | 2026D0080M · 2026-11-01 | reviewed 2026-11-06 | — |
 | [UnitedHealthcare commercial medical-benefit sodium hyaluronate policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/sodium-hyaluronate.pdf) | policy-link | — | checked 2026-11-07 | — |
@@ -1089,15 +1090,15 @@ Original Medicare benefit. Lines with plan sources: Traditional Medicare.
 
 | Record | Kind | Version / effective | Review | Flags |
 | --- | --- | --- | --- | --- |
-| [Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid](https://www.cms.gov/medicare-coverage-database/search.aspx) | directory-reference | CMS Medicare Coverage Database API search, 2026-11-09 | due 2027-02-05 | — |
-| [Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5) | directory-reference | DL40456 proposed; MCD page updated 09/23/2026; no effective date | due 2027-02-05 | proposed-not-active |
+| [Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid](https://www.cms.gov/medicare-coverage-database/search.aspx) | directory-reference | CMS Medicare Coverage Database API search, 2026-11-09 | due 2027-02-06 | — |
+| [Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5) | directory-reference | DL40456 proposed; MCD page updated 09/23/2026; no effective date | due 2027-02-06 | proposed-not-active |
 | [Noridian JE: proposed hyaluronic acid LCD DL40456 (NOT FINAL)](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5) | proposed-only | — | checked 2026-11-07 | proposed-not-active |
-| [Noridian JE LCD L36575 — Total Knee Arthroplasty](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21) | directory-reference | L36575 v21; revision effective 11/06/2025; Billing and Coding Article A57685 v15 effective 01/01/2026 · 2025-11-06 | due 2027-02-05 | — |
+| [Noridian JE LCD L36575 — Total Knee Arthroplasty](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21) | directory-reference | L36575 v21; revision effective 11/06/2025; Billing and Coding Article A57685 v15 effective 01/01/2026 · 2025-11-06 | due 2027-02-06 | — |
 | [Noridian JE LCD L36575 Total Knee Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57685](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21) | policy-link | — | checked 2026-11-07 | — |
-| [Noridian JE LCD L34163 — Total Hip Arthroplasty](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33) | directory-reference | L34163 v33; revision effective 11/06/2025; Billing and Coding Article A57683 v11 effective 11/06/2025 · 2025-11-06 | due 2027-02-05 | — |
+| [Noridian JE LCD L34163 — Total Hip Arthroplasty](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33) | directory-reference | L34163 v33; revision effective 11/06/2025; Billing and Coding Article A57683 v11 effective 11/06/2025 · 2025-11-06 | due 2027-02-06 | — |
 | [Noridian JE LCD L34163 Total Hip Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57683](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33) | policy-link | — | checked 2026-11-07 | — |
-| [Noridian JE LCD L39810 — Minimally Invasive Arthrodesis of the Sacroiliac Joint](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13) | directory-reference | L39810 v13; revision effective 10/23/2025; Billing and Coding Article A59695 v12 effective 01/01/2026 (descriptor changes to CPT 27278 and 27279) · 2025-10-23 | due 2027-02-05 | — |
-| [Noridian JE LCD L39462 — Sacroiliac Joint Injections and Procedures](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39462&ver=9) | directory-reference | L39462 v9; revision effective 03/05/2026 (L39464 retired 03/05/2026) · 2026-03-05 | due 2027-02-05 | — |
+| [Noridian JE LCD L39810 — Minimally Invasive Arthrodesis of the Sacroiliac Joint](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13) | directory-reference | L39810 v13; revision effective 10/23/2025; Billing and Coding Article A59695 v12 effective 01/01/2026 (descriptor changes to CPT 27278 and 27279) · 2025-10-23 | due 2027-02-06 | — |
+| [Noridian JE LCD L39462 — Sacroiliac Joint Injections and Procedures](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39462&ver=9) | directory-reference | L39462 v9; revision effective 03/05/2026 (L39464 retired 03/05/2026) · 2026-03-05 | due 2027-02-06 | — |
 | [Noridian JE LCD L39810 Minimally Invasive Arthrodesis of the SI Joint (revision effective 10/23/2025) with LCD L39462 injection criteria](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13) | policy-link | — | checked 2026-11-07 | — |
 
 </details>

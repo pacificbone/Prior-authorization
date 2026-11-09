@@ -1,57 +1,90 @@
 {
   "reviewed": "2026-11-06",
-  "scope": "Public policy snapshots only; no patient records",
+  "followUpReviewed": "2026-11-07",
+  "bindingReviewed": "2026-11-08",
+  "scope": "Public policy snapshots only; no patient records. Each snapshot names the registry record it binds to: status 'bound' means shared/payer-policy-evidence.mjs carries this digest; 'pending-reverification' means the digest exists here but the record is deliberately unbound until a fresh download matches; 'catalog-only' means the digest belongs to a reviewed extract in shared/hawaii-sources.mjs that has no evidence record. PDF bytes are not redistributed. Retrieval does not verify exact-plan adoption.",
   "snapshots": [
     {
       "document": "hmsa-evenity-commercial-quest.pdf",
-      "sha256": "f37a5031021f12e6d12dc78234ec5768c8733f3cd8ccead59401d84c21a87bdf"
+      "sha256": "f37a5031021f12e6d12dc78234ec5768c8733f3cd8ccead59401d84c21a87bdf",
+      "retrieved": "2026-11-06",
+      "sourceId": "hmsa-evenity-cq-2025",
+      "catalogId": "hmsa-evenity-cq-2025-12",
+      "status": "bound"
     },
     {
       "document": "hmsa-evenity-ma.pdf",
-      "sha256": "dbfc5b1a4a2990c13a24ed9852ad05fb0ffc7492d59d60fbc4ba5f5f794f9175"
+      "sha256": "dbfc5b1a4a2990c13a24ed9852ad05fb0ffc7492d59d60fbc4ba5f5f794f9175",
+      "retrieved": "2026-11-06",
+      "sourceId": "hmsa-evenity-ma-2025",
+      "catalogId": "hmsa-evenity-ma-2025-06",
+      "status": "bound"
     },
     {
       "document": "hmsa-prolia-commercial-quest.pdf",
-      "sha256": "0f8ab9692533c9f170241f5b4c60ba1b5fe365c13825b4de10ae2ae8d9fb0c4f"
+      "sha256": "0f8ab9692533c9f170241f5b4c60ba1b5fe365c13825b4de10ae2ae8d9fb0c4f",
+      "retrieved": "2026-11-06",
+      "sourceId": "hmsa-prolia-cq-2026",
+      "catalogId": "hmsa-denosumab-cq-2026-04",
+      "status": "bound"
     },
     {
       "document": "hmsa-prolia-ma.pdf",
-      "sha256": "83cd86c7d690b9d58bb56325c44bdca99e75c5d152c8567e50681a8f9840e9d3"
+      "sha256": "83cd86c7d690b9d58bb56325c44bdca99e75c5d152c8567e50681a8f9840e9d3",
+      "retrieved": "2026-11-06",
+      "sourceId": "hmsa-prolia-ma-2026",
+      "catalogId": "hmsa-denosumab-ma-2026-10",
+      "status": "bound"
     },
     {
       "document": "hmaa-formulary.pdf",
-      "sha256": "ca224c9f6a0b95ea4c50a6c32300aeb45f6451b54f7322ed409893cf0b953785"
+      "sha256": "ca224c9f6a0b95ea4c50a6c32300aeb45f6451b54f7322ed409893cf0b953785",
+      "retrieved": "2026-11-06",
+      "catalogId": "HMAA-OPTUMRX-PREMIUM-2026-H2",
+      "status": "catalog-only"
     },
     {
       "document": "mdx-drug-list.pdf",
-      "sha256": "3d1082b4cdec6ec952c170d135aa4d869039c42423b3e2d537656d2b7dfa71e3"
+      "sha256": "3d1082b4cdec6ec952c170d135aa4d869039c42423b3e2d537656d2b7dfa71e3",
+      "retrieved": "2026-11-06",
+      "catalogId": "mdx-uhc-ma-drug-list-2026",
+      "status": "catalog-only"
     },
     {
       "document": "hmsa-hyaluronates-preferred.pdf",
       "sha256": "0bb93f0dc0f6e4d0516cbb18706e867ef8589b0dce0ae45d8000968e0681e563",
-      "retrieved": "2026-11-07"
+      "retrieved": "2026-11-07",
+      "sourceId": "hmsa-gel-preference-2026",
+      "status": "bound"
     },
     {
       "document": "hmsa-hyaluronates-clinical.pdf",
       "sha256": "3bdf2818c776fa5c73040bd9852391761155abaa965bf0c1c595e950a09ca49b",
-      "retrieved": "2026-11-07"
+      "retrieved": "2026-11-07",
+      "sourceId": "hmsa-gel-clinical-2026",
+      "status": "bound"
     },
     {
       "document": "hmsa-evolent-matrix-2026.pdf",
       "sha256": "9f0be97828c56547d5c90f5240b1e978fe2781d30738d610cbcfaf5201ffcfdf",
-      "retrieved": "2026-11-07"
+      "retrieved": "2026-11-07",
+      "sourceId": "hmsa-evolent-matrix-2026",
+      "status": "pending-reverification",
+      "note": "De-linked from the evidence record on 2026-11-08 when the same digest had been copied onto unrelated directory records; re-download and match before binding."
     },
     {
       "document": "hmsa-evolent-guidelines-july-2025.pdf",
       "sha256": "3d5aedb85f22b1f9df3f60383b6b3632379cb6acbb7b51a5fe15c6bf2e1b75e2",
-      "retrieved": "2026-11-07"
+      "retrieved": "2026-11-07",
+      "sourceId": "hmsa-evolent-knee-2025",
+      "status": "bound"
     },
     {
       "document": "uhc-sourcing-september-2026.pdf",
       "sha256": "a61213afc1571ec38f6a11dcedcd90ffb28617053d203101f18d98104e16ad25",
-      "retrieved": "2026-11-07"
+      "retrieved": "2026-11-07",
+      "sourceId": "uhc-sourcing-2026",
+      "status": "bound"
     }
-  ],
-  "followUpReviewed": "2026-11-07",
-  "followUpScope": "Seventeen curated public references in shared/payer-policy-evidence.mjs: six fingerprinted PDF snapshots (HMSA hyaluronate preference and clinical policies, HMSA Prolia and Evenity Commercial/QUEST, HMSA-linked Evolent knee guideline, UHC sourcing protocol) plus eleven directory-only references without a digest: the HMSA joint-surgery matrix (digest listed above but de-linked pending re-verification), HMSA Medicare Advantage hyaluronate policy and preferred program, HMSA Medicare Advantage Prolia, UHC Surgery of the Knee, and six Traditional Medicare (Noridian JE) records drawn from the CMS Medicare Coverage Database on 2026-11-09 (LCDs L36575, L34163, L39810, L39462, proposed DL40456, and a documented no-LCD/no-SAD search for Part B osteoporosis drugs) identified by document ID and version. PDF bytes are not redistributed. Retrieval does not verify exact-plan adoption."
+  ]
 }

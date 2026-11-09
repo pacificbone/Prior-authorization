@@ -1,20 +1,20 @@
 {
- "asOf": "2026-11-09",
+ "asOf": "2026-11-08",
  "generatedFrom": "shared/coverage-matrix.mjs",
  "caveat": "No cell verifies exact-plan adoption, member eligibility, prior authorization approval, payment or a medication supply route. REVIEWED means a reviewed public source exists for the payer, line and product; staff must still confirm the member product and the current source version.",
  "counts": {
-  "reviewed": 62,
+  "reviewed": 61,
   "stale": 0,
-  "partial": 124,
+  "partial": 126,
   "live-formulary": 12,
-  "routing-only": 874,
+  "routing-only": 873,
   "missing": 380,
   "n/a": 88
  },
  "registry": {
-  "evidenceRecords": 17,
-  "fingerprinted": 6,
-  "directoryOnly": 11,
+  "evidenceRecords": 18,
+  "fingerprinted": 8,
+  "directoryOnly": 10,
   "reviewedExtracts": 6,
   "formularyEntries": 5,
   "codeLists": 1,
@@ -2334,7 +2334,6 @@
     {
      "payer": "UnitedHealthcare",
      "lines": [
-      "Individual Exchange",
       "QUEST / Medicaid",
       "Medicare Advantage"
      ]
@@ -3246,6 +3245,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "hmsa-evenity-ma-2025",
     "hmsa-evenity-ma-2025-06"
    ],
    "routes": 2,
@@ -14899,7 +14899,7 @@
    "line": "Commercial",
    "serviceId": "zoledronic-acid",
    "benefit": "Medical",
-   "status": "reviewed",
+   "status": "partial",
    "flags": [
     "general-reference",
     "plan-family-sources-only"
@@ -16395,6 +16395,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-knee-2026",
     "uhc-surgery-knee"
    ],
    "routes": 2,
@@ -16467,6 +16468,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-knee-2026",
     "uhc-surgery-knee"
    ],
    "routes": 2,
@@ -16541,6 +16543,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-knee-2026",
     "uhc-surgery-knee"
    ],
    "routes": 2,
@@ -16846,6 +16849,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-knee-2026",
     "uhc-surgery-knee",
     "maci-billing"
    ],
@@ -16987,6 +16991,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-knee-2026",
     "uhc-surgery-knee"
    ],
    "routes": 2,
@@ -17123,6 +17128,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-knee-2026",
     "uhc-surgery-knee"
    ],
    "routes": 2,
@@ -17256,11 +17262,13 @@
    "line": "Individual Exchange",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "partial",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-knee-2026"
+   ],
    "routes": 2,
    "codes": [
     "29881",
