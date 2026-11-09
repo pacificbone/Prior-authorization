@@ -7,10 +7,10 @@ import {verifyPolicySnapshot} from '../server/policy-snapshot.mjs';
 const scope={payer:'HMSA',line:'Commercial',benefit:'Medical',planId:'Unverified fictional plan',productId:'gel-monovisc',serviceDate:'2026-11-07',setting:'Office',state:'HI',medication:true};
 const refs=(patch={})=>payerEvidenceFor({...scope,...patch},'2026-11-07');
 test('reviewed evidence contains source identity and digest, never procurement permissions',()=>{
- assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,11);
+ assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,17);
  const sums=JSON.parse(readFileSync(new URL('../docs/policy-source-checksums.json',import.meta.url))).snapshots.map(x=>x.sha256);
  const fingerprinted=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly!==true),directoryOnly=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly===true);
- assert.equal(fingerprinted.length,6);assert.equal(directoryOnly.length,5);
+ assert.equal(fingerprinted.length,6);assert.equal(directoryOnly.length,11);
  // hmsa-evolent-matrix-2026 is directory-only in code although docs/policy-source-checksums.json still lists a matrix digest;
  // restoring the binding requires re-downloading the public PDF and matching that digest.
  assert.ok(directoryOnly.some(s=>s.id==='hmsa-evolent-matrix-2026'));
@@ -39,6 +39,20 @@ test('knee guideline cannot become hip, MA gel, or UHC surgical criteria',()=>{
  assert.deepEqual(uhcKnee.map(s=>s.id),['uhc-knee-2026']);
  assert.equal(uhcKnee.some(s=>s.id.startsWith('hmsa-')),false);
  assert.equal(new URL(uhcKnee[0].sourceUrl).hostname,'www.uhcprovider.com');
+});
+test('Traditional Medicare LCD references stay on the Traditional Medicare line and never reach Medicare Advantage or other payers',()=>{
+ const medicare=(patch={})=>payerEvidenceFor({...scope,payer:'Traditional Medicare',line:'Traditional Medicare',medication:false,...patch},'2026-11-09');
+ assert.deepEqual(medicare({productId:'procedure-total-knee'}).map(s=>s.id),['medicare-noridian-tka-l36575']);
+ assert.deepEqual(medicare({productId:'procedure-total-hip'}).map(s=>s.id),['medicare-noridian-tha-l34163']);
+ assert.deepEqual(medicare({productId:'procedure-si-joint-fusion'}).map(s=>s.id).sort(),['medicare-noridian-sij-fusion-l39810','medicare-noridian-sij-injections-l39462']);
+ const ha=medicare({productId:'gel-synvisc-one',medication:true});
+ assert.deepEqual(ha.map(s=>s.id),['medicare-noridian-ha-proposed-dl40456']);assert.equal(ha[0].proposed,true);assert.equal(ha[0].effectiveFrom,null);assert.match(ha[0].title,/NOT IN EFFECT/);
+ const bone=medicare({productId:'bone-reclast',medication:true});
+ assert.deepEqual(bone.map(s=>s.id),['medicare-partb-osteoporosis-drugs-2026']);assert.match(bone[0].summary,/no Noridian LCD/);
+ for(const s of PAYER_POLICY_EVIDENCE.filter(s=>s.payer==='Traditional Medicare')){assert.equal(s.directoryOnly,true);assert.equal(s.sourceSha256,null);assert.equal(new URL(s.sourceUrl).hostname,'www.cms.gov');assert.deepEqual([...s.lines],['Traditional Medicare']);}
+ assert.equal(medicare({line:'Medicare Advantage',productId:'procedure-total-knee'}).length,0);
+ assert.equal(payerEvidenceFor({...scope,payer:'HMSA',productId:'procedure-total-knee',medication:false},'2026-11-09').some(s=>s.id.startsWith('medicare-')),false);
+ assert.equal(payerEvidenceFor({...scope,payer:'UnitedHealthcare',productId:'procedure-total-knee',medication:false},'2026-11-09').some(s=>s.id.startsWith('medicare-')),false);
 });
 test('publication code is not silently converted to an effective date or buy-and-bill authority',()=>{
  const source=refs({payer:'UnitedHealthcare'})[0];assert.equal(source.effectiveFrom,null);

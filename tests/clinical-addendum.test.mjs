@@ -28,7 +28,11 @@ for(const t of AUTH_TEMPLATE_CATALOG)test('template completeness and safe printa
 });
 test('brand variants and procedure variants contain their own documentation prompts',()=>{
  assert.notDeepEqual(findAuthTemplate('gel-synvisc').fields,findAuthTemplate('gel-synvisc-one').fields);
- for(const [a,b] of [['total-knee','partial-knee'],['maci-harvest','maci-implant'],['carpal-open','carpal-endo']])assert.notDeepEqual(authTemplateForService(a).fields,authTemplateForService(b).fields);
+ for(const [a,b] of [['total-knee','partial-knee'],['maci-harvest','maci-implant'],['maci-implant','maci-cell-product'],['carpal-open','carpal-endo']])assert.notDeepEqual(authTemplateForService(a).fields,authTemplateForService(b).fields);
+ // MACI is three separately authorized stages: harvest (S2112), implantation (27412) and the cell product (J7330).
+ assert.deepEqual(authTemplateForService('maci-harvest').codes,['S2112']);assert.deepEqual(authTemplateForService('maci-implant').codes,['27412','J7330']);assert.deepEqual(authTemplateForService('maci-cell-product').codes,['J7330']);
+ assert.deepEqual(authTemplateForService('si-joint-fusion').codes,['27279','27278']);
+ assert.deepEqual(authTemplateForService('carpal-ultrasound-other').codes,[]);assert.deepEqual(authTemplateForService('carpal-balloon').codes,['64728']);
  assert.match(findAuthTemplate('bone-evenity').fields.at(-1).label,/cardiovascular/);
  assert.match(findAuthTemplate('bone-prolia').fields.at(-1).label,/interruption/);
  assert.match(findAuthTemplate('bone-reclast').fields.at(-1).label,/renal/);

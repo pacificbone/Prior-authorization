@@ -48,7 +48,8 @@ export const MATRIX_PRIORITY_SERVICES=Object.freeze([
  svc('total-hip','Arthroplasty','Primary total hip arthroplasty 27130'),
  svc('revision-hip','Arthroplasty','Revision total hip 27134 / 27137 / 27138'),
  svc('maci-harvest','MACI','MACI stage 1 cartilage harvest S2112'),
- svc('maci-implant','MACI','MACI stage 2 implantation 27412 + cell product J7330'),
+ svc('maci-implant','MACI','MACI stage 2 implantation 27412 (+ J7330 when billed together)'),
+ svc('maci-cell-product','MACI','MACI stage 3 cultured cell product J7330 authorization'),
  svc('acl-reconstruction','Sports knee','ACL reconstruction 29888'),
  svc('bear-acl','Sports knee','BEAR ACL repair / implant'),
  svc('meniscus-repair','Sports knee','Meniscus repair 29882 / 29883'),
@@ -102,7 +103,7 @@ function evidenceRecords({payer,line,benefit,productId,medication,asOf}){
  return payerEvidenceFor({payer,line,benefit,productId,medication,serviceDate:asOf,planId:'matrix',setting:'Office',state:'HI'},asOf).map(s=>({
   kind:s.directoryOnly===true?'directory-reference':'reviewed-snapshot',id:s.id,title:s.title,version:s.version,effective:s.effectiveFrom,
   reviewDue:s.reviewDue,sourceUrl:s.sourceUrl,
-  flags:[...(s.reviewOverdue?['stale']:[]),...(s.versionConfirmationRequired?['version-confirmation-required']:[]),...(s.allProducts?['general-reference']:[])]
+  flags:[...(s.reviewOverdue?['stale']:[]),...(s.versionConfirmationRequired?['version-confirmation-required']:[]),...(s.allProducts?['general-reference']:[]),...(s.proposed?['proposed-not-active']:[])]
  }));
 }
 function catalogRecords({payer,line,benefit,serviceId,asOf}){

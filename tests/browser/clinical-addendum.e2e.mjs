@@ -2,6 +2,8 @@
 // Install Playwright separately or set PBJ_PLAYWRIGHT_MODULE to its module path.
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
+import {AUTH_TEMPLATE_CATALOG} from '../../shared/authorization-template-catalog.mjs';
+const expectedTemplates=AUTH_TEMPLATE_CATALOG.length;
 const playwright=await import(process.env.PBJ_PLAYWRIGHT_MODULE||'playwright');
 const {chromium}=playwright.chromium?playwright:playwright.default;
 if(!chromium)throw new Error('Playwright module did not expose chromium; set PBJ_PLAYWRIGHT_MODULE to the installed package entry');
@@ -22,7 +24,7 @@ try{
  await page.locator('#staff-clinical-template').waitFor();
  await page.evaluate(()=>{window.__printCalls=0;window.print=()=>window.__printCalls++;});
  const choices=await page.locator('#staff-clinical-template option').evaluateAll(options=>options.map(o=>({id:o.value,name:o.textContent})).filter(o=>o.id));
- assert.equal(choices.length,67);
+ assert.equal(choices.length,expectedTemplates);
  for(const choice of choices){
   await page.selectOption('#staff-clinical-template',choice.id);
   await page.click('[data-action="staff-print-addendum"]');
@@ -34,7 +36,7 @@ try{
   await page.evaluate(()=>window.dispatchEvent(new Event('afterprint')));
   assert.equal(await page.locator('#print-region').textContent(),'');
  }
- assert.equal(await page.evaluate(()=>window.__printCalls),67);
+ assert.equal(await page.evaluate(()=>window.__printCalls),expectedTemplates);
  await page.selectOption('#staff-payer','HMSA');
  await page.selectOption('#staff-plan-select','hmsa-quest');
  await page.selectOption('#staff-service-select','prolia');
@@ -92,5 +94,5 @@ try{
  assert.equal(await page.locator('#staff-clinical-template').count(),0);
  assert.equal(publicLookups.length,1);
  assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.deepEqual(mutations,[]);
- console.log('PASS: 67 browser print flows; download; date/selection reset; print CSS; mobile; lock cleanup; scoped payer evidence and verification worksheet; no external requests or data writes.');
+ console.log('PASS: '+expectedTemplates+' browser print flows; download; date/selection reset; print CSS; mobile; lock cleanup; scoped payer evidence and verification worksheet; no external requests or data writes.');
 }finally{await browser.close();}

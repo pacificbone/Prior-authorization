@@ -15100,7 +15100,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -15216,7 +15216,7 @@
      "line": "Individual Exchange",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -15302,7 +15302,7 @@
      "line": "QUEST / Medicaid",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -15402,7 +15402,7 @@
      "line": "Medicare Advantage",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -15518,7 +15518,7 @@
      "line": "Medicare Part D",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -15560,7 +15560,7 @@
      "line": "Federal employee / postal",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -15585,6 +15585,490 @@
      },
      "codes": [
       "27412",
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "hmsa-medical",
+       "title": "HMSA current medical code PA and delegated service routing",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "hmsa-medical-submit",
+       "title": "HMSA provider PA submission instructions and forms",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "hmsa-medical",
+       "name": "HMSA current medical code PA and delegated service routing",
+       "role": "check",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "hmsa-medical-submit",
+       "name": "HMSA provider PA submission instructions and forms",
+       "role": "submit-info",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "HMSA",
+     "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hmsa-select-choice",
+       "name": "Select / Choice commercial formulary",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      },
+      {
+       "id": "hmsa-essential",
+       "name": "Essential commercial formulary",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      },
+      {
+       "id": "hmsa-optimal",
+       "name": "Optimal commercial formulary",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "hmsa-medical",
+       "title": "HMSA current medical code PA and delegated service routing",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "hmsa-medical-submit",
+       "title": "HMSA provider PA submission instructions and forms",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "HMSA current code-level prior authorization and policy lookup",
+       "title": "HMSA current code-level prior authorization and policy lookup",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "hmsa-medical",
+       "name": "HMSA current medical code PA and delegated service routing",
+       "role": "check",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "hmsa-medical-submit",
+       "name": "HMSA provider PA submission instructions and forms",
+       "role": "submit-info",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "HMSA current code-level prior authorization and policy lookup",
+       "name": "HMSA current code-level prior authorization and policy lookup",
+       "role": "routing",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "HMSA",
+     "line": "Individual Exchange",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hmsa-metallic",
+       "name": "Metallic / ACA plans",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "hmsa-medical",
+       "title": "HMSA current medical code PA and delegated service routing",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "hmsa-medical-submit",
+       "title": "HMSA provider PA submission instructions and forms",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "hmsa-medical",
+       "name": "HMSA current medical code PA and delegated service routing",
+       "role": "check",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "hmsa-medical-submit",
+       "name": "HMSA provider PA submission instructions and forms",
+       "role": "submit-info",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "HMSA",
+     "line": "QUEST / Medicaid",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hmsa-quest",
+       "name": "HMSA QUEST Integration pharmacy",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "22780AA1111111"
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "hmsa-medical",
+       "title": "HMSA current medical code PA and delegated service routing",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "hmsa-medical-submit",
+       "title": "HMSA provider PA submission instructions and forms",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "HMSA QUEST current code-level PA and medical policy lookup",
+       "title": "HMSA QUEST current code-level PA and medical policy lookup",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "hmsa-medical",
+       "name": "HMSA current medical code PA and delegated service routing",
+       "role": "check",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "hmsa-medical-submit",
+       "name": "HMSA provider PA submission instructions and forms",
+       "role": "submit-info",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "HMSA QUEST current code-level PA and medical policy lookup",
+       "name": "HMSA QUEST current code-level PA and medical policy lookup",
+       "role": "routing",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": []
+    },
+    {
+     "payer": "HMSA",
+     "line": "Medicare Advantage",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hmsa-ma-individual",
+       "name": "Akamai Advantage individual 725 / 730 / 735 / 740",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      },
+      {
+       "id": "hmsa-ma-group",
+       "name": "Akamai Advantage group 545 / 745 / 750 / 830",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      },
+      {
+       "id": "hmsa-ma-dual",
+       "name": "Akamai Advantage Dual Care D-SNP",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "hmsa-medical",
+       "title": "HMSA current medical code PA and delegated service routing",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "hmsa-medical-submit",
+       "title": "HMSA provider PA submission instructions and forms",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "HMSA Medicare Advantage current medical PA lookup",
+       "title": "HMSA Medicare Advantage current medical PA lookup",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmsa.com/prc/medical/services-that-require-precertification/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "hmsa-medical",
+       "name": "HMSA current medical code PA and delegated service routing",
+       "role": "check",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "hmsa-medical-submit",
+       "name": "HMSA provider PA submission instructions and forms",
+       "role": "submit-info",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/required-prior-authorization-code-list/"
+      },
+      {
+       "id": "HMSA Medicare Advantage current medical PA lookup",
+       "name": "HMSA Medicare Advantage current medical PA lookup",
+       "role": "routing",
+       "sourceUrl": "https://www.hmsa.com/prc/medical/services-that-require-precertification/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "HMSA",
+     "line": "Medicare Part D",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hmsa-postal-partd",
+       "name": "Medicare Postal Prescription Drug Plan",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "n/a",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Line cannot pay for this service type"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "line-not-applicable"
+     ]
+    },
+    {
+     "payer": "HMSA",
+     "line": "Federal employee / postal",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hmsa-fep",
+       "name": "Federal Plan 87 / Blue Cross FEP",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      },
+      {
+       "id": "hmsa-postal",
+       "name": "Postal Service commercial pharmacy",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
       "J7330"
      ],
      "procurement": "unknown",
@@ -20712,7 +21196,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -20774,7 +21261,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -20799,7 +21285,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -20846,7 +21335,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -20871,7 +21359,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -20932,9 +21423,7 @@
      ],
      "submissionChecklists": 0,
      "documentationPrompts": 0,
-     "flags": [
-      "no-candidate-code"
-     ]
+     "flags": []
     },
     {
      "payer": "HMSA",
@@ -20971,7 +21460,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -21033,7 +21525,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -21058,7 +21549,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -21104,7 +21598,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -21151,7 +21648,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -30754,7 +31250,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -30837,7 +31333,7 @@
      "line": "Individual Exchange",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -30968,7 +31464,7 @@
      "line": "QUEST / Medicaid",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -31036,7 +31532,7 @@
      "line": "Medicare Advantage",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -31111,6 +31607,326 @@
     {
      "payer": "Kaiser Permanente",
      "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "kaiser-commercial",
+       "name": "Employer small- / large-group HMO pharmacy",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      },
+      {
+       "id": "kaiser-kpic",
+       "name": "KPIC Added Choice employer plans",
+       "status": "public-source",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "kaiser-hawaii",
+       "title": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "Kaiser Hawaiʻi contracted provider authorization/referral",
+       "title": "Kaiser Hawaiʻi contracted provider authorization/referral",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "kaiser-hawaii",
+       "name": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "role": "submit-info",
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf"
+      },
+      {
+       "id": "Kaiser Hawaiʻi contracted provider authorization/referral",
+       "name": "Kaiser Hawaiʻi contracted provider authorization/referral",
+       "role": "routing",
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Kaiser Permanente",
+     "line": "Individual Exchange",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "kaiser-individual",
+       "name": "Kaiser Hawaiʻi Platinum 0/5 Plus CAM · individual 2026",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "60612HI0110006"
+      },
+      {
+       "id": "kaiser-standard-0017-2026",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110017 · 2026",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "60612HI0110017"
+      },
+      {
+       "id": "kaiser-standard-0018-2026",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110018 · 2026",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "60612HI0110018"
+      },
+      {
+       "id": "kaiser-standard-0019-2026",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110019 · 2026",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "60612HI0110019"
+      },
+      {
+       "id": "kaiser-standard-0020-2026",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110020 · 2026",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "60612HI0110020"
+      },
+      {
+       "id": "kaiser-individual-other",
+       "name": "Other Kaiser individual Marketplace plans",
+       "status": "public-source",
+       "year": "2026–2027",
+       "exactPlanId": null
+      },
+      {
+       "id": "kaiser-standard-0017-2027",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110017 · 2027",
+       "status": "live-drug-search",
+       "year": "2027",
+       "exactPlanId": "60612HI0110017"
+      },
+      {
+       "id": "kaiser-standard-0018-2027",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110018 · 2027",
+       "status": "live-drug-search",
+       "year": "2027",
+       "exactPlanId": "60612HI0110018"
+      },
+      {
+       "id": "kaiser-standard-0019-2027",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110019 · 2027",
+       "status": "live-drug-search",
+       "year": "2027",
+       "exactPlanId": "60612HI0110019"
+      },
+      {
+       "id": "kaiser-standard-0020-2027",
+       "name": "Kaiser Hawaiʻi Standard HIOS 60612HI0110020 · 2027",
+       "status": "live-drug-search",
+       "year": "2027",
+       "exactPlanId": "60612HI0110020"
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "kaiser-hawaii",
+       "title": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "kaiser-hawaii",
+       "name": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "role": "submit-info",
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": []
+    },
+    {
+     "payer": "Kaiser Permanente",
+     "line": "QUEST / Medicaid",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "kaiser-quest",
+       "name": "Kaiser Hawaiʻi QUEST Medicaid · 2026",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "KP-HI-QUEST Medicaid"
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "kaiser-hawaii",
+       "title": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "kaiser-hawaii",
+       "name": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "role": "submit-info",
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": []
+    },
+    {
+     "payer": "Kaiser Permanente",
+     "line": "Medicare Advantage",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "kaiser-ma",
+       "name": "Senior Advantage HMO",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      },
+      {
+       "id": "kaiser-ma-dual",
+       "name": "Dual Complete HMO D-SNP",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "kaiser-hawaii",
+       "title": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "kaiser-hawaii",
+       "name": "Kaiser Hawaiʻi contracted/out-of-plan referral and authorization manual",
+       "role": "submit-info",
+       "sourceUrl": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/community-providers/hi/ever/HI-NDA-2026-Hawaii-Provider-Manual-FINAL.pdf"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Kaiser Permanente",
+     "line": "Commercial",
      "serviceId": "acl-reconstruction",
      "gelProductId": "",
      "label": "ACL reconstruction 29888",
@@ -34622,7 +35438,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -34669,7 +35488,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -34757,7 +35575,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -34788,9 +35609,7 @@
      ],
      "submissionChecklists": 0,
      "documentationPrompts": 0,
-     "flags": [
-      "no-candidate-code"
-     ]
+     "flags": []
     },
     {
      "payer": "Kaiser Permanente",
@@ -34813,7 +35632,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -34844,9 +35666,7 @@
      ],
      "submissionChecklists": 0,
      "documentationPrompts": 0,
-     "flags": [
-      "no-candidate-code"
-     ]
+     "flags": []
     },
     {
      "payer": "Kaiser Permanente",
@@ -34876,7 +35696,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -34908,7 +35731,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -39583,7 +40405,7 @@
      "line": "QUEST / Medicaid",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -39672,7 +40494,7 @@
      "line": "Medicare Advantage",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -39753,6 +40575,181 @@
     {
      "payer": "AlohaCare",
      "line": "QUEST / Medicaid",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "aloha-quest",
+       "name": "AlohaCare QUEST Medicaid primary",
+       "status": "payer-search",
+       "year": "2026",
+       "exactPlanId": null
+      },
+      {
+       "id": "aloha-ccs",
+       "name": "AlohaCare Community Care Services",
+       "status": "public-source",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "aloha-medical",
+       "title": "AlohaCare exact CPT/HCPCS PA requirement lookup",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://office.alohacare.org/PriorAuth/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "aloha-medical-submit",
+       "title": "AlohaCare provider authorization forms and medical criteria",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://office.alohacare.org/Providers/Authorization",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "AlohaCare service prior authorization lookup",
+       "title": "AlohaCare service prior authorization lookup",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://webconf.alohacare.org/Providers/Authorization",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "aloha-medical",
+       "name": "AlohaCare exact CPT/HCPCS PA requirement lookup",
+       "role": "check",
+       "sourceUrl": "https://office.alohacare.org/PriorAuth/"
+      },
+      {
+       "id": "aloha-medical-submit",
+       "name": "AlohaCare provider authorization forms and medical criteria",
+       "role": "submit-info",
+       "sourceUrl": "https://office.alohacare.org/Providers/Authorization"
+      },
+      {
+       "id": "AlohaCare service prior authorization lookup",
+       "name": "AlohaCare service prior authorization lookup",
+       "role": "routing",
+       "sourceUrl": "https://webconf.alohacare.org/Providers/Authorization"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "AlohaCare",
+     "line": "Medicare Advantage",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "aloha-ma-plus",
+       "name": "AlohaCare Advantage Plus HMO D-SNP",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      },
+      {
+       "id": "aloha-ma",
+       "name": "AlohaCare Advantage HMO D-SNP",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "aloha-medical",
+       "title": "AlohaCare exact CPT/HCPCS PA requirement lookup",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://office.alohacare.org/PriorAuth/",
+       "flags": []
+      },
+      {
+       "kind": "routing",
+       "id": "aloha-medical-submit",
+       "title": "AlohaCare provider authorization forms and medical criteria",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://office.alohacare.org/Providers/Authorization",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "aloha-medical",
+       "name": "AlohaCare exact CPT/HCPCS PA requirement lookup",
+       "role": "check",
+       "sourceUrl": "https://office.alohacare.org/PriorAuth/"
+      },
+      {
+       "id": "aloha-medical-submit",
+       "name": "AlohaCare provider authorization forms and medical criteria",
+       "role": "submit-info",
+       "sourceUrl": "https://office.alohacare.org/Providers/Authorization"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "AlohaCare",
+     "line": "QUEST / Medicaid",
      "serviceId": "acl-reconstruction",
      "gelProductId": "",
      "label": "ACL reconstruction 29888",
@@ -41547,7 +42544,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -41609,7 +42609,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -41641,7 +42640,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -41688,7 +42690,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -44215,7 +45216,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -44268,7 +45269,7 @@
      "line": "Medicare Advantage",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -44319,6 +45320,88 @@
     {
      "payer": "Aetna",
      "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "aetna-commercial",
+       "name": "Aetna commercial / employer pharmacy benefit",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Aetna",
+     "line": "Medicare Advantage",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "aetna-medicare",
+       "name": "Aetna Medicare Advantage / PDP product finder",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Aetna",
+     "line": "Commercial",
      "serviceId": "acl-reconstruction",
      "gelProductId": "",
      "label": "ACL reconstruction 29888",
@@ -45233,7 +46316,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -45248,7 +46334,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -45273,7 +46358,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -45288,7 +46376,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -46560,7 +47647,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -46597,6 +47684,47 @@
        "flags": []
       }
      ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Cigna",
+     "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "cigna-commercial",
+       "name": "Cigna employer drug lists (Standard / Value / Performance / Advantage)",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
      "formulary": {
       "state": "n/a",
       "detail": "Not a drug"
@@ -47077,7 +48205,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -47092,7 +48223,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -48364,7 +49494,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -48401,6 +49531,47 @@
        "flags": []
       }
      ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Anthem Blue Cross and Blue Shield",
+     "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "anthem-commercial",
+       "name": "Anthem employer plan from home state",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
      "formulary": {
       "state": "n/a",
       "detail": "Not a drug"
@@ -48881,7 +50052,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -48896,7 +50070,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -55600,7 +56773,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -55680,7 +56853,7 @@
      "line": "Individual Exchange",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -55743,7 +56916,7 @@
      "line": "QUEST / Medicaid",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -55811,7 +56984,7 @@
      "line": "Medicare Advantage",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -55855,6 +57028,209 @@
        "flags": []
       }
      ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "UnitedHealthcare",
+     "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "uhc-commercial",
+       "name": "UnitedHealthcare commercial Choice / Options / tiered",
+       "status": "public-source",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "2026 Commercial arthroplasty authorization and knee/hip policy",
+       "title": "2026 Commercial arthroplasty authorization and knee/hip policy",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.uhcprovider.com/content/dam/provider/docs/public/prior-auth/pa-requirements/commercial/UHC-Commercial-Advance-Notification-PA-Requirements-1-2026.pdf",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "2026 Commercial arthroplasty authorization and knee/hip policy",
+       "name": "2026 Commercial arthroplasty authorization and knee/hip policy",
+       "role": "routing",
+       "sourceUrl": "https://www.uhcprovider.com/content/dam/provider/docs/public/prior-auth/pa-requirements/commercial/UHC-Commercial-Advance-Notification-PA-Requirements-1-2026.pdf"
+      }
+     ],
+     "submissionChecklists": 1,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "UnitedHealthcare",
+     "line": "Individual Exchange",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "uhc-exchange",
+       "name": "Individual / Exchange (where offered)",
+       "status": "public-source",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "UnitedHealthcare",
+     "line": "QUEST / Medicaid",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "uhc-quest",
+       "name": "Community Plan Hawaiʻi QUEST",
+       "status": "live-drug-search",
+       "year": "2026",
+       "exactPlanId": "UCSHIQ1"
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "uhc-hawaii-quest",
+       "title": "UHC Hawaiʻi Community Plan medical prior authorization",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans/hi-comm-plan-home/hi-cp-prior-auth.html",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "uhc-hawaii-quest",
+       "name": "UHC Hawaiʻi Community Plan medical prior authorization",
+       "role": "check",
+       "sourceUrl": "https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans/hi-comm-plan-home/hi-cp-prior-auth.html"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": []
+    },
+    {
+     "payer": "UnitedHealthcare",
+     "line": "Medicare Advantage",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "uhc-ma",
+       "name": "AARP / UnitedHealthcare Medicare Advantage",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      },
+      {
+       "id": "uhc-dual",
+       "name": "Dual Complete D-SNP / RP PPO",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
      "formulary": {
       "state": "n/a",
       "detail": "Not a drug"
@@ -58191,7 +59567,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -58223,7 +59602,6 @@
      "submissionChecklists": 1,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -58248,7 +59626,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -58263,7 +59644,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -58288,7 +59668,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -58319,9 +59702,7 @@
      ],
      "submissionChecklists": 0,
      "documentationPrompts": 0,
-     "flags": [
-      "no-candidate-code"
-     ]
+     "flags": []
     },
     {
      "payer": "UnitedHealthcare",
@@ -58351,7 +59732,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -58366,7 +59750,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -60138,7 +61521,7 @@
      "line": "QUEST / Medicaid",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -60172,6 +61555,64 @@
        "effective": null,
        "checked": "2026-11-07",
        "sourceUrl": "https://www.maci.com/healthcare-professionals/practice-resources/approval-billing-codes/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "Ohana Medicaid code-specific authorization lookup",
+       "name": "Ohana Medicaid code-specific authorization lookup",
+       "role": "routing",
+       "sourceUrl": "https://www.ohanahealthplan.com/content/dam/centene/wellcare/hi/pdfs/provider/HI_OhanaHP_Medicaid_CCS_QI_PriorAuthReq_R.pdf"
+      }
+     ],
+     "submissionChecklists": 1,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "ʻOhana / Wellcare",
+     "line": "QUEST / Medicaid",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "ohana-quest",
+       "name": "ʻOhana QUEST Medicaid",
+       "status": "payer-search",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "Ohana Medicaid code-specific authorization lookup",
+       "title": "Ohana Medicaid code-specific authorization lookup",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.ohanahealthplan.com/content/dam/centene/wellcare/hi/pdfs/provider/HI_OhanaHP_Medicaid_CCS_QI_PriorAuthReq_R.pdf",
        "flags": []
       }
      ],
@@ -60849,7 +62290,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -60881,7 +62325,6 @@
      "submissionChecklists": 1,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -62688,7 +64131,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -62732,6 +64175,64 @@
        "effective": null,
        "checked": "2026-11-07",
        "sourceUrl": "https://www.hmaa.com/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "hmaa-medical",
+       "name": "HMAA provider authorization forms and medical benefit",
+       "role": "submit-info",
+       "sourceUrl": "https://www.hmaa.com/providers/forms-and-information/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "HMAA",
+     "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hmaa-employer",
+       "name": "HMAA employer Rx / OptumRx Premium",
+       "status": "partial-verified-entries",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "hmaa-medical",
+       "title": "HMAA provider authorization forms and medical benefit",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.hmaa.com/providers/forms-and-information/",
        "flags": []
       }
      ],
@@ -63415,7 +64916,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -63447,7 +64951,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -65250,7 +66753,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -65294,6 +66797,64 @@
        "effective": null,
        "checked": "2026-11-07",
        "sourceUrl": "https://www.uhahealth.com/providers/medical-services-prior-authorization-requirements-search",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "uha-medical",
+       "name": "UHA CPT/HCPCS prior-auth search and electronic submission",
+       "role": "check",
+       "sourceUrl": "https://www.uhahealth.com/providers/online-prior-authorization-pa"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "UHA",
+     "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "uha-employer",
+       "name": "UHA employer Rx / Express Scripts",
+       "status": "payer-search",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "uha-medical",
+       "title": "UHA CPT/HCPCS prior-auth search and electronic submission",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.uhahealth.com/providers/online-prior-authorization-pa",
        "flags": []
       }
      ],
@@ -65977,7 +67538,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -66009,7 +67573,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -67573,7 +69136,7 @@
      "line": "Commercial",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -67620,6 +69183,47 @@
        "flags": []
       }
      ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Curative",
+     "line": "Commercial",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "curative-commercial",
+       "name": "Curative employer commercial formulary",
+       "status": "payer-search",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
      "formulary": {
       "state": "n/a",
       "detail": "Not a drug"
@@ -68166,7 +69770,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -68181,7 +69788,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -71248,7 +72854,7 @@
      "line": "Medicare Advantage",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -71308,7 +72914,7 @@
      "line": "Medicare Part D",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -71326,6 +72932,105 @@
      },
      "codes": [
       "27412",
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "n/a",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Line cannot pay for this service type"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "line-not-applicable"
+     ]
+    },
+    {
+     "payer": "Humana",
+     "line": "Medicare Advantage",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "humana-ma",
+       "name": "Humana Medicare Advantage / Part D",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "humana-medical",
+       "title": "Humana current provider prior authorization search",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://provider.humana.com/coverage-claims/prior-authorizations/prior-authorizations-search-tool",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "humana-medical",
+       "name": "Humana current provider prior authorization search",
+       "role": "check",
+       "sourceUrl": "https://provider.humana.com/coverage-claims/prior-authorizations/prior-authorizations-search-tool"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Humana",
+     "line": "Medicare Part D",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "humana-pdp",
+       "name": "Humana stand-alone Part D plan",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
       "J7330"
      ],
      "procurement": "unknown",
@@ -72445,7 +74150,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -72477,7 +74185,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     },
@@ -72502,7 +74209,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -73788,7 +75498,7 @@
      "line": "Medicare Advantage",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -73825,6 +75535,47 @@
        "flags": []
       }
      ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Devoted Health",
+     "line": "Medicare Advantage",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "devoted-ma",
+       "name": "Devoted Medicare Advantage (if enrolled)",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
      "formulary": {
       "state": "n/a",
       "detail": "Not a drug"
@@ -74305,7 +76056,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -74320,7 +76074,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -74361,14 +76114,15 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
       {
-       "kind": "routing",
-       "id": "medicare-mcd",
-       "title": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
-       "version": null,
+       "kind": "directory-reference",
+       "id": "medicare-partb-osteoporosis-drugs-2026",
+       "title": "Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid",
+       "version": "CMS Medicare Coverage Database API search, 2026-11-09",
        "effective": null,
+       "reviewDue": "2027-02-05",
        "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
        "flags": []
       }
@@ -74386,7 +76140,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -74419,14 +76173,15 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
       {
-       "kind": "routing",
-       "id": "medicare-mcd",
-       "title": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
-       "version": null,
+       "kind": "directory-reference",
+       "id": "medicare-partb-osteoporosis-drugs-2026",
+       "title": "Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid",
+       "version": "CMS Medicare Coverage Database API search, 2026-11-09",
        "effective": null,
+       "reviewDue": "2027-02-05",
        "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
        "flags": []
       }
@@ -74444,7 +76199,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -74477,14 +76232,15 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
       {
-       "kind": "routing",
-       "id": "medicare-mcd",
-       "title": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
-       "version": null,
+       "kind": "directory-reference",
+       "id": "medicare-partb-osteoporosis-drugs-2026",
+       "title": "Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid",
+       "version": "CMS Medicare Coverage Database API search, 2026-11-09",
        "effective": null,
+       "reviewDue": "2027-02-05",
        "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
        "flags": []
       }
@@ -74502,7 +76258,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -74535,14 +76291,15 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
       {
-       "kind": "routing",
-       "id": "medicare-mcd",
-       "title": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
-       "version": null,
+       "kind": "directory-reference",
+       "id": "medicare-partb-osteoporosis-drugs-2026",
+       "title": "Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid",
+       "version": "CMS Medicare Coverage Database API search, 2026-11-09",
        "effective": null,
+       "reviewDue": "2027-02-05",
        "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
        "flags": []
       }
@@ -74560,7 +76317,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -74593,14 +76350,15 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
       {
-       "kind": "routing",
-       "id": "medicare-mcd",
-       "title": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
-       "version": null,
+       "kind": "directory-reference",
+       "id": "medicare-partb-osteoporosis-drugs-2026",
+       "title": "Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid",
+       "version": "CMS Medicare Coverage Database API search, 2026-11-09",
        "effective": null,
+       "reviewDue": "2027-02-05",
        "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
        "flags": []
       }
@@ -74618,7 +76376,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -74772,6 +76530,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -74788,7 +76558,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -74807,7 +76577,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -74845,6 +76615,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -74861,7 +76643,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -74880,7 +76662,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -74918,6 +76700,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -74934,7 +76728,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -74953,7 +76747,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -74991,6 +76785,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75007,7 +76813,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75026,7 +76832,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75064,6 +76870,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75080,7 +76898,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75099,7 +76917,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75137,6 +76955,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75153,7 +76983,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75172,7 +77002,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75210,6 +77040,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75226,7 +77068,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75245,7 +77087,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75283,6 +77125,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75299,7 +77153,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75318,7 +77172,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75356,6 +77210,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75372,7 +77238,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75391,7 +77257,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75429,6 +77295,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75445,7 +77323,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75464,7 +77342,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75502,6 +77380,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75518,7 +77408,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75537,7 +77427,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75575,6 +77465,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75591,7 +77493,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75610,7 +77512,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75648,6 +77550,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75664,7 +77578,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75683,7 +77597,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75721,6 +77635,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75737,7 +77663,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75756,7 +77682,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75794,6 +77720,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75810,7 +77748,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75829,7 +77767,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75867,6 +77805,18 @@
      "status": "partial",
      "records": [
       {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-ha-proposed-dl40456",
+       "title": "Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)",
+       "version": "DL40456 proposed; MCD page updated 09/23/2026; no effective date",
+       "effective": null,
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
+       "flags": [
+        "proposed-not-active"
+       ]
+      },
+      {
        "kind": "routing",
        "id": "cms-mcd",
        "title": "CMS Medicare Coverage Database: NCD/LCD/article and Hawaii jurisdiction",
@@ -75883,7 +77833,7 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5",
        "flags": [
         "proposed-not-active"
        ]
@@ -75902,7 +77852,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "proposed-not-active",
       "plan-family-sources-only"
@@ -75936,8 +77886,18 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
+      {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-tka-l36575",
+       "title": "Noridian JE LCD L36575 — Total Knee Arthroplasty",
+       "version": "L36575 v21; revision effective 11/06/2025; Billing and Coding Article A57685 v15 effective 01/01/2026",
+       "effective": "2025-11-06",
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21",
+       "flags": []
+      },
       {
        "kind": "routing",
        "id": "cms-mcd",
@@ -75957,6 +77917,16 @@
        "checked": "2026-11-07",
        "sourceUrl": "https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/prior-authorization-pre-claim-review-initiatives/prior-authorization-certain-hospital-outpatient-department-opd-services",
        "flags": []
+      },
+      {
+       "kind": "policy-link",
+       "id": "noridian-tka-lcd",
+       "title": "Noridian JE LCD L36575 Total Knee Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57685",
+       "version": null,
+       "effective": null,
+       "checked": "2026-11-07",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21",
+       "flags": []
       }
      ],
      "formulary": {
@@ -75972,7 +77942,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -76005,8 +77975,18 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
+      {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-tka-l36575",
+       "title": "Noridian JE LCD L36575 — Total Knee Arthroplasty",
+       "version": "L36575 v21; revision effective 11/06/2025; Billing and Coding Article A57685 v15 effective 01/01/2026",
+       "effective": "2025-11-06",
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21",
+       "flags": []
+      },
       {
        "kind": "routing",
        "id": "cms-mcd",
@@ -76026,6 +78006,16 @@
        "checked": "2026-11-07",
        "sourceUrl": "https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/prior-authorization-pre-claim-review-initiatives/prior-authorization-certain-hospital-outpatient-department-opd-services",
        "flags": []
+      },
+      {
+       "kind": "policy-link",
+       "id": "noridian-tka-lcd",
+       "title": "Noridian JE LCD L36575 Total Knee Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57685",
+       "version": null,
+       "effective": null,
+       "checked": "2026-11-07",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21",
+       "flags": []
       }
      ],
      "formulary": {
@@ -76041,7 +78031,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -76075,8 +78065,18 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
+      {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-tka-l36575",
+       "title": "Noridian JE LCD L36575 — Total Knee Arthroplasty",
+       "version": "L36575 v21; revision effective 11/06/2025; Billing and Coding Article A57685 v15 effective 01/01/2026",
+       "effective": "2025-11-06",
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21",
+       "flags": []
+      },
       {
        "kind": "routing",
        "id": "cms-mcd",
@@ -76096,6 +78096,16 @@
        "checked": "2026-11-07",
        "sourceUrl": "https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/prior-authorization-pre-claim-review-initiatives/prior-authorization-certain-hospital-outpatient-department-opd-services",
        "flags": []
+      },
+      {
+       "kind": "policy-link",
+       "id": "noridian-tka-lcd",
+       "title": "Noridian JE LCD L36575 Total Knee Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57685",
+       "version": null,
+       "effective": null,
+       "checked": "2026-11-07",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21",
+       "flags": []
       }
      ],
      "formulary": {
@@ -76111,7 +78121,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -76144,8 +78154,18 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
+      {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-tha-l34163",
+       "title": "Noridian JE LCD L34163 — Total Hip Arthroplasty",
+       "version": "L34163 v33; revision effective 11/06/2025; Billing and Coding Article A57683 v11 effective 11/06/2025",
+       "effective": "2025-11-06",
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33",
+       "flags": []
+      },
       {
        "kind": "routing",
        "id": "cms-mcd",
@@ -76165,6 +78185,16 @@
        "checked": "2026-11-07",
        "sourceUrl": "https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/prior-authorization-pre-claim-review-initiatives/prior-authorization-certain-hospital-outpatient-department-opd-services",
        "flags": []
+      },
+      {
+       "kind": "policy-link",
+       "id": "noridian-tha-lcd",
+       "title": "Noridian JE LCD L34163 Total Hip Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57683",
+       "version": null,
+       "effective": null,
+       "checked": "2026-11-07",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33",
+       "flags": []
       }
      ],
      "formulary": {
@@ -76180,7 +78210,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -76215,8 +78245,18 @@
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
+      {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-tha-l34163",
+       "title": "Noridian JE LCD L34163 — Total Hip Arthroplasty",
+       "version": "L34163 v33; revision effective 11/06/2025; Billing and Coding Article A57683 v11 effective 11/06/2025",
+       "effective": "2025-11-06",
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33",
+       "flags": []
+      },
       {
        "kind": "routing",
        "id": "cms-mcd",
@@ -76236,6 +78276,16 @@
        "checked": "2026-11-07",
        "sourceUrl": "https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/prior-authorization-pre-claim-review-initiatives/prior-authorization-certain-hospital-outpatient-department-opd-services",
        "flags": []
+      },
+      {
+       "kind": "policy-link",
+       "id": "noridian-tha-lcd",
+       "title": "Noridian JE LCD L34163 Total Hip Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57683",
+       "version": null,
+       "effective": null,
+       "checked": "2026-11-07",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33",
+       "flags": []
       }
      ],
      "formulary": {
@@ -76251,7 +78301,7 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
       "plan-family-sources-only"
      ]
@@ -76330,7 +78380,7 @@
      "line": "Traditional Medicare",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -76374,6 +78424,64 @@
        "effective": null,
        "checked": "2026-11-07",
        "sourceUrl": "https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/prior-authorization-pre-claim-review-initiatives/prior-authorization-certain-hospital-outpatient-department-opd-services",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "medicare-mcd",
+       "name": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
+       "role": "check",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Traditional Medicare",
+     "line": "Traditional Medicare",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "original-b",
+       "name": "Original Medicare Part B physician-administered drugs",
+       "status": "no-single-formulary",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "medicare-mcd",
+       "title": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
        "flags": []
       }
      ],
@@ -77117,20 +79225,34 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
      "priorAuthorizationDecision": "not determined",
-     "status": "routing-only",
+     "status": "partial",
      "records": [
       {
-       "kind": "routing",
-       "id": "medicare-mcd",
-       "title": "CMS Medicare Coverage Database for NCD/LCD and billing articles",
-       "version": null,
-       "effective": null,
-       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/search.aspx",
+       "kind": "directory-reference",
+       "id": "medicare-noridian-sij-fusion-l39810",
+       "title": "Noridian JE LCD L39810 — Minimally Invasive Arthrodesis of the Sacroiliac Joint",
+       "version": "L39810 v13; revision effective 10/23/2025; Billing and Coding Article A59695 v12 effective 01/01/2026 (descriptor changes to CPT 27278 and 27279)",
+       "effective": "2025-10-23",
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13",
+       "flags": []
+      },
+      {
+       "kind": "directory-reference",
+       "id": "medicare-noridian-sij-injections-l39462",
+       "title": "Noridian JE LCD L39462 — Sacroiliac Joint Injections and Procedures",
+       "version": "L39462 v9; revision effective 03/05/2026 (L39464 retired 03/05/2026)",
+       "effective": "2026-03-05",
+       "reviewDue": "2027-02-05",
+       "sourceUrl": "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39462&ver=9",
        "flags": []
       }
      ],
@@ -77147,9 +79269,8 @@
       }
      ],
      "submissionChecklists": 0,
-     "documentationPrompts": 0,
+     "documentationPrompts": 1,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -78410,7 +80531,7 @@
      "line": "Traditional Medicare",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -78428,6 +80549,47 @@
      },
      "codes": [
       "27412",
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Medigap",
+     "line": "Traditional Medicare",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "medigap",
+       "name": "Medicare Supplement / Medigap",
+       "status": "no-single-formulary",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
       "J7330"
      ],
      "procurement": "unknown",
@@ -78916,7 +81078,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -78931,7 +81096,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -80673,7 +82837,7 @@
      "line": "VA / Community Care",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -80706,6 +82870,64 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
+       "sourceUrl": "https://www.va.gov/COMMUNITYCARE/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "va-community",
+       "name": "VA Community Care referral and authorization rules",
+       "role": "submit-info",
+       "sourceUrl": "https://www.va.gov/COMMUNITYCARE/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Veterans Affairs",
+     "line": "VA / Community Care",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "va",
+       "name": "VA National Formulary",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "va-community",
+       "title": "VA Community Care referral and authorization rules",
+       "version": null,
+       "effective": null,
        "sourceUrl": "https://www.va.gov/COMMUNITYCARE/",
        "flags": []
       }
@@ -81390,7 +83612,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -81422,7 +83647,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -83215,7 +85439,7 @@
      "line": "TRICARE",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -83248,6 +85472,64 @@
        "version": null,
        "effective": null,
        "checked": "2026-11-07",
+       "sourceUrl": "https://www.tricare.mil/CoveredServices/IsItCovered",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "tricare",
+       "name": "TRICARE covered service, referral and prior authorization",
+       "role": "check",
+       "sourceUrl": "https://www.tricare.mil/CoveredServices/IsItCovered"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "TRICARE",
+     "line": "TRICARE",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "tricare",
+       "name": "TRICARE Pharmacy Benefit / Express Scripts",
+       "status": "payer-search",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "tricare",
+       "title": "TRICARE covered service, referral and prior authorization",
+       "version": null,
+       "effective": null,
        "sourceUrl": "https://www.tricare.mil/CoveredServices/IsItCovered",
        "flags": []
       }
@@ -83932,7 +86214,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -83964,7 +86249,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -85225,7 +87509,7 @@
      "line": "Delegated / claim-specific",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -85243,6 +87527,47 @@
      },
      "codes": [
       "27412",
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "HMA / Verdegard",
+     "line": "Delegated / claim-specific",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "hma-verdegard",
+       "name": "Self-funded employer plan / TPA",
+       "status": "no-single-formulary",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
       "J7330"
      ],
      "procurement": "unknown",
@@ -85731,7 +88056,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -85746,7 +88074,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -87466,7 +89793,7 @@
      "line": "Delegated / claim-specific",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -87484,6 +89811,64 @@
      },
      "codes": [
       "27412",
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "mdx-delegate",
+       "title": "MDX Hawaiʻi health plan and delegated PA contacts",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://mdxhawaii.com/health-plan-customer-service/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "mdx-delegate",
+       "name": "MDX Hawaiʻi health plan and delegated PA contacts",
+       "role": "check",
+       "sourceUrl": "https://mdxhawaii.com/health-plan-customer-service/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "MDX Hawaiʻi",
+     "line": "Delegated / claim-specific",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "mdx",
+       "name": "MDX delegated group / Medicare Advantage",
+       "status": "no-single-formulary",
+       "year": "2026–2027",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
       "J7330"
      ],
      "procurement": "unknown",
@@ -88176,7 +90561,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -88208,7 +90596,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -89469,7 +91856,7 @@
      "line": "Delegated / claim-specific",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -89487,6 +91874,47 @@
      },
      "codes": [
       "27412",
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "missing",
+     "records": [],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Other employer / national",
+     "line": "Delegated / claim-specific",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "other-employer",
+       "name": "Aetna / Cigna / other self-funded commercial",
+       "status": "no-single-formulary",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
       "J7330"
      ],
      "procurement": "unknown",
@@ -89975,7 +92403,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -89990,7 +92421,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -91710,7 +94140,7 @@
      "line": "Delegated / claim-specific",
      "serviceId": "maci-implant",
      "gelProductId": "",
-     "label": "MACI stage 2 implantation 27412 + cell product J7330",
+     "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
      "group": "MACI",
      "benefit": "Medical",
      "plans": [
@@ -91728,6 +94158,64 @@
      },
      "codes": [
       "27412",
+      "J7330"
+     ],
+     "procurement": "unknown",
+     "exactPlanAdoption": "not verified",
+     "memberEligibility": "not verified",
+     "priorAuthorizationDecision": "not determined",
+     "status": "routing-only",
+     "records": [
+      {
+       "kind": "routing",
+       "id": "workers-comp-hi",
+       "title": "Hawaiʻi workers’ compensation medical benefit rules",
+       "version": null,
+       "effective": null,
+       "sourceUrl": "https://labor.hawaii.gov/dcd/home/about-division/workers-compensation/",
+       "flags": []
+      }
+     ],
+     "formulary": {
+      "state": "n/a",
+      "detail": "Not a drug"
+     },
+     "routes": [
+      {
+       "id": "workers-comp-hi",
+       "name": "Hawaiʻi workers’ compensation medical benefit rules",
+       "role": "check",
+       "sourceUrl": "https://labor.hawaii.gov/dcd/home/about-division/workers-compensation/"
+      }
+     ],
+     "submissionChecklists": 0,
+     "documentationPrompts": 0,
+     "flags": [
+      "plan-family-sources-only"
+     ]
+    },
+    {
+     "payer": "Workers compensation",
+     "line": "Delegated / claim-specific",
+     "serviceId": "maci-cell-product",
+     "gelProductId": "",
+     "label": "MACI stage 3 cultured cell product J7330 authorization",
+     "group": "MACI",
+     "benefit": "Medical",
+     "plans": [
+      {
+       "id": "workers-comp",
+       "name": "Hawaiʻi workers’ compensation pharmacy benefits",
+       "status": "no-single-formulary",
+       "year": "2026",
+       "exactPlanId": null
+      }
+     ],
+     "template": {
+      "id": "procedure-maci-cell-product",
+      "fields": 15
+     },
+     "codes": [
       "J7330"
      ],
      "procurement": "unknown",
@@ -92420,7 +94908,10 @@
       "id": "procedure-si-joint-fusion",
       "fields": 13
      },
-     "codes": [],
+     "codes": [
+      "27279",
+      "27278"
+     ],
      "procurement": "unknown",
      "exactPlanAdoption": "not verified",
      "memberEligibility": "not verified",
@@ -92452,7 +94943,6 @@
      "submissionChecklists": 0,
      "documentationPrompts": 0,
      "flags": [
-      "no-candidate-code",
       "plan-family-sources-only"
      ]
     }
@@ -92462,11 +94952,11 @@
  "counts": {
   "reviewed": 62,
   "stale": 0,
-  "partial": 113,
+  "partial": 124,
   "live-formulary": 12,
-  "routing-only": 825,
-  "missing": 407,
-  "n/a": 86
+  "routing-only": 836,
+  "missing": 418,
+  "n/a": 88
  },
  "gaps": [
   {
@@ -92488,8 +94978,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -92538,12 +95027,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -92573,8 +95056,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -92623,12 +95105,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -92658,8 +95134,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -92708,12 +95183,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -92743,8 +95212,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -92793,12 +95261,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -92832,8 +95294,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -92886,12 +95347,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -94406,8 +96861,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -94455,12 +96909,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -94489,8 +96937,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -94538,12 +96985,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -94572,8 +97013,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -94621,12 +97061,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -94656,8 +97090,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -94706,12 +97139,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -94741,8 +97168,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -94791,12 +97217,6 @@
      "payer": "ʻOhana / Wellcare",
      "lines": [
       "QUEST / Medicaid"
-     ]
-    },
-    {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
      ]
     },
     {
@@ -94897,7 +97317,7 @@
    ]
   },
   {
-   "label": "MACI stage 2 implantation 27412 + cell product J7330",
+   "label": "MACI stage 2 implantation 27412 (+ J7330 when billed together)",
    "group": "MACI",
    "serviceId": "maci-implant",
    "gelProductId": "",
@@ -94928,6 +97348,101 @@
     {
      "payer": "UnitedHealthcare",
      "lines": [
+      "Medicare Advantage"
+     ]
+    },
+    {
+     "payer": "Kaiser Permanente",
+     "lines": [
+      "Commercial",
+      "Individual Exchange",
+      "QUEST / Medicaid",
+      "Medicare Advantage"
+     ]
+    },
+    {
+     "payer": "UHA",
+     "lines": [
+      "Commercial"
+     ]
+    },
+    {
+     "payer": "HMAA",
+     "lines": [
+      "Commercial"
+     ]
+    },
+    {
+     "payer": "AlohaCare",
+     "lines": [
+      "QUEST / Medicaid",
+      "Medicare Advantage"
+     ]
+    },
+    {
+     "payer": "ʻOhana / Wellcare",
+     "lines": [
+      "QUEST / Medicaid"
+     ]
+    },
+    {
+     "payer": "Traditional Medicare",
+     "lines": [
+      "Traditional Medicare"
+     ]
+    },
+    {
+     "payer": "Humana",
+     "lines": [
+      "Medicare Advantage"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "MACI stage 3 cultured cell product J7330 authorization",
+   "group": "MACI",
+   "serviceId": "maci-cell-product",
+   "gelProductId": "",
+   "cells": [
+    "HMSA / Commercial",
+    "HMSA / Individual Exchange",
+    "HMSA / QUEST / Medicaid",
+    "HMSA / Medicare Advantage",
+    "HMSA / Federal employee / postal",
+    "Kaiser Permanente / Commercial",
+    "Kaiser Permanente / Individual Exchange",
+    "Kaiser Permanente / QUEST / Medicaid",
+    "Kaiser Permanente / Medicare Advantage",
+    "AlohaCare / QUEST / Medicaid",
+    "AlohaCare / Medicare Advantage",
+    "UnitedHealthcare / Commercial",
+    "UnitedHealthcare / Individual Exchange",
+    "UnitedHealthcare / QUEST / Medicaid",
+    "UnitedHealthcare / Medicare Advantage",
+    "ʻOhana / Wellcare / QUEST / Medicaid",
+    "HMAA / Commercial",
+    "UHA / Commercial",
+    "Humana / Medicare Advantage",
+    "Traditional Medicare / Traditional Medicare"
+   ],
+   "byPayer": [
+    {
+     "payer": "HMSA",
+     "lines": [
+      "Commercial",
+      "Individual Exchange",
+      "QUEST / Medicaid",
+      "Medicare Advantage",
+      "Federal employee / postal"
+     ]
+    },
+    {
+     "payer": "UnitedHealthcare",
+     "lines": [
+      "Commercial",
+      "Individual Exchange",
+      "QUEST / Medicaid",
       "Medicare Advantage"
      ]
     },
@@ -96010,8 +98525,7 @@
     "ʻOhana / Wellcare / QUEST / Medicaid",
     "HMAA / Commercial",
     "UHA / Commercial",
-    "Humana / Medicare Advantage",
-    "Traditional Medicare / Traditional Medicare"
+    "Humana / Medicare Advantage"
    ],
    "byPayer": [
     {
@@ -96068,12 +98582,6 @@
      ]
     },
     {
-     "payer": "Traditional Medicare",
-     "lines": [
-      "Traditional Medicare"
-     ]
-    },
-    {
      "payer": "Humana",
      "lines": [
       "Medicare Advantage"
@@ -96083,9 +98591,9 @@
   }
  ],
  "registry": {
-  "evidenceRecords": 11,
+  "evidenceRecords": 17,
   "fingerprinted": 6,
-  "directoryOnly": 5,
+  "directoryOnly": 11,
   "reviewedExtracts": 6,
   "formularyEntries": 5,
   "codeLists": 1,

@@ -53,5 +53,5 @@
     }
   ],
   "followUpReviewed": "2026-11-07",
-  "followUpScope": "Eleven curated public references in shared/payer-policy-evidence.mjs: seven fingerprinted PDF snapshots listed above plus four directory-only references (HMSA Medicare Advantage hyaluronate policy and preferred program, HMSA Medicare Advantage Prolia, UHC Surgery of the Knee) that carry no digest. PDF bytes are not redistributed. Retrieval does not verify exact-plan adoption."
+  "followUpScope": "Seventeen curated public references in shared/payer-policy-evidence.mjs: six fingerprinted PDF snapshots (HMSA hyaluronate preference and clinical policies, HMSA Prolia and Evenity Commercial/QUEST, HMSA-linked Evolent knee guideline, UHC sourcing protocol) plus eleven directory-only references without a digest: the HMSA joint-surgery matrix (digest listed above but de-linked pending re-verification), HMSA Medicare Advantage hyaluronate policy and preferred program, HMSA Medicare Advantage Prolia, UHC Surgery of the Knee, and six Traditional Medicare (Noridian JE) records drawn from the CMS Medicare Coverage Database on 2026-11-09 (LCDs L36575, L34163, L39810, L39462, proposed DL40456, and a documented no-LCD/no-SAD search for Part B osteoporosis drugs) identified by document ID and version. PDF bytes are not redistributed. Retrieval does not verify exact-plan adoption."
 }

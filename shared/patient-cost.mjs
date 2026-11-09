@@ -507,6 +507,12 @@ export function createCostItems(selection){
    item('related-visit','Office/infusion visit if separately billed','', 'other',false);
    return items;
  }
+ if(selection.procedureId==='maci-cell-product'){
+   // Product-only authorization: the implantation professional and facility fees belong to MACI stage 2.
+   item('maci-cell','MACI cultured chondrocyte product (J7330; verify units and benefit channel)','J7330','cell-product');
+   item('related-visit','Implantation professional/facility fees are estimated under MACI stage 2','', 'other',false);
+   return items;
+ }
  item('surgeon','Surgeon / professional procedure fee',surgicalCode,'professional');
  if(selection.procedureId==='knee-gel'){
    item('gel-product','Hyaluronic acid product (verify dosing and units)',gelCode,'medical-drug');

@@ -67,6 +67,8 @@ const procedureDetails={
  'revision-hip':'Document hip implant failure, infection workup when indicated and components to revise',
  'maci-harvest':'Document biopsy/harvest stage and separate future implantation/product review',
  'maci-implant':'Document implantation stage, lesion, cell product and separate professional/facility authorization',
+ 'maci-cell-product':'Document the cultured cell product order separately from the harvest and implantation procedures: lesion count/size, J7330 units, benefit channel and who purchases and bills the product',
+ 'si-joint-fusion':'Document the technique (transfixation device piercing the cortices versus intra-articular-only implant), diagnostic block and therapeutic injection responses, and the three imaging elements; codes 27279/27278 are candidates whose 2026 descriptors must be verified',
  'carpal-open':'Document open decompression approach and laterality',
  'carpal-endo':'Document endoscopic approach and laterality',
  'carpal-balloon':'Document actual intracarpal balloon technique; do not substitute other percutaneous techniques',

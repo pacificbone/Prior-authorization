@@ -21,13 +21,13 @@ Generated from the application registries on **2026-11-09** by `npm run matrix`.
 | --- | ---: |
 | REVIEWED | 62 |
 | STALE | 0 |
-| PARTIAL | 113 |
+| PARTIAL | 124 |
 | LIVE FORMULARY | 12 |
-| ROUTE ONLY | 825 |
-| MISSING | 407 |
-| n/a | 86 |
+| ROUTE ONLY | 836 |
+| MISSING | 418 |
+| n/a | 88 |
 
-Registries behind the matrix: 11 public payer evidence records (6 fingerprinted PDF snapshots, 5 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 59 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
+Registries behind the matrix: 17 public payer evidence records (6 fingerprinted PDF snapshots, 11 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 59 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
 
 ## Priority gaps (focus payers)
 
@@ -36,11 +36,11 @@ Services with no reviewed or partial source for a focus payer and line. Each is 
 
 ### Osteoporosis injections
 
-- **Prolia (denosumab) J0897** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Jubbonti (denosumab-bbdz) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Bildyos (denosumab-nxxp) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Evenity (romosozumab) J3111** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Reclast (zoledronic acid) J3489** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Prolia (denosumab) J0897** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Jubbonti (denosumab-bbdz) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Bildyos (denosumab-nxxp) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Evenity (romosozumab) J3111** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Reclast (zoledronic acid) J3489** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
 
 ### Osteoporosis oral / pharmacy benefit
 
@@ -69,16 +69,17 @@ Services with no reviewed or partial source for a focus payer and line. Each is 
 
 ### Arthroplasty
 
-- **Primary total knee arthroplasty 27447** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Partial / unicompartmental knee 27446** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Revision total knee 27486 / 27487** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Primary total hip arthroplasty 27130** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Revision total hip 27134 / 27137 / 27138** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Primary total knee arthroplasty 27447** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Partial / unicompartmental knee 27446** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Revision total knee 27486 / 27487** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Primary total hip arthroplasty 27130** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Revision total hip 27134 / 27137 / 27138** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
 
 ### MACI
 
 - **MACI stage 1 cartilage harvest S2112** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **MACI stage 2 implantation 27412 + cell product J7330** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **MACI stage 2 implantation 27412 (+ J7330 when billed together)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **MACI stage 3 cultured cell product J7330 authorization** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 
 ### Sports knee
 
@@ -99,7 +100,7 @@ Services with no reviewed or partial source for a focus payer and line. Each is 
 
 ### SI joint
 
-- **Minimally invasive SI joint fusion** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Minimally invasive SI joint fusion** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
 
 ## HMSA
 
@@ -142,7 +143,8 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Revision total hip 27134 / 27137 / 27138 | PARTIAL (1) | ROUTE ONLY | PARTIAL (1) | PARTIAL (1) | n/a | ROUTE ONLY |
 | **MACI** |  |  |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | n/a | ROUTE ONLY |
-| MACI stage 2 implantation 27412 + cell product J7330 | PARTIAL (2) | ROUTE ONLY (1) | PARTIAL (2) | PARTIAL (2) | n/a | ROUTE ONLY |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | PARTIAL (2) | ROUTE ONLY (1) | PARTIAL (2) | PARTIAL (2) | n/a | ROUTE ONLY |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | n/a | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |  |  |
 | ACL reconstruction 29888 | PARTIAL (1) | ROUTE ONLY | PARTIAL (1) | PARTIAL (1) | n/a | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | n/a | ROUTE ONLY · no code |
@@ -157,7 +159,7 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Trigger finger release, open 26055 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | n/a | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | n/a | ROUTE ONLY · no code |
 | **SI joint** |  |  |  |  |  |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | n/a | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | n/a | ROUTE ONLY |
 
 <details><summary>Records behind HMSA (15)</summary>
 
@@ -224,7 +226,8 @@ Carrier / integrated delivery. Lines with plan sources: Commercial, Individual E
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **MACI** |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) | ROUTE ONLY (1) |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |
 | ACL reconstruction 29888 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
@@ -239,7 +242,7 @@ Carrier / integrated delivery. Lines with plan sources: Commercial, Individual E
 | Trigger finger release, open 26055 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
 | **SI joint** |  |  |  |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 
 <details><summary>Records behind Kaiser Permanente (1)</summary>
 
@@ -292,7 +295,8 @@ Carrier / managed care. Lines with plan sources: QUEST / Medicaid, Medicare Adva
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY | ROUTE ONLY |
 | **MACI** |  |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY (1) | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) | ROUTE ONLY (1) |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |
 | ACL reconstruction 29888 | ROUTE ONLY | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code | ROUTE ONLY · no code |
@@ -307,7 +311,7 @@ Carrier / managed care. Lines with plan sources: QUEST / Medicaid, Medicare Adva
 | Trigger finger release, open 26055 | ROUTE ONLY | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | ROUTE ONLY · no code |
 | **SI joint** |  |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY | ROUTE ONLY |
 
 <details><summary>Records behind AlohaCare (1)</summary>
 
@@ -360,7 +364,8 @@ Plan-specific verification. Lines with plan sources: Commercial, Medicare Advant
 | Revision total hip 27134 / 27137 / 27138 | MISSING | MISSING |
 | **MACI** |  |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) | MISSING (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING (1) | MISSING (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) | MISSING (1) |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING | MISSING |
 | **Sports knee** |  |  |
 | ACL reconstruction 29888 | MISSING | MISSING |
 | BEAR ACL repair / implant | MISSING · no code | MISSING · no code |
@@ -375,7 +380,7 @@ Plan-specific verification. Lines with plan sources: Commercial, Medicare Advant
 | Trigger finger release, open 26055 | MISSING | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code | MISSING · no code |
 | **SI joint** |  |  |
-| Minimally invasive SI joint fusion | MISSING · no code | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING | MISSING |
 
 <details><summary>Records behind Aetna (1)</summary>
 
@@ -428,7 +433,8 @@ Plan-specific verification. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
 | BEAR ACL repair / implant | MISSING · no code |
@@ -443,7 +449,7 @@ Plan-specific verification. Lines with plan sources: Commercial.
 | Trigger finger release, open 26055 | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING |
 
 <details><summary>Records behind Cigna (1)</summary>
 
@@ -496,7 +502,8 @@ Plan-specific verification. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
 | BEAR ACL repair / implant | MISSING · no code |
@@ -511,7 +518,7 @@ Plan-specific verification. Lines with plan sources: Commercial.
 | Trigger finger release, open 26055 | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING |
 
 <details><summary>Records behind Anthem Blue Cross and Blue Shield (1)</summary>
 
@@ -564,7 +571,8 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Revision total hip 27134 / 27137 / 27138 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | MISSING |
 | **MACI** |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | PARTIAL (2) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | PARTIAL (3) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | PARTIAL (3) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
 | **Sports knee** |  |  |  |  |
 | ACL reconstruction 29888 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | MISSING |
 | BEAR ACL repair / implant | ROUTE ONLY · no code | MISSING · no code | ROUTE ONLY · no code | MISSING · no code |
@@ -579,7 +587,7 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Trigger finger release, open 26055 | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | MISSING · no code | ROUTE ONLY · no code | MISSING · no code |
 | **SI joint** |  |  |  |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code | MISSING · no code | ROUTE ONLY · no code | MISSING · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
 
 <details><summary>Records behind UnitedHealthcare (12)</summary>
 
@@ -643,7 +651,8 @@ Carrier / managed care. Lines with plan sources: QUEST / Medicaid.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -658,7 +667,7 @@ Carrier / managed care. Lines with plan sources: QUEST / Medicaid.
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 <details><summary>Records behind ʻOhana / Wellcare (1)</summary>
 
@@ -711,7 +720,8 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -726,7 +736,7 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 <details><summary>Records behind HMAA (3)</summary>
 
@@ -781,7 +791,8 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -796,7 +807,7 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 <details><summary>Records behind UHA (1)</summary>
 
@@ -849,7 +860,8 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY (1) |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | MISSING · no code |
@@ -864,7 +876,7 @@ Carrier / employer plan. Lines with plan sources: Commercial.
 | Trigger finger release, open 26055 | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING |
 
 <details><summary>Records behind Curative (1)</summary>
 
@@ -917,7 +929,8 @@ Carrier / Medicare plan. Lines with plan sources: Medicare Advantage, Medicare P
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY | n/a |
 | **MACI** |  |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) | n/a |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING (1) | n/a |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) | n/a |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | n/a |
 | **Sports knee** |  |  |
 | ACL reconstruction 29888 | ROUTE ONLY | n/a |
 | BEAR ACL repair / implant | ROUTE ONLY · no code | n/a |
@@ -932,7 +945,7 @@ Carrier / Medicare plan. Lines with plan sources: Medicare Advantage, Medicare P
 | Trigger finger release, open 26055 | ROUTE ONLY | n/a |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | n/a |
 | **SI joint** |  |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code | n/a |
+| Minimally invasive SI joint fusion | ROUTE ONLY | n/a |
 
 <details><summary>Records behind Humana (1)</summary>
 
@@ -985,7 +998,8 @@ Carrier / Medicare plan. Lines with plan sources: Medicare Advantage.
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING (1) |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING (1) |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING (1) |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
 | BEAR ACL repair / implant | MISSING · no code |
@@ -1000,7 +1014,7 @@ Carrier / Medicare plan. Lines with plan sources: Medicare Advantage.
 | Trigger finger release, open 26055 | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING |
 
 <details><summary>Records behind Devoted Health (1)</summary>
 
@@ -1019,41 +1033,42 @@ Original Medicare benefit. Lines with plan sources: Traditional Medicare.
 | Service | Traditional Medicare |
 | --- | --- |
 | **Osteoporosis injections** |  |
-| Prolia (denosumab) J0897 | ROUTE ONLY |
-| Jubbonti (denosumab-bbdz) biosimilar | ROUTE ONLY |
-| Bildyos (denosumab-nxxp) biosimilar | ROUTE ONLY |
-| Evenity (romosozumab) J3111 | ROUTE ONLY |
-| Reclast (zoledronic acid) J3489 | ROUTE ONLY |
+| Prolia (denosumab) J0897 | PARTIAL (1) |
+| Jubbonti (denosumab-bbdz) biosimilar | PARTIAL (1) |
+| Bildyos (denosumab-nxxp) biosimilar | PARTIAL (1) |
+| Evenity (romosozumab) J3111 | PARTIAL (1) |
+| Reclast (zoledronic acid) J3489 | PARTIAL (1) |
 | **Osteoporosis oral / pharmacy benefit** |  |
 | Alendronate (oral, pharmacy benefit) | n/a |
 | Teriparatide / Forteo (pharmacy benefit) | n/a |
 | Tymlos (abaloparatide, pharmacy benefit) | n/a |
 | **Viscosupplementation** |  |
-| Durolane (J7318) | PARTIAL (1) · proposed |
-| Euflexxa (J7323) | PARTIAL (1) · proposed |
-| Gel-One (J7326) | PARTIAL (1) · proposed |
-| Gelsyn-3 (J7328) | PARTIAL (1) · proposed |
-| GenVisc 850 (J7320) | PARTIAL (1) · proposed |
-| Hyalgan (J7321) | PARTIAL (1) · proposed |
-| Hymovis (J7322) | PARTIAL (1) · proposed |
-| Monovisc (J7327) | PARTIAL (1) · proposed |
-| Orthovisc (J7324) | PARTIAL (1) · proposed |
-| Supartz FX (J7321) | PARTIAL (1) · proposed |
-| Synvisc (J7325) | PARTIAL (1) · proposed |
-| Synvisc-One (J7325) | PARTIAL (1) · proposed |
-| TriVisc (J7329) | PARTIAL (1) · proposed |
-| Synojoynt (J7331) | PARTIAL (1) · proposed |
-| Triluron (J7332) | PARTIAL (1) · proposed |
-| Visco-3 (J7321) | PARTIAL (1) · proposed |
+| Durolane (J7318) | PARTIAL (2) · proposed |
+| Euflexxa (J7323) | PARTIAL (2) · proposed |
+| Gel-One (J7326) | PARTIAL (2) · proposed |
+| Gelsyn-3 (J7328) | PARTIAL (2) · proposed |
+| GenVisc 850 (J7320) | PARTIAL (2) · proposed |
+| Hyalgan (J7321) | PARTIAL (2) · proposed |
+| Hymovis (J7322) | PARTIAL (2) · proposed |
+| Monovisc (J7327) | PARTIAL (2) · proposed |
+| Orthovisc (J7324) | PARTIAL (2) · proposed |
+| Supartz FX (J7321) | PARTIAL (2) · proposed |
+| Synvisc (J7325) | PARTIAL (2) · proposed |
+| Synvisc-One (J7325) | PARTIAL (2) · proposed |
+| TriVisc (J7329) | PARTIAL (2) · proposed |
+| Synojoynt (J7331) | PARTIAL (2) · proposed |
+| Triluron (J7332) | PARTIAL (2) · proposed |
+| Visco-3 (J7321) | PARTIAL (2) · proposed |
 | **Arthroplasty** |  |
-| Primary total knee arthroplasty 27447 | ROUTE ONLY |
-| Partial / unicompartmental knee 27446 | ROUTE ONLY |
-| Revision total knee 27486 / 27487 | ROUTE ONLY |
-| Primary total hip arthroplasty 27130 | ROUTE ONLY |
-| Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
+| Primary total knee arthroplasty 27447 | PARTIAL (2) |
+| Partial / unicompartmental knee 27446 | PARTIAL (2) |
+| Revision total knee 27486 / 27487 | PARTIAL (2) |
+| Primary total hip arthroplasty 27130 | PARTIAL (2) |
+| Revision total hip 27134 / 27137 / 27138 | PARTIAL (2) |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -1068,13 +1083,21 @@ Original Medicare benefit. Lines with plan sources: Traditional Medicare.
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | PARTIAL (2) |
 
-<details><summary>Records behind Traditional Medicare (1)</summary>
+<details><summary>Records behind Traditional Medicare (9)</summary>
 
 | Record | Kind | Version / effective | Review | Flags |
 | --- | --- | --- | --- | --- |
-| [Noridian JE: proposed hyaluronic acid LCD DL40456 (NOT FINAL)](https://www.cms.gov/medicare-coverage-database/search.aspx) | proposed-only | — | checked 2026-11-07 | proposed-not-active |
+| [Medicare Part B (Noridian JE) — no LCD, billing article or SAD exclusion found for denosumab, romosozumab or zoledronic acid](https://www.cms.gov/medicare-coverage-database/search.aspx) | directory-reference | CMS Medicare Coverage Database API search, 2026-11-09 | due 2027-02-05 | — |
+| [Noridian JE PROPOSED LCD DL40456 — Hyaluronic Acid Injections for Knee Osteoarthritis (NOT IN EFFECT)](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5) | directory-reference | DL40456 proposed; MCD page updated 09/23/2026; no effective date | due 2027-02-05 | proposed-not-active |
+| [Noridian JE: proposed hyaluronic acid LCD DL40456 (NOT FINAL)](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=40455&ver=5) | proposed-only | — | checked 2026-11-07 | proposed-not-active |
+| [Noridian JE LCD L36575 — Total Knee Arthroplasty](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21) | directory-reference | L36575 v21; revision effective 11/06/2025; Billing and Coding Article A57685 v15 effective 01/01/2026 · 2025-11-06 | due 2027-02-05 | — |
+| [Noridian JE LCD L36575 Total Knee Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57685](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36575&ver=21) | policy-link | — | checked 2026-11-07 | — |
+| [Noridian JE LCD L34163 — Total Hip Arthroplasty](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33) | directory-reference | L34163 v33; revision effective 11/06/2025; Billing and Coding Article A57683 v11 effective 11/06/2025 · 2025-11-06 | due 2027-02-05 | — |
+| [Noridian JE LCD L34163 Total Hip Arthroplasty (revision effective 11/06/2025) and Billing and Coding Article A57683](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34163&ver=33) | policy-link | — | checked 2026-11-07 | — |
+| [Noridian JE LCD L39810 — Minimally Invasive Arthrodesis of the Sacroiliac Joint](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39810&ver=13) | directory-reference | L39810 v13; revision effective 10/23/2025; Billing and Coding Article A59695 v12 effective 01/01/2026 (descriptor changes to CPT 27278 and 27279) · 2025-10-23 | due 2027-02-05 | — |
+| [Noridian JE LCD L39462 — Sacroiliac Joint Injections and Procedures](https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39462&ver=9) | directory-reference | L39462 v9; revision effective 03/05/2026 (L39464 retired 03/05/2026) · 2026-03-05 | due 2027-02-05 | — |
 
 </details>
 
@@ -1119,7 +1142,8 @@ Supplement only; not primary coverage. Lines with plan sources: Traditional Medi
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
 | BEAR ACL repair / implant | MISSING · no code |
@@ -1134,7 +1158,7 @@ Supplement only; not primary coverage. Lines with plan sources: Traditional Medi
 | Trigger finger release, open 26055 | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING |
 
 ## Veterans Affairs
 
@@ -1177,7 +1201,8 @@ VA health system. Lines with plan sources: VA / Community Care.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -1192,7 +1217,7 @@ VA health system. Lines with plan sources: VA / Community Care.
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 Pharmacy-benefit formulary access by line: VA / Community Care: source-link.
 
@@ -1237,7 +1262,8 @@ Military benefit. Lines with plan sources: TRICARE.
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -1252,7 +1278,7 @@ Military benefit. Lines with plan sources: TRICARE.
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 Pharmacy-benefit formulary access by line: TRICARE: source-link.
 
@@ -1297,7 +1323,8 @@ Third-party administrator (underlying plan required). Lines with plan sources: D
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
 | BEAR ACL repair / implant | MISSING · no code |
@@ -1312,7 +1339,7 @@ Third-party administrator (underlying plan required). Lines with plan sources: D
 | Trigger finger release, open 26055 | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING |
 
 Pharmacy-benefit formulary access by line: Delegated / claim-specific: source-link.
 
@@ -1357,7 +1384,8 @@ Delegated administrator (underlying carrier required). Lines with plan sources: 
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -1372,7 +1400,7 @@ Delegated administrator (underlying carrier required). Lines with plan sources: 
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 Pharmacy-benefit formulary access by line: Delegated / claim-specific: source-link.
 
@@ -1417,7 +1445,8 @@ Employer/PBM must be identified. Lines with plan sources: Delegated / claim-spec
 | Revision total hip 27134 / 27137 / 27138 | MISSING |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | MISSING |
-| MACI stage 2 implantation 27412 + cell product J7330 | MISSING |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | MISSING |
+| MACI stage 3 cultured cell product J7330 authorization | MISSING |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | MISSING |
 | BEAR ACL repair / implant | MISSING · no code |
@@ -1432,7 +1461,7 @@ Employer/PBM must be identified. Lines with plan sources: Delegated / claim-spec
 | Trigger finger release, open 26055 | MISSING |
 | Percutaneous / ultrasound-guided trigger finger release | MISSING · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | MISSING · no code |
+| Minimally invasive SI joint fusion | MISSING |
 
 Pharmacy-benefit formulary access by line: Delegated / claim-specific: source-link.
 
@@ -1477,7 +1506,8 @@ Carrier/claim administrator required. Lines with plan sources: Delegated / claim
 | Revision total hip 27134 / 27137 / 27138 | ROUTE ONLY |
 | **MACI** |  |
 | MACI stage 1 cartilage harvest S2112 | ROUTE ONLY |
-| MACI stage 2 implantation 27412 + cell product J7330 | ROUTE ONLY |
+| MACI stage 2 implantation 27412 (+ J7330 when billed together) | ROUTE ONLY |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY |
 | **Sports knee** |  |
 | ACL reconstruction 29888 | ROUTE ONLY |
 | BEAR ACL repair / implant | ROUTE ONLY · no code |
@@ -1492,7 +1522,7 @@ Carrier/claim administrator required. Lines with plan sources: Delegated / claim
 | Trigger finger release, open 26055 | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code |
 | **SI joint** |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY · no code |
+| Minimally invasive SI joint fusion | ROUTE ONLY |
 
 Pharmacy-benefit formulary access by line: Delegated / claim-specific: source-link.
 

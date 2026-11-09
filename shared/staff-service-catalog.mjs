@@ -192,6 +192,42 @@ export const EXTRA_PROCEDURES=Object.freeze([
     ]
   },
   {
+    "id": "maci-cell-product",
+    "type": "procedure",
+    "category": "cartilage",
+    "name": "MACI stage 3: cultured chondrocyte cell product (J7330) authorization",
+    "codes": [
+      {
+        "code": "J7330",
+        "type": "HCPCS",
+        "label": "Autologous cultured chondrocytes, implant (per implant; verify units for lesion count and size)"
+      }
+    ],
+    "description": "Separate authorization and procurement review for the cultured cell product itself. Approval of harvest (S2112) or implantation (27412) does not authorize or pay for J7330, and the product benefit channel (medical buy-and-bill versus specialty pharmacy or manufacturer-direct supply) varies by payer.",
+    "checklist": [
+      [
+        "biopsy",
+        "Completed stage 1 biopsy/harvest date and stored-cell status"
+      ],
+      [
+        "lesion",
+        "Lesion count, location and size supporting the number of implants ordered"
+      ],
+      [
+        "benefit",
+        "Medical versus pharmacy benefit for J7330 and who may purchase and bill the product"
+      ],
+      [
+        "fabrication",
+        "Manufacturer order/fabrication authorization and delivery site arrangements"
+      ],
+      [
+        "implantAuth",
+        "Separate implantation (27412) professional and facility authorization status"
+      ]
+    ]
+  },
+  {
     "id": "knee-osteotomy",
     "type": "procedure",
     "category": "sports",
@@ -222,8 +258,19 @@ export const EXTRA_PROCEDURES=Object.freeze([
     "type": "procedure",
     "category": "spine",
     "name": "Minimally invasive SI joint fusion",
-    "codes": [],
-    "description": "Technique-specific coding and surgical criteria require exact payer policy; no universal PA rule.",
+    "codes": [
+      {
+        "code": "27279",
+        "type": "CPT",
+        "label": "Minimally invasive SI joint arthrodesis with transfixation device(s) piercing the iliac and sacral cortices (verify 2026 descriptor)"
+      },
+      {
+        "code": "27278",
+        "type": "CPT",
+        "label": "SI joint stabilization with intra-articular implant(s) WITHOUT transfixation (Noridian L39810: not reasonable and necessary for Original Medicare; verify 2026 descriptor)"
+      }
+    ],
+    "description": "Codes are candidates only and the 2026 CPT descriptors were revised; the technique (transfixation versus intra-articular-only) drives both the code and payer coverage. Surgical criteria require the exact payer policy; no universal PA rule.",
     "checklist": [
       [
         "diagnosis",
