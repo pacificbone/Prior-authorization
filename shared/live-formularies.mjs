@@ -14,7 +14,10 @@ export const PUBLISHED_FORMULARIES=Object.freeze([
     sourcePage:'https://www.hmsa.com/prc/pharmacy/hmsa-quest-drug-formulary/',
     sourceUrl:'https://assets.contentstack.io/v3/assets/blt731834369e6b995a/blt1cfd921ba2fdcc8d/6ae4050ff59c3f1d3bce71fc/hmsa-quest-formulary-2026.json',
     planIdType:'HIOS-PLAN-ID',
-    planId:'22780AA1111111'
+    planId:'22780AA1111111',
+    // The published file carries this value under a HIOS-type field, but Medicaid plans do not have
+    // QHP HIOS IDs and the suffix follows the schema placeholder pattern. Treat it as the file's plan key.
+    planIdIsFileKey:true
   }),
   Object.freeze({
     id:'uhc-quest-2026-10',

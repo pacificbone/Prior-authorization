@@ -7,7 +7,7 @@ Reviewed for the synthetic trial on **November 7, 2026**. This is a directory of
 1. Open **Hawaiʻi coverage** in the app sidebar (or **Hawaiʻi plans** in the formulary explorer).
 2. Filter by **coverage program**, **payer**, and network or plan text.
 3. Read the source status on the card and select the **official payer source**. Do not infer drug coverage merely from a card or a directory hit.
-4. Where a **Search published drugs** button is present, it opens the verified machine-readable QUEST pharmacy source. Search drug name, generic, formulation or RxNorm; review strength, published tier and PA/ST/QL flags. Confirm exact plan/year and benefit.
+4. Where a **Search published drugs** button is present, it opens the verified machine-readable pharmacy source for that exact plan/year (QUEST or Kaiser individual plans). Search drug name, generic, formulation or RxNorm; review strength, published tier and PA/ST/QL flags. Confirm exact plan/year and benefit.
 5. To write an authorization letter, switch separately to the **Authorization letters** workspace. Policies and letters do not establish pharmacy benefits or medical coverage by themselves.
 
 ## Source status meanings
@@ -18,6 +18,7 @@ Reviewed for the synthetic trial on **November 7, 2026**. This is a directory of
 | Limited verified extracts | Only a **small manually transcribed set of drugs** exists locally for the selected list. | Only that reviewed extract; cannot infer other drugs |
 | Official payer drug search / list | The payer maintains a search portal or published list the user must open. | No in-app drug-level conclusions |
 | Official published source | Source PDF or official page is linked, but its full drug records are not imported. | No in-app drug-level conclusions |
+| CMS plan finder — not the payer’s own list | The link opens Medicare Plan Compare to identify the member’s exact contract/plan; it is not a payer-maintained formulary. | No in-app drug-level conclusions |
 | Exact benefit / plan required | No single drug formulary exists for this category; choose actual contract, employer, PBM, Part D plan, VA benefit or claim administrator. | None without more plan-specific verification |
 
 **Never** present `no match` as `excluded`. A covered-drug entry may refer to only a particular strength, route, dose form, benefit type, location or date; confirm latest payer documents and member eligibility.
@@ -55,9 +56,9 @@ The internal 90-day warning is a **review reminder**, not a payer-defined expira
 - **Federal / postal**: HMSA federal, Postal Service and Postal Medicare PDP records are separated. Federal employee drug lists and Medicare Postal Part D cannot be generalized to HMSA commercial.
 - **HMA/Verdegard, MDX, self-funded, workers' compensation**: these are administrators, claim systems or employer arrangements, not universal plan formularies. Verify the underlying carrier/PBM, group, authorization destination and benefit.
 
-## Sources inspected but not imported
+## Kaiser Standard plans (imported) and sources inspected but not imported
 
-- **Kaiser Hawaiʻi Standard individual plans:** four published HIOS plan IDs were confirmed in the full [official Standard JSON](https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs-individual-standard-plans.json), with both 2026 and 2027 plan-year rows. These eight exact plan/year lookups **are now integrated**. The 2026/2027 marketing names and exact benefit/eligibility are **not verified**; search only when the HIOS ID matches the actual policy.
+- **Kaiser Hawaiʻi Standard individual plans (imported):** four published HIOS plan IDs were confirmed in the full [official Standard JSON](https://healthy.kaiserpermanente.org/content/dam/kporg/data/hi/drugs-individual-standard-plans.json), with both 2026 and 2027 plan-year rows. These eight exact plan/year lookups **are now integrated**. The 2026/2027 marketing names and exact benefit/eligibility are **not verified**; search only when the HIOS ID matches the actual policy.
 - **AlohaCare QUEST:** the publicly linked [AlohaCare QUEST JSON](https://office.alohacare.org/userfiles/MONTHLY%20WEBSITE%20UPDATES/AlohaCare_Formulary_QUEST.json) timed out in the independent browser inspection. No drug entries or plan matches were imported from that source.
 
 These availability/inspection results do not establish that a source is invalid, incomplete, or unavailable to ordinary users. Do not mark a plan live without a verified schema, plan-ID mapping, full-file source fetch and regression tests.

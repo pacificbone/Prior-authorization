@@ -9,6 +9,12 @@ test('payer routing is scoped by exact carrier, line and category',()=>{
  assert.equal(payerRoutingFor({payer:'AlohaCare',line:'Commercial',category:'medication'}).length,0);
  assert.equal(payerRoutingFor({payer:'HMSA',line:'QUEST / Medicaid',category:'medication'}).length,0);
  assert.ok(payerRoutingFor({payer:'ʻOhana / Wellcare',line:'QUEST / Medicaid',category:'surgery'}).length);
+ // A cited document can cover several lines of the same payer, never another payer.
+ assert.ok(payerRoutingFor({payer:'Kaiser Permanente',line:'Medicare Advantage',category:'surgery'}).length);
+ assert.ok(payerRoutingFor({payer:'AlohaCare',line:'Medicare Advantage',category:'medication'}).length);
+ assert.equal(payerRoutingFor({payer:'Kaiser Permanente',line:'Traditional Medicare',category:'surgery'}).length,0);
+ assert.ok(HAWAII_PAYER_ROUTING.every(r=>Array.isArray(r.lines)&&r.lines.includes(r.line)));
+ assert.ok(HAWAII_PAYER_ROUTING.filter(r=>r.payer==='ʻOhana / Wellcare').every(r=>r.title.startsWith('ʻOhana')));
  for(const r of HAWAII_PAYER_ROUTING){
   assert.match(r.sourceUrl,/^https:\/\//);
   assert.equal(r.exactPlanAdoption,false);

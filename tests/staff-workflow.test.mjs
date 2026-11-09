@@ -25,6 +25,39 @@ test('directory owner invariant: no unrelated insurer plans in payer dropdown',(
  assert.deepEqual(staffPlansForPayer('Unknown',2026),[]);
 });
 
+test('plan availability is separate from the reviewed source edition, so 2027 keeps plans visible with an edition warning',()=>{
+ const hmsa27=staffPlansForPayer('HMSA',2027).map(x=>x.id);
+ for(const id of ['hmsa-select-choice','hmsa-essential','hmsa-metallic','hmsa-quest','hmsa-ma-individual','hmsa-fep','bcbs-fep'])assert.ok(hmsa27.includes(id),id);
+ assert.ok(staffPlansForPayer('UHA',2027).some(x=>x.id==='uha-employer'));
+ assert.ok(staffPlansForPayer('UnitedHealthcare',2027).some(x=>x.id==='uhc-quest'));
+ // ʻOhana QUEST Integration membership ends 12/31/2026; its separate CCS contract stays selectable.
+ assert.equal(staffPlansForPayer('ʻOhana / Wellcare',2027).some(x=>x.id==='ohana-quest'),false);
+ assert.ok(staffPlansForPayer('ʻOhana / Wellcare',2026).some(x=>x.id==='ohana-quest'));
+ const q27=staffContext({payer:'HMSA',planId:'hmsa-quest',year:2027,serviceId:'alendronate',benefit:'Pharmacy'});
+ assert.equal(q27.liveSource,null);
+ assert.ok(q27.restrictions.some(x=>/2026 edition/.test(x)));
+ assert.ok(q27.restrictions.some(x=>/no 2027 edition is indexed/.test(x)));
+ assert.equal(staffContext({payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'alendronate',benefit:'Pharmacy'}).restrictions.some(x=>/edition/.test(x)),false);
+});
+test('delegated administrator lists, partial published-list extracts and benefit-line mismatches are surfaced with explicit caveats',()=>{
+ const uhcMa=staffContext({payer:'UnitedHealthcare',planId:'uhc-ma',year:2026,serviceId:'prolia',benefit:'Medical'});
+ assert.deepEqual(uhcMa.supplementaryPA.map(p=>p.id),['mdx-uhc-ma-drug-list-2026']);
+ assert.ok(uhcMa.restrictions.some(x=>/delegated administrator/.test(x)&&/verify delegation/.test(x)));
+ assert.equal(staffContext({payer:'UnitedHealthcare',planId:'uhc-commercial',year:2026,serviceId:'prolia',benefit:'Medical'}).supplementaryPA.length,0);
+ const mdx=staffContext({payer:'MDX Hawaiʻi',planId:'mdx',year:2026,serviceId:'evenity',benefit:'Medical'});
+ assert.deepEqual(mdx.supplementaryPA.map(p=>p.id),['mdx-uhc-ma-drug-list-2026']);
+ assert.equal(mdx.primaryPolicy,null);
+ assert.ok(mdx.restrictions.some(x=>/UnitedHealthcare \(Medicare Advantage\)/.test(x)));
+ const hmaa=staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy'});
+ assert.deepEqual(hmaa.formularyEntries.map(p=>p.id),['hmaa-premium-2026-h2-alendronate']);
+ assert.ok(hmaa.restrictions.some(x=>/NOT verified/.test(x)&&/HMAA-OPTUMRX-PREMIUM-2026-H2/.test(x)));
+ assert.ok(hmaa.sourceLinks.some(x=>x.status==='formulary-extract'));
+ assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'celecoxib',benefit:'Pharmacy'}).formularyEntries.length,0);
+ assert.equal(hmaa.assurance.formulary,'not determined');
+ assert.ok(staffContext({payer:'Humana',planId:'humana-pdp',year:2026,serviceId:'prolia',benefit:'Medical'}).restrictions.some(x=>/no medical benefit/.test(x)));
+ assert.ok(staffContext({payer:'HMSA',planId:'hmsa-metallic',year:2026,serviceId:'prolia',benefit:'Medical'}).restrictions.some(x=>/Metallic/.test(x)));
+ assert.equal(staffContext({payer:'HMSA',planId:'hmsa-select-choice',year:2026,serviceId:'prolia',benefit:'Medical'}).restrictions.some(x=>/Metallic/.test(x)),false);
+});
 test('staff plan precision distinguishes exact pharmacy ID from plan-family source or administrator',()=>{
  const hmsa=staffGetPlan('HMSA','hmsa-select-choice',2026);
  const quest=staffGetPlan('HMSA','hmsa-quest',2026);
@@ -35,6 +68,9 @@ test('staff plan precision distinguishes exact pharmacy ID from plan-family sour
  const b=staffContext({payer:'HMSA',planId:quest.id,year:2026,serviceId:'evenity',benefit:'Pharmacy'});
  assert.equal(b.planPrecision.level,'published-plan-id');
  assert.equal(b.planPrecision.planId,'22780AA1111111');
+ assert.equal(b.planPrecision.fileKey,true);assert.match(b.planPrecision.label,/file plan key/);assert.doesNotMatch(b.planPrecision.label,/Exact/);
+ const kaiser=staffContext({payer:'Kaiser Permanente',planId:'kaiser-individual',year:2026,serviceId:'alendronate',benefit:'Pharmacy'});
+ assert.equal(kaiser.planPrecision.fileKey,false);assert.match(kaiser.planPrecision.label,/Exact published pharmacy plan ID/);
  const c=staffContext({payer:'MDX Hawaiʻi',planId:mdx.id,year:2026,serviceId:'evenity'});
  assert.equal(c.planPrecision.level,'administrator');
  const d=staffAuthorizePacket({payer:'HMSA',planId:hmsa.id,year:2026,serviceId:'total-knee',benefit:'Medical',checks:{}});

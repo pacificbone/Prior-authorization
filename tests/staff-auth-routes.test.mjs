@@ -23,6 +23,25 @@ test('official payer PA/submit resources are HTTPS, scoped to payer, line and be
  assert.equal(staffAuthResources({payer:'UHA',program:'quest',benefit:'Medical'}).length,0);
  assert.equal(staffAuthResources({payer:'HMSA',program:'veterans',benefit:'Medical'}).length,0);
  assert.equal(staffAuthResources({payer:'Veterans Affairs',program:'veterans',benefit:'Medical'}).some(x=>x.id==='va-community'),true);
+ // No two HMSA medical routes open the same page under different labels.
+ const hmsaMedical=staffAuthResources({payer:'HMSA',program:'commercial',benefit:'Medical',serviceType:'procedure'});
+ assert.equal(new Set(hmsaMedical.map(x=>x.url)).size,hmsaMedical.length);
+});
+test('UnitedHealthcare commercial and Medicare Advantage and ʻOhana QUEST now have payer-scoped PA routes',()=>{
+ const uhcCommercial=staffContext({payer:'UnitedHealthcare',planId:'uhc-commercial',year:2026,serviceId:'total-knee',benefit:'Medical'});
+ assert.ok(uhcCommercial.authorizationResources.some(x=>x.id==='uhc-commercial-pa-list'&&x.role==='check'));
+ assert.ok(uhcCommercial.authorizationResources.some(x=>x.id==='uhc-commercial-submit'&&x.role==='submit-info'));
+ assert.ok(uhcCommercial.authorizationResources.every(x=>x.payer==='UnitedHealthcare'));
+ const uhcMa=staffContext({payer:'UnitedHealthcare',planId:'uhc-ma',year:2026,serviceId:'prolia',benefit:'Medical'});
+ assert.ok(uhcMa.authorizationResources.some(x=>x.id==='uhc-ma-medical'));
+ assert.equal(uhcMa.authorizationResources.some(x=>x.id==='uhc-commercial-pa-list'),false);
+ const ohana=staffContext({payer:'ʻOhana / Wellcare',planId:'ohana-quest',year:2026,serviceId:'total-knee',benefit:'Medical'});
+ assert.ok(ohana.authorizationResources.some(x=>x.id==='ohana-quest-medical'));
+ assert.ok(ohana.authorizationResources.some(x=>x.id==='ohana-quest-submit'));
+ assert.ok(!ohana.sourceLinks.some(x=>x.name.includes('HMSA')||x.name.includes('AlohaCare')));
+ const ohanaRx=staffContext({payer:'ʻOhana / Wellcare',planId:'ohana-quest',year:2026,serviceId:'alendronate',benefit:'Pharmacy'});
+ assert.ok(ohanaRx.authorizationResources.some(x=>x.id==='ohana-quest-pharmacy'));
+ assert.equal(ohanaRx.authorizationResources.some(x=>x.id==='ohana-quest-medical'),false);
 });
 test('AlohaCare QUEST procedure route exposes exact-code PA lookup and provider authorization instructions',()=>{
  const ctx=staffContext({payer:'AlohaCare',planId:'aloha-quest',year:2026,serviceId:'carpal-open',benefit:'Medical'});

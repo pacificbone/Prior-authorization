@@ -17,6 +17,7 @@ export const COST_PAYERS=Object.freeze([
   "HMAA",
   "Curative",
   "AlohaCare",
+  "ʻOhana / Wellcare",
   "Humana",
   "Devoted Health",
   "MDX",

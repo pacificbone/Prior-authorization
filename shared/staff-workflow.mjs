@@ -12,6 +12,8 @@ import {EXTRA_PROCEDURES,EXTRA_DRUGS} from './staff-service-catalog.mjs';
 import {staffAuthResources} from './staff-auth-resources.mjs';
 
 const NON_PLANS=new Set(['uha-medical-pa','aloha-wrap','va-cfuses','original-d','other-ma']);
+// Older catalogs key the same organizations differently; the staff selector names are canonical.
+const CATALOG_PAYER=Object.freeze({'MDX Hawaiʻi':'MDX','HMA / Verdegard':'HMA'});
 const PAYER_ROLES=Object.freeze({
  'HMSA':'Carrier / managed care',
  'UnitedHealthcare':'Carrier / managed care',
@@ -64,8 +66,7 @@ const medChecklist=Object.freeze([
 const extraCriteria=service=>service.checklist.map(([id,label])=>({id,label,help:label+' — attach dated record or clinician-authored evidence.'}));
 export function staffPlansForPayer(payer,year=2026) {
  if(!STAFF_PAYERS.some(x=>x.name===payer)||!STAFF_YEARS.includes(year))return [];
- return hawaiiCoverageSources.filter(x=>x.payer===payer&&!NON_PLANS.has(x.id)&&
-   (x.year.includes(String(year))||x.year==='2026–2027'));
+ return hawaiiCoverageSources.filter(x=>x.payer===payer&&!NON_PLANS.has(x.id)&&x.availableYears.includes(year));
 }
 export function staffGetPlan(payer,planId,year=2026) {
  if(!planId)return null;
@@ -76,7 +77,7 @@ export function staffPlanPrecision(plan,year=2026) {
  if(plan.liveSourceId){
    const source=PUBLISHED_FORMULARIES.find(x=>x.id===plan.liveSourceId&&x.year===year&&x.payer===plan.payer);
    if(source&&source.planId&&source.planIdType)
-     return {level:'published-plan-id',label:'Exact published pharmacy plan ID',planId:source.planId,planIdType:source.planIdType};
+     return {level:'published-plan-id',label:source.planIdIsFileKey?'Published file plan key (not a member or HIOS identifier)':'Exact published pharmacy plan ID',planId:source.planId,planIdType:source.planIdType,fileKey:source.planIdIsFileKey===true};
  }
  if(plan.program==='delegated')return {level:'administrator',label:'Administrator / claim routing, not a member plan'};
  if(plan.program==='original-medicare')return {level:'benefit-program',label:'Original Medicare medical benefit (not a PDP)'};
@@ -107,10 +108,13 @@ export function staffServices({type='all',category='all',query=''}={}) {
 }
 function policyScope(plan,benefit) {
  const line=staffPlanProgramLine(plan);
- const exactFormulary=formularyLists.find(x=>x.payer===plan.payer&&x.line===line&&x.benefit===benefit);
- // The generic HMAA employer directory is NOT proof an employer has adopted
- // OptumRx Premium, even if a few entries were manually transcribed.
- return {payer:plan.payer,line,benefit,planCode:'',carrier:'',plan:'',adoptionVerified:false,
+ const payer=CATALOG_PAYER[plan.payer]||plan.payer;
+ const exactFormulary=formularyLists.find(x=>x.payer===payer&&x.line===line&&x.benefit===benefit);
+ // The generic HMAA employer directory is NOT proof an employer has adopted OptumRx Premium.
+ // For a plan whose directory row is a partially transcribed published list, the transcribed
+ // entries are surfaced as a reviewed extract with adoption explicitly unverified.
+ const planCode=plan.status==='partial-verified-entries'&&exactFormulary?exactFormulary.code:'';
+ return {payer,line,benefit,planCode,carrier:'',plan:'',adoptionVerified:false,
    potentialFormularyCode:exactFormulary?.code||null};
 }
 export function staffContext({payer='',planId='',year=2026,serviceId='',benefit='Medical',requestType='Initial',gelProductId='',guidance='without-ultrasound'}={}) {
@@ -129,9 +133,11 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  if(plan?.program==='delegated')restrictions.push('This is an administrator/claim pathway, not a verified medical/pharmacy plan. Obtain underlying carrier, employer group and PBM.');
  if(plan?.program==='original-medicare'&&benefit==='Pharmacy')restrictions.push('Original Medicare alone has no outpatient Part D formulary. Identify the separately enrolled prescription drug plan.');
  if(plan?.program==='part-d'&&service?.type==='procedure')restrictions.push('Part D is the retail drug benefit, not the surgical/facility medical payer.');
+ if(plan?.program==='part-d'&&service?.type==='medication'&&benefit==='Medical')restrictions.push('A stand-alone Part D plan has no medical benefit. Identify the member’s Medicare Part B or Medicare Advantage medical payer for an office-administered drug.');
+ if(plan?.payer==='HMSA'&&plan.program==='exchange'&&service?.type==='medication'&&benefit==='Medical')restrictions.push('HMSA Metallic / individual-plan adoption of the Commercial and QUEST medical drug policies is not verified; confirm the applicable policy with HMSA before using Commercial criteria.');
  if(plan?.program==='original-medicare'&&service?.type==='medication'&&benefit==='Pharmacy')restrictions.push('Choose the member’s actual PDP, not original Part B.');
  if(plan?.payer==='Medigap')restrictions.push('Medigap is supplemental; identify original Medicare and separate pharmacy coverage before deciding treatment benefits.');
- if(plan?.year&&!plan.year.includes(String(year)))restrictions.push('Plan source year requires current-year verification.');
+ if(plan&&!plan.year.includes(String(year)))restrictions.push('The reviewed source for this plan is the '+plan.year+' edition. Confirm the '+year+' formulary, policy and plan availability before relying on it.');
  if(plan&&service?.type==='medication'&&benefit==='Pharmacy'&&plan.status!=='live-drug-search')restrictions.push('This plan does not yet have complete in-app drug-level formulary records; use its official source.');
  const precision=staffPlanPrecision(plan,year);
  if(precision.level==='plan-family')restrictions.push('This is a published plan family or source directory, NOT a member-specific plan match. Verify exact contract, plan, employer group, coverage code and PBM before applying formulary, PA criteria or cost sharing.');
@@ -141,8 +147,9 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
  let liveSource=null;
  if(plan?.liveSourceId&&service?.type==='medication'&&benefit==='Pharmacy') {
    liveSource=PUBLISHED_FORMULARIES.find(x=>x.id===plan.liveSourceId&&x.year===year&&x.payer===plan.payer)||null;
+   if(!liveSource)restrictions.push('The indexed machine-readable file for this plan covers '+plan.year+' only; no '+year+' edition is indexed, so use the official source for '+year+'.');
  }
- let matchedPolicies=[],supplementaryPA=[];
+ let matchedPolicies=[],supplementaryPA=[],formularyEntries=[];
  if(plan&&service?.type==='medication') {
    const scope=policyScope(plan,benefit);
    // Keep policy listings as contextual review requirements, not approval
@@ -151,6 +158,17 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
      const candidates=matchingPolicies(scope,service.id,[]);
      matchedPolicies=candidates.filter(x=>x.kind==='medical-policy');
      supplementaryPA=candidates.filter(x=>x.kind==='authorization-list');
+     formularyEntries=candidates.filter(x=>x.kind==='formulary');
+     if(formularyEntries.length)restrictions.push('Reviewed extract from the published list '+scope.planCode+' is shown; whether this employer plan adopts that list is NOT verified.');
+     // A delegated administrator's published PA list for this carrier and line (for example the
+     // MDX Hawaiʻi list for UHC Medicare Advantage) is shown as delegate context, never as the plan's own rule.
+     const delegate=policies.filter(p=>p.kind==='authorization-list'&&p.carrier===plan.payer&&p.payer!==scope.payer&&p.lines.includes(scope.line)&&p.benefit===benefit&&p.drugIds.includes(service.id));
+     if(delegate.length){supplementaryPA=[...supplementaryPA,...delegate];restrictions.push('A delegated administrator’s published PA list ('+delegate.map(p=>p.payer).join(', ')+') lists this drug for '+plan.payer+' '+scope.line+'. It applies only if the member’s plan actually delegates to that administrator; verify delegation.');}
+   }
+   if(plan.program==='delegated'){
+     // The administrator itself: show its own published lists as context for the underlying carrier it names.
+     const own=policies.filter(p=>p.kind==='authorization-list'&&p.payer===scope.payer&&p.benefit===benefit&&p.drugIds.includes(service.id));
+     if(own.length){supplementaryPA=own;restrictions.push('The administrator’s published list applies only to members whose carrier is '+own.map(p=>p.carrier+' ('+p.lines.join(', ')+')').join('; ')+' and who are delegated to it; identify the member’s carrier and line first.');}
    }
  }
  const primaryPolicy=matchedPolicies.length===1?matchedPolicies[0]:null;
@@ -177,11 +195,12 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
     (orthoProcedures.some(x=>x.id===service.id)?getOrthoProcedureCodes({procedureId:service.id,gelProductId,guidance}):service.codes||[]):[];
  return {
    plan,service,planLine,planPrecision:precision,liveSource,primaryPolicy,authorizationResources,
-   policyConflict:matchedPolicies.length>1,matchedPolicies,supplementaryPA,
+   policyConflict:matchedPolicies.length>1,matchedPolicies,supplementaryPA,formularyEntries,
    criteria,sourceLinks:[
      ...(plan?[{name:plan.name,url:plan.sourceUrl,status:plan.status,note:plan.notes}]:[]),
      ...matchedPolicies.map(p=>({name:p.title,url:p.url,status:'medical-policy-review',note:p.limitations})),
      ...supplementaryPA.map(p=>({name:p.title,url:p.url,status:'authorization-list',note:p.limitations})),
+     ...formularyEntries.map(p=>({name:p.title,url:p.url,status:'formulary-extract',note:p.limitations})),
      ...sources.map(x=>({name:x.title,url:x.url,status:x.kind,note:x.note})),
      ...authorizationResources.map(x=>({name:x.name,url:x.url,status:x.role==='check'?'Official PA code/benefit lookup':'Authorization routing instructions',note:x.note}))
    ],

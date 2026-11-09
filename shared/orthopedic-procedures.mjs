@@ -13,7 +13,7 @@ export const orthoCategories=Object.freeze([
 ]);
 export const orthoPayers=Object.freeze([
   'HMSA','UnitedHealthcare','UHA','Curative','HMAA','Kaiser Permanente',
-  'AlohaCare','Humana','Devoted Health','MDX','HMA / Verdegard',
+  'AlohaCare','ʻOhana / Wellcare','Humana','Devoted Health','MDX','HMA / Verdegard',
   'Traditional Medicare','Veterans Affairs','TRICARE','Workers compensation','Other'
 ]);
 export const orthoLines=Object.freeze([

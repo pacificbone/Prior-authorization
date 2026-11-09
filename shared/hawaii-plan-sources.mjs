@@ -18,10 +18,25 @@ export const coveragePrograms = Object.freeze([
   {id:'delegated',label:'Self-funded / delegated / work comp'}
 ]);
 export const coverageSourceStatuses=Object.freeze([
-  'live-drug-search','partial-verified-entries','payer-search','public-source','no-single-formulary'
+  'live-drug-search','partial-verified-entries','payer-search','public-source','cms-plan-finder','no-single-formulary'
 ]);
+export const coverageStatusLabels=Object.freeze({
+  'live-drug-search':'Live published formulary lookup',
+  'partial-verified-entries':'Limited verified extracts',
+  'payer-search':'Official payer drug search / list',
+  'public-source':'Official published source',
+  'cms-plan-finder':'CMS plan finder — not the payer’s own list',
+  'no-single-formulary':'Exact benefit / plan required'
+});
+export const PLAN_YEARS=Object.freeze([2026,2027]);
+// `year` is the EDITION of the reviewed source. `availableYears` is the plan years the
+// product can be selected for; a 2026 edition stays selectable for 2027 with a
+// "confirm the current edition" restriction. Exact plan/year rows (ids ending in
+// -2026/-2027) and products that end (ʻOhana QUEST) are limited explicitly.
 const R=(id,payer,name,program,network,sourceUrl,status,notes,year='2026',extra={})=>Object.freeze({
-  id,payer,name,program,network,sourceUrl,status,notes,year,...extra
+  id,payer,name,program,network,sourceUrl,status,notes,year,
+  availableYears:Object.freeze(extra.availableYears||(/-(2026|2027)$/.test(id)?[Number(id.slice(-4))]:[...PLAN_YEARS])),
+  ...Object.fromEntries(Object.entries(extra).filter(([k])=>k!=='availableYears'))
 });
 export const hawaiiCoverageSources=Object.freeze([
   // Hawaii Medical Service Association: never equate plan network (HMO/PPO) with formulary variant.
@@ -33,7 +48,8 @@ export const hawaiiCoverageSources=Object.freeze([
   R('hmsa-ma-individual','HMSA','Akamai Advantage individual 725 / 730 / 735 / 740','medicare-advantage','HMO / PPO as contracted','https://www.hmsa.com/prc/pharmacy/medicare-advantage-plan-formularies-and-pa-st-criteria/','payer-search','Separate 2026 and 2027 Part D formularies and PA/ST files. Select the individual contract/product.','2026–2027'),
   R('hmsa-ma-group','HMSA','Akamai Advantage group 545 / 745 / 750 / 830','medicare-advantage','Employer / group MA','https://www.hmsa.com/prc/pharmacy/medicare-advantage-plan-formularies-and-pa-st-criteria/','payer-search','Group Part D formulary differs from individual and dual plans. Select group number and plan year.','2026–2027'),
   R('hmsa-ma-dual','HMSA','Akamai Advantage Dual Care D-SNP','medicare-advantage','D-SNP','https://www.hmsa.com/prc/pharmacy/medicare-advantage-plan-formularies-and-pa-st-criteria/','payer-search','Dual-eligible plan pharmacy list and medical-benefit criteria require separate review.','2026–2027'),
-  R('hmsa-fep','HMSA','Federal Plan 87 / Blue Cross FEP','federal','Federal employee','https://www.hmsa.com/prc/pharmacy/hmsas-fed-87-drug-formulary/','public-source','Federal plan 87 High/Standard commercial list is not the HMSA standard commercial formulary.'),
+  R('hmsa-fep','HMSA','HMSA Federal Plan 87 (FEHB)','federal','Federal employee — HMSA FEHB plan','https://www.hmsa.com/prc/pharmacy/hmsas-fed-87-drug-formulary/','public-source','Federal Plan 87 High/Standard drug list is not the HMSA standard commercial formulary and is not the Blue Cross Blue Shield FEP Service Benefit Plan.'),
+  R('bcbs-fep','HMSA','Blue Cross Blue Shield FEP Service Benefit Plan (national; HMSA is the local administrator)','federal','Federal employee — BCBS national plan','https://www.fepblue.org/','payer-search','The FEP Service Benefit Plan publishes its own national formulary and prior authorization rules; HMSA processes Hawaiʻi claims but does not set the FEP drug list. Use the FEP pharmacy tools, not Federal Plan 87 or HMSA commercial lists.','2026–2027'),
   R('hmsa-postal','HMSA','Postal Service commercial pharmacy','federal','Postal Service','https://www.hmsa.com/prc/pharmacy/hmsas-fed-87-drug-formulary/','public-source','Postal pharmacy coverage codes 154/155. Separate from Medicare Postal Part D.'),
   R('hmsa-postal-partd','HMSA','Medicare Postal Prescription Drug Plan','part-d','Postal Medicare PDP','https://www.hmsa.com/prc/pharmacy/hmsas-fed-87-drug-formulary/','payer-search','Different 2026 and 2027 Medicare Postal formularies; verify the plan code 151 or 153.','2026–2027'),
 
@@ -50,37 +66,37 @@ export const hawaiiCoverageSources=Object.freeze([
   R('kaiser-standard-0020-2027','Kaiser Permanente','Kaiser Hawaiʻi Standard HIOS 60612HI0110020 · 2027','exchange','HMO / individual Marketplace','https://healthy.kaiserpermanente.org/hawaii/pages/technical-information','live-drug-search','The source contains exact HIOS drug rows for 2027; marketing name and member adoption require current plan document verification. Current effective date is not established.','2027',{liveSourceId:'kaiser-hi-standard-0020-2027'}),
   R('kaiser-individual-other','Kaiser Permanente','Other Kaiser individual Marketplace plans','exchange','HMO / Marketplace','https://healthy.kaiserpermanente.org/hawaii/health-wellness/drug-formulary','public-source','Other Marketplace HIOS products remain source-linked only. The eight 2026/2027 Standard plan/year records listed separately are searchable by exact HIOS; verify marketing name and plan adoption.','2026–2027'),
   R('kaiser-quest','Kaiser Permanente','Kaiser Hawaiʻi QUEST Medicaid · 2026','quest','HMO Medicaid','https://healthy.kaiserpermanente.org/hawaii/pages/technical-information','live-drug-search','Official Hawaii Medicaid machine-readable drug list uses exact plan descriptor KP-HI-QUEST Medicaid. The source lacks a confirmed effective date; check current payer coverage.','2026',{liveSourceId:'kaiser-hi-quest-2026'}),
-  R('kaiser-ma','Kaiser Permanente','Senior Advantage HMO','medicare-advantage','HMO','https://healthy.kaiserpermanente.org/hawaii/health-wellness/drug-formulary/medicare-2027','payer-search','Select Senior Advantage Basic, Enhanced or island-specific plan and correct 2026/2027 year.','2026–2027'),
-  R('kaiser-ma-dual','Kaiser Permanente','Dual Complete HMO D-SNP','medicare-advantage','HMO D-SNP','https://healthy.kaiserpermanente.org/hawaii/health-wellness/drug-formulary/medicare-2027','payer-search','Separate D-SNP Part D formulary; QUEST secondary pharmacy arrangements vary.','2026–2027'),
+  R('kaiser-ma','Kaiser Permanente','Senior Advantage HMO','medicare-advantage','HMO','https://healthy.kaiserpermanente.org/hawaii/health-wellness/drug-formulary','payer-search','Open the Medicare drug list for the member’s plan year (2026 or 2027) from the formulary landing page, then select Senior Advantage Basic, Enhanced or island-specific plan.','2026–2027'),
+  R('kaiser-ma-dual','Kaiser Permanente','Dual Complete HMO D-SNP','medicare-advantage','HMO D-SNP','https://healthy.kaiserpermanente.org/hawaii/health-wellness/drug-formulary','payer-search','Separate D-SNP Part D formulary for the member’s plan year; QUEST secondary pharmacy arrangements vary.','2026–2027'),
 
   R('aloha-quest','AlohaCare','AlohaCare QUEST Medicaid primary','quest','Medicaid managed care','https://www.alohacare.org/formulary','payer-search','Official public QUEST formulary, searchable drug finder, and machine-readable JSON are linked; JSON parsing still requires independent runtime validation.'),
   R('aloha-wrap','AlohaCare','AlohaCare QUEST pharmacy wrap / secondary','quest','Secondary / wrap','https://www.alohacare.org/formulary','public-source','Separate wrap-benefit PDF/JSON. Primary Medicare/other insurance coverage must be checked first.'),
   R('aloha-ma-plus','AlohaCare','AlohaCare Advantage Plus HMO D-SNP','medicare-advantage','HMO D-SNP','https://www.alohacare.org/formulary','payer-search','AlohaCare Medicare plus AlohaCare QUEST; separate Medicare drug list/PA/ST.','2026–2027'),
   R('aloha-ma','AlohaCare','AlohaCare Advantage HMO D-SNP','medicare-advantage','HMO D-SNP','https://www.alohacare.org/formulary','payer-search','AlohaCare Medicare primary with different QUEST secondary; plan-specific Part D.','2026–2027'),
-  R('aloha-ccs','AlohaCare','AlohaCare Community Care Services','quest','Specialized Medicaid','https://www.alohacare.org/formulary','public-source','CCS is a separate specialized program; do not substitute QUEST pharmacy coverage.'),
 
   R('aetna-commercial','Aetna','Aetna commercial / employer pharmacy benefit','commercial','Employer HMO / PPO / EPO','https://www.aetna.com/health-care-professionals/pharmacy-services.html','payer-search','Aetna has multiple drug guides and medical vs pharmacy benefit designs. Confirm actual employer PBM, list name, NDC/strength and 2026/2027 year before concluding coverage.','2026–2027'),
   R('aetna-medicare','Aetna','Aetna Medicare Advantage / PDP product finder','medicare-advantage','Exact MA-PD or PDP','https://www.aetna.com/medicare/prescription-drugs/check-medicare-drug-list.html','payer-search','Find actual Aetna contract/plan via county and year; this is not an Aetna commercial formulary.','2026–2027'),
   R('cigna-commercial','Cigna','Cigna employer drug lists (Standard / Value / Performance / Advantage)','commercial','Employer PPO / Open Access','https://www.cigna.com/individuals-families/member-guide/offered-by-employers-drug-list','payer-search','Employer must identify exact Cigna pharmacy list and benefit. The public search defaults to a general tier list; member-specific myCigna drug pricing and PA rules differ.','2026–2027'),
   R('anthem-commercial','Anthem Blue Cross and Blue Shield','Anthem employer plan from home state','commercial','Out-of-area / Blue plan','https://www.anthem.com/pharmacy-information/drug-list-formulary','payer-search','Select the issuer and the plan home state, employer/PBM and list. BlueCard access in Hawaiʻi does not make HMSA pharmacy coverage applicable.','2026–2027'),
   R('uhc-commercial','UnitedHealthcare','UnitedHealthcare commercial Choice / Options / tiered','commercial','PPO / employer-specific','https://www.uhc.com/member-resources/pharmacy-benefits/prescription-drug-lists','public-source','Commercial Advantage, Traditional, Access and Essential PDLs differ; verify exact list and year.','2026–2027'),
-  R('uhc-exchange','UnitedHealthcare','Individual / Exchange (where offered)','exchange','Plan-specific','https://www.uhc.com/member-resources/pharmacy-benefits/prescription-drug-lists','public-source','Do not use a generic commercial PDL without matching member product and pharmacy list.','2026–2027'),
+  R('uhc-exchange','UnitedHealthcare','Individual / Exchange (not sold in Hawaiʻi; out-of-state members only)','exchange','Plan-specific','https://www.uhc.com/member-resources/pharmacy-benefits/prescription-drug-lists','public-source','UnitedHealthcare does not offer Marketplace plans in Hawaiʻi (the Hawaiʻi exchange issuers are HMSA and Kaiser). Use only for an out-of-state UHC individual plan, matching the member product and pharmacy list.','2026–2027'),
   R('uhc-quest','UnitedHealthcare','Community Plan Hawaiʻi QUEST','quest','Medicaid managed care','https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans/hi-comm-plan-home/hi-cp-pharmacy.html','live-drug-search','Official 2026 QUEST pharmacy PDL with plan ID UCSHIQ1; the medical-benefit and Part D entries require separate verification.','2026',{liveSourceId:'uhc-quest-2026-10'}),
-  R('uhc-ma','UnitedHealthcare','AARP / UnitedHealthcare Medicare Advantage','medicare-advantage','HMO / PPO','https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans.html','payer-search','Select the exact Hawaii MA plan, year, and Part D formulary; provider medical-drug rules differ.','2026–2027'),
+  R('uhc-ma','UnitedHealthcare','AARP / UnitedHealthcare Medicare Advantage','medicare-advantage','HMO / PPO','https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans.html','public-source','Select the exact Hawaii MA plan, year, and Part D formulary; provider medical-drug rules differ.','2026–2027'),
   R('uhc-dual','UnitedHealthcare','Dual Complete D-SNP / RP PPO','medicare-advantage','D-SNP / Regional PPO','https://www.uhcprovider.com/en/health-plans-by-state/hawaii-health-plans/hi-comm-plan-home/hi-cp-pharmacy.html','payer-search','Dual Complete RP R3175-003 has a separate PDL. Confirm plan identity and delegation.','2026–2027'),
 
-  R('ohana-quest','ʻOhana / Wellcare','ʻOhana QUEST Medicaid','quest','Medicaid managed care','https://www.ohanahealthplan.com/members/medicaid/quest-medicaid/pharmacy-services.html','payer-search','QUEST 2026 PDL and drug finder. Verify 2027 Medicaid plan transition before applying this source.','2026'),
+  R('ohana-quest','ʻOhana / Wellcare','ʻOhana QUEST Medicaid','quest','Medicaid managed care','https://www.ohanahealthplan.com/members/medicaid/quest-medicaid/pharmacy-services.html','payer-search','QUEST 2026 PDL and drug finder. ʻOhana QUEST membership ends December 31, 2026; verify the member’s 2027 plan before applying this source.','2026',{availableYears:[2026]}),
+  R('ohana-ccs','ʻOhana / Wellcare','Community Care Services (CCS) — statewide specialized behavioral health Medicaid program','quest','Specialized Medicaid (Med-QUEST contract)','https://www.ohanahealthplan.com/providers/medicaid/authorizations.html','public-source','CCS membership is assigned by Med-QUEST, not chosen by a health plan; ʻOhana publishes the CCS prior authorization requirements. Verify the current CCS contractor and do not substitute QUEST pharmacy coverage.','2026'),
   R('hmaa-employer','HMAA','HMAA employer Rx / OptumRx Premium','commercial','Employer group','https://www.hmaa.com/healthplans/prescription-plan-info/','partial-verified-entries','A small subset of 2026 July–December OptumRx Premium drugs has been manually extracted. Confirm the employer uses that formulary.'),
   R('uha-employer','UHA','UHA employer Rx / Express Scripts','commercial','Employer plan','https://www.uhahealth.com/members/express-scripts','payer-search','UHA publishes a preferred drug list and a separate online PA lookup. Exact group benefits require confirmation.'),
   R('uha-medical-pa','UHA','UHA medical-benefit and pharmacy PA routing','commercial','Medical / pharmacy distinction','https://www.uhahealth.com/providers/online-prior-authorization-pa','payer-search','Drug PA lookup indicates reviewer/routing, not actual formulary inclusion or patient eligibility.'),
   R('curative-commercial','Curative','Curative employer commercial formulary','commercial','PPO / EPO / network-specific','https://curative.com/drugs','payer-search','Official 2026 public drug search and downloadable formulary, with tier information; verify member plan exclusions.'),
-  R('humana-ma','Humana','Humana Medicare Advantage / Part D','medicare-advantage','HMO / PPO / SNP','https://www.medicare.gov/plan-compare/','payer-search','Select actual Humana Medicare contract, formulary ID, plan year and member-specific Part D coverage.','2026–2027'),
-  R('humana-pdp','Humana','Humana stand-alone Part D plan','part-d','PDP','https://www.medicare.gov/plan-compare/','payer-search','Each stand-alone PDP has its own drug list. This does not apply to traditional Medicare Part B.','2026–2027'),
-  R('devoted-ma','Devoted Health','Devoted Medicare Advantage (if enrolled)','medicare-advantage','HMO / PPO / SNP as contracted','https://www.medicare.gov/plan-compare/','payer-search','Confirm the plan is offered in the member’s county and its contract/year before checking covered drugs.','2026–2027'),
-  R('other-ma','Other Medicare Advantage','Other Hawaiʻi MA / D-SNP / employer group','medicare-advantage','HMO / PPO / D-SNP','https://www.medicare.gov/plan-compare/','payer-search','Use exact CMS contract, plan, segment and year; no universal MA drug list.','2026–2027'),
+  R('humana-ma','Humana','Humana Medicare Advantage / Part D','medicare-advantage','HMO / PPO / SNP','https://www.medicare.gov/plan-compare/','cms-plan-finder','Select actual Humana Medicare contract, formulary ID, plan year and member-specific Part D coverage.','2026–2027'),
+  R('humana-pdp','Humana','Humana stand-alone Part D plan','part-d','PDP','https://www.medicare.gov/plan-compare/','cms-plan-finder','Each stand-alone PDP has its own drug list. This does not apply to traditional Medicare Part B.','2026–2027'),
+  R('devoted-ma','Devoted Health','Devoted Medicare Advantage (if enrolled)','medicare-advantage','HMO / PPO / SNP as contracted','https://www.medicare.gov/plan-compare/','cms-plan-finder','Confirm the plan is offered in the member’s county and its contract/year before checking covered drugs.','2026–2027'),
+  R('other-ma','Other Medicare Advantage','Other Hawaiʻi MA / D-SNP / employer group','medicare-advantage','HMO / PPO / D-SNP','https://www.medicare.gov/plan-compare/','cms-plan-finder','Use exact CMS contract, plan, segment and year; no universal MA drug list.','2026–2027'),
 
   R('original-b','Traditional Medicare','Original Medicare Part B physician-administered drugs','original-medicare','Medicare FFS','https://www.medicare.gov/coverage/prescription-drugs-outpatient','no-single-formulary','No stand-alone Part B pharmacy formulary. Verify Part B drug benefit category, diagnosis, MAC LCD/NCD, billing and applicable PA separately.','2026–2027'),
-  R('original-d','Traditional Medicare','Original Medicare + separate Part D plan','part-d','PDP','https://www.medicare.gov/plan-compare/','payer-search','Original Medicare by itself does not define Part D. Choose the separately enrolled PDP and its formulary year.','2026–2027'),
+  R('original-d','Traditional Medicare','Original Medicare + separate Part D plan','part-d','PDP','https://www.medicare.gov/plan-compare/','cms-plan-finder','Original Medicare by itself does not define Part D. Choose the separately enrolled PDP and its formulary year.','2026–2027'),
   R('medigap','Medigap','Medicare Supplement / Medigap','original-medicare','Supplement','https://www.medicare.gov/health-drug-plans/medigap','no-single-formulary','Medigap does not replace Part D; look up separate Part D coverage and Original Medicare Part B.','2026–2027'),
 
   R('va','Veterans Affairs','VA National Formulary','veterans','VA care / Pharmacy','https://www.va.gov/formularyadvisor/','payer-search','VA Formulary Advisor distinguishes formulary, PA-F, non-formulary and criteria-for-use statuses. Community Care may have separate rules.','2026–2027'),
@@ -88,7 +104,7 @@ export const hawaiiCoverageSources=Object.freeze([
   R('tricare','TRICARE','TRICARE Pharmacy Benefit / Express Scripts','military','Military and dependents','https://www.tricare.mil/FormularySearch','payer-search','TRICARE formulary tool includes tiers, PA, medical-necessity forms and dispensing channel.','2026–2027'),
   R('hma-verdegard','HMA / Verdegard','Self-funded employer plan / TPA','delegated','Administrator, not one carrier','https://verdegard-hi.com/eutf/','no-single-formulary','Obtain the exact employer group, underlying carrier/PBM and primary plan. EUTF supplemental rules are not universal.'),
   R('mdx','MDX Hawaiʻi','MDX delegated group / Medicare Advantage','delegated','Delegated administrator','https://mdxhawaii.com/health-plan-customer-service/','no-single-formulary','MDX is not one pharmacy formulary. Select underlying insurer, contracted line, delegated group and year first.','2026–2027'),
-  R('other-employer','Other employer / national','Aetna / Cigna / other self-funded commercial','delegated','HMO / PPO / EPO / self-funded','https://www.medicare.gov/health-drug-plans/','no-single-formulary','No one statewide list covers all out-of-area or employer-specific PBMs. Obtain the plan document/ID card and PBM formulary.'),
+  R('other-employer','Other employer / national','Aetna / Cigna / other self-funded commercial','delegated','HMO / PPO / EPO / self-funded','https://cca.hawaii.gov/ins/','no-single-formulary','No one statewide list covers all out-of-area or employer-specific PBMs. Obtain the plan document/ID card and PBM formulary; the Hawaiʻi Insurance Division page is for identifying the regulated insurer only.'),
   R('workers-comp','Workers compensation','Hawaiʻi workers’ compensation pharmacy benefits','delegated','Claim / TPA specific','https://labor.hawaii.gov/dcd/home/about-division/workers-compensation/','no-single-formulary','Coverage authorization depends on the claim, applicable work-comp rules, carrier/TPA and medication; not a universal commercial formulary.')
 ]);
 export function validateHawaiiCoverageSources(rows=hawaiiCoverageSources) {
@@ -98,7 +114,8 @@ export function validateHawaiiCoverageSources(rows=hawaiiCoverageSources) {
     if(!row||typeof row!=='object'||!row.id||ids.has(row.id)||
        !/^[a-z0-9-]+$/.test(row.id)||!known.has(row.program)||
        !coverageSourceStatuses.includes(row.status)||
-       ![row.payer,row.name,row.network,row.notes,row.year].every(v=>typeof v==='string'&&v.length>0&&v.length<=1000))throw new Error('Invalid or duplicated coverage entry.');
+       ![row.payer,row.name,row.network,row.notes,row.year].every(v=>typeof v==='string'&&v.length>0&&v.length<=1000)||
+       !Array.isArray(row.availableYears)||!row.availableYears.length||!row.availableYears.every(y=>PLAN_YEARS.includes(y)))throw new Error('Invalid or duplicated coverage entry.');
     const url=new URL(row.sourceUrl);
     if(url.protocol!=='https:'||url.username||url.password||url.hash)throw new Error('Invalid public source link.');
     if(row.status==='live-drug-search'&&!row.liveSourceId)throw new Error('Live lookup needs a source ID.');
@@ -119,7 +136,7 @@ export function coverageDirectoryStats() {
   return {sources:hawaiiCoverageSources.length,
     imported:hawaiiCoverageSources.filter(x=>x.status==='live-drug-search').length,
     partial:hawaiiCoverageSources.filter(x=>x.status==='partial-verified-entries').length,
-    official:hawaiiCoverageSources.filter(x=>['payer-search','public-source'].includes(x.status)).length,
+    official:hawaiiCoverageSources.filter(x=>['payer-search','public-source','cms-plan-finder'].includes(x.status)).length,
     manual:hawaiiCoverageSources.filter(x=>x.status==='no-single-formulary').length};
 }
 validateHawaiiCoverageSources();

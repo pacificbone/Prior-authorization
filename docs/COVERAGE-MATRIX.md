@@ -23,11 +23,11 @@ Generated from the application registries on **2026-11-09** by `npm run matrix`.
 | STALE | 0 |
 | PARTIAL | 124 |
 | LIVE FORMULARY | 12 |
-| ROUTE ONLY | 836 |
-| MISSING | 418 |
+| ROUTE ONLY | 869 |
+| MISSING | 385 |
 | n/a | 88 |
 
-Registries behind the matrix: 17 public payer evidence records (6 fingerprinted PDF snapshots, 11 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 59 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
+Registries behind the matrix: 17 public payer evidence records (6 fingerprinted PDF snapshots, 11 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 60 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
 
 ## Priority gaps (focus payers)
 
@@ -537,11 +537,11 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Service | Commercial | Individual Exchange | QUEST / Medicaid | Medicare Advantage |
 | --- | --- | --- | --- | --- |
 | **Osteoporosis injections** |  |  |  |  |
-| Prolia (denosumab) J0897 | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | MISSING |
-| Jubbonti (denosumab-bbdz) biosimilar | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | MISSING |
-| Bildyos (denosumab-nxxp) biosimilar | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | MISSING |
-| Evenity (romosozumab) J3111 | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | MISSING |
-| Reclast (zoledronic acid) J3489 | REVIEWED (1) | MISSING | ROUTE ONLY | MISSING |
+| Prolia (denosumab) J0897 | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
+| Jubbonti (denosumab-bbdz) biosimilar | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
+| Bildyos (denosumab-nxxp) biosimilar | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
+| Evenity (romosozumab) J3111 | REVIEWED (2) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
+| Reclast (zoledronic acid) J3489 | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Osteoporosis oral / pharmacy benefit** |  |  |  |  |
 | Alendronate (oral, pharmacy benefit) | MISSING | MISSING | LIVE FORMULARY | MISSING |
 | Teriparatide / Forteo (pharmacy benefit) | MISSING | MISSING | LIVE FORMULARY | MISSING |
@@ -564,30 +564,30 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Triluron (J7332) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | Visco-3 (J7321) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | **Arthroplasty** |  |  |  |  |
-| Primary total knee arthroplasty 27447 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | MISSING |
-| Partial / unicompartmental knee 27446 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | MISSING |
-| Revision total knee 27486 / 27487 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | MISSING |
-| Primary total hip arthroplasty 27130 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | MISSING |
-| Revision total hip 27134 / 27137 / 27138 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | MISSING |
+| Primary total knee arthroplasty 27447 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| Partial / unicompartmental knee 27446 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| Revision total knee 27486 / 27487 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| Primary total hip arthroplasty 27130 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
+| Revision total hip 27134 / 27137 / 27138 | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY |
 | **MACI** |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | PARTIAL (2) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
 | MACI stage 2 implantation 27412 (+ J7330 when billed together) | PARTIAL (3) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
-| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
+| MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |
-| ACL reconstruction 29888 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | MISSING |
-| BEAR ACL repair / implant | ROUTE ONLY · no code | MISSING · no code | ROUTE ONLY · no code | MISSING · no code |
-| Meniscus repair 29882 / 29883 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | MISSING |
-| Meniscus root repair | ROUTE ONLY · no code | MISSING · no code | ROUTE ONLY · no code | MISSING · no code |
-| Arthroscopic partial meniscectomy 29881 | PARTIAL (1) | MISSING | ROUTE ONLY | MISSING |
+| ACL reconstruction 29888 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| BEAR ACL repair / implant | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
+| Meniscus repair 29882 / 29883 | PARTIAL (2) | PARTIAL (1) | PARTIAL (1) | ROUTE ONLY |
+| Meniscus root repair | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
+| Arthroscopic partial meniscectomy 29881 | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Hand** |  |  |  |  |
-| Open carpal tunnel release 64721 | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
-| Endoscopic carpal tunnel release 29848 | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
+| Open carpal tunnel release 64721 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
+| Endoscopic carpal tunnel release 29848 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | Balloon-assisted ultrasound-guided CTR 64728 | PARTIAL (1) · restrictive | PARTIAL (1) · restrictive | ROUTE ONLY | PARTIAL (1) · restrictive |
-| Non-balloon ultrasound-guided CTR (no code) | ROUTE ONLY · no code | MISSING · no code | ROUTE ONLY · no code | MISSING · no code |
-| Trigger finger release, open 26055 | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
-| Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | MISSING · no code | ROUTE ONLY · no code | MISSING · no code |
+| Non-balloon ultrasound-guided CTR (no code) | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
+| Trigger finger release, open 26055 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
+| Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
 | **SI joint** |  |  |  |  |
-| Minimally invasive SI joint fusion | ROUTE ONLY | MISSING | ROUTE ONLY | MISSING |
+| Minimally invasive SI joint fusion | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 
 <details><summary>Records behind UnitedHealthcare (12)</summary>
 

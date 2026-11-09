@@ -3,7 +3,7 @@ import {drugs,payers,lines,policies,sourceDirectory,defaultScope,coverageProfile
 import {samples,blankCase} from '/shared/fixtures.mjs';
 import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,buildDocumentationChecklist,policyFreshness,compareMedications,validatePolicy,validateWorkspace,dateToday,MAX_NOTE,applyPolicyPathway} from '/shared/domain.mjs';
 import {sealWorkspace,openWorkspace} from '/shared/vault.mjs';
-import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverageDirectoryStats} from '/shared/hawaii-plan-sources.mjs';
+import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverageDirectoryStats,coverageStatusLabels} from '/shared/hawaii-plan-sources.mjs';
 import {PUBLISHED_FORMULARIES} from '/shared/live-formularies.mjs';
 import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
@@ -121,13 +121,6 @@ async function runPublicFormularyLookup(){
   }
   if(state.page==='formulary')renderExplorer();
 }
-const coverageStatusLabels={
-  'live-drug-search':'Live published formulary lookup',
-  'partial-verified-entries':'Limited verified extracts',
-  'payer-search':'Official payer drug search / list',
-  'public-source':'Official published source',
-  'no-single-formulary':'Exact benefit / plan required'
-};
 
 function coverageCardsMarkup(){
   const records=findHawaiiCoverageSources({program:state.coverage.program,payer:state.coverage.payer,text:state.coverage.query});
