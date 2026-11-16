@@ -83,10 +83,10 @@ Standing rules preserved throughout: PA code lists are not clinical criteria; a 
 
 | Item | Status |
 | --- | --- |
-| Sanctioned deploy path | Manual `workflow_dispatch` in `.github/workflows/deploy-cloudflare-trial.yml`, gated by `synthetic_only_ack` and the `synthetic-trial` environment. Never run from this branch. |
-| Cloudflare Workers Builds integration | The owner reported disconnecting it on 2026-11-16 (not independently verified from here). The build still fails closed whenever `WORKERS_CI` is set without `SYNTHETIC_ONLY_ACK=true`, so reconnecting it cannot auto-deploy. |
+| Publishing path | Owner decision 2026-11-16: automatic publishing of `main` to the `prior-authorization` Worker through Cloudflare Workers Builds, production branch only, with `SYNTHETIC_ONLY_ACK=true` as a build variable. Every deploy runs check, tests and build through `wrangler.jsonc`. The manual `workflow_dispatch` workflow remains as a fallback. Dashboard settings not verified from here. |
+| Cloudflare Workers Builds integration | Disconnected by the owner on 2026-11-16 and to be reconnected for `main` only (see [CLOUDFLARE-TRIAL.md](CLOUDFLARE-TRIAL.md)). Builds without the acknowledgment variable fail closed. |
 | Worker name | Resolved 2026-11-16: `wrangler.jsonc` now uses `prior-authorization`, the existing Cloudflare Worker that holds the Access and bridge secrets. |
-| Public hostname | `workers_dev` is not disabled; an Access-protected custom hostname is required for a staff-only trial (owner decision; `preview_urls` is now false). |
+| Public hostname | Owner is putting the `workers.dev` address behind Cloudflare Access (in progress, not verified from here); `preview_urls` is false. |
 | Private dependency | The synthetic Worker binds to the private `cup-optimize` Worker; that service and three secrets must exist in the same account before `wrangler deploy` succeeds. |
 | OpenAI static preview | `.openai/hosting.json` describes a static copy of `dist/`; undocumented reach and status — confirm or retire. |
 | AWS | `server/lambda.mjs` is an adapter starting point; Access verification and the pricing bridge are Cloudflare-specific and need adapters ([AWS-MIGRATION.md](AWS-MIGRATION.md)). |

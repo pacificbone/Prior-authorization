@@ -10,9 +10,18 @@ This document describes an **optional, manually triggered deployment**. It has n
 4. The workflow runs syntax validation, automated tests, and a static asset build before `wrangler deploy` (pinned to an exact Wrangler version). It exports `SYNTHETIC_ONLY_ACK=true` into the build step from the acknowledged input.
 5. After deployment, independently verify the URL, TLS, access restrictions, safe response headers, and that AI is disabled by default. Never use a real patient record to test.
 
-## Automatic Workers Builds are refused
+## Automatic publishing from `main` (owner's chosen path, 2026-11-16)
 
-If Cloudflare Workers Builds is connected to this public repository, it runs on every push to every branch with `WORKERS_CI=1` and would bypass the manual acknowledgment above. `npm run build` therefore fails closed when `WORKERS_CI` is set and `SYNTHETIC_ONLY_ACK` is not exactly `true`; only the gated GitHub workflow exports that value. Disconnect Workers Builds from this repository, or leave it connected knowing every automatic build will fail by design. `wrangler.jsonc` also sets `preview_urls: false` so no per-version preview hostname is published; `npm run check` asserts that setting.
+The owner chose automatic publishing: every merge into `main` is published to the `prior-authorization` Worker by Cloudflare Workers Builds. The repository enforces the safeguards; the dashboard settings below are the owner's to make and have not been verified from here.
+
+Workers & Pages → `prior-authorization` → Settings → Builds:
+
+1. Connect the GitHub repository and set the production branch to `main`.
+2. Turn **off** builds for non-production (preview) branches, so feature branches never publish.
+3. Deploy command: `npx wrangler deploy`. Leave the build command empty or set it to `npm ci`; `wrangler.jsonc` already makes every deploy run `npm run check && npm test && npm run build` first, so a failing test stops the publish.
+4. Build variable `SYNTHETIC_ONLY_ACK` = `true`. Workers Builds sets `WORKERS_CI=1`, and `npm run build` fails closed when that is set without this acknowledgment. Removing the variable is the off switch for automatic publishing.
+
+Also protect `main` in GitHub (pull request required, the `test` and `browser` checks required) so nothing reaches the production branch unreviewed. `preview_urls` is false in `wrangler.jsonc` and `npm run check` asserts it. The manual GitHub workflow above remains available as a fallback.
 
 ## Exposure and access configuration
 

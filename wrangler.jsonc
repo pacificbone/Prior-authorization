@@ -4,6 +4,11 @@
   "main": "server/worker.mjs",
   "compatibility_date": "2026-11-06",
   "preview_urls": false,
+  // Every deploy, however it is started, runs the checks, tests and build first. Under Cloudflare
+  // Workers Builds the build also requires SYNTHETIC_ONLY_ACK=true, set as a build variable.
+  "build": {
+    "command": "npm run check && npm test && npm run build"
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

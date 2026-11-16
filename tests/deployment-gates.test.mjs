@@ -24,6 +24,9 @@ test('the build CLI exits non-zero under WORKERS_CI before touching dist/',async
 test('wrangler.jsonc disables preview URLs and keeps the synthetic-only vars',async()=>{
  const wrangler=parseJsonc(await readFile(new URL('wrangler.jsonc',root),'utf8'));
  assert.equal(wrangler.preview_urls,false);
+ // A deploy cannot skip verification: wrangler itself runs check, tests and the guarded build.
+ assert.equal(wrangler.build.command,'npm run check && npm test && npm run build');
+ assert.equal(wrangler.name,'prior-authorization');
  assert.equal(wrangler.vars.AI_TRIAL_ENABLED,'false');assert.equal(wrangler.vars.AI_PROVIDER,'none');
 });
 test('the gated deploy workflow pins wrangler exactly and exports the acknowledgment into the build',async()=>{
