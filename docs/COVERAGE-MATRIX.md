@@ -19,15 +19,15 @@ Generated from the application registries on **2026-11-15** by `npm run matrix`.
 
 | Status | Cells |
 | --- | ---: |
-| REVIEWED | 151 |
+| REVIEWED | 213 |
 | STALE | 0 |
-| PARTIAL | 40 |
+| PARTIAL | 33 |
 | LIVE FORMULARY | 12 |
-| ROUTE ONLY | 869 |
-| MISSING | 380 |
+| ROUTE ONLY | 815 |
+| MISSING | 379 |
 | n/a | 88 |
 
-Registries behind the matrix: 24 public payer evidence records (18 fingerprinted PDF snapshots, 6 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 60 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
+Registries behind the matrix: 33 public payer evidence records (27 fingerprinted PDF snapshots, 6 directory-only), 6 reviewed medical-policy criteria extracts, 5 transcribed pharmacy formulary entries, 1 published PA code list, 60 plan/source directory entries, 12 exact-plan machine-readable formulary lookups, and **0 verified exact-plan procurement (buy-and-bill / specialty pharmacy) policies**.
 
 ## Priority gaps (focus payers)
 
@@ -36,10 +36,10 @@ Services with no reviewed or partial source for a focus payer and line. Each is 
 
 ### Osteoporosis injections
 
-- **Prolia (denosumab) J0897** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Jubbonti (denosumab-bbdz) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Bildyos (denosumab-nxxp) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Evenity (romosozumab) J3111** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Prolia (denosumab) J0897** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Jubbonti (denosumab-bbdz) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Bildyos (denosumab-nxxp) biosimilar** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Evenity (romosozumab) J3111** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
 - **Reclast (zoledronic acid) J3489** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
 
 ### Osteoporosis oral / pharmacy benefit
@@ -50,51 +50,51 @@ Services with no reviewed or partial source for a focus payer and line. Each is 
 
 ### Viscosupplementation
 
-- **Durolane (J7318)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Euflexxa (J7323)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Gel-One (J7326)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Gelsyn-3 (J7328)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **GenVisc 850 (J7320)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Hyalgan (J7321)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Hymovis (J7322)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Monovisc (J7327)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Orthovisc (J7324)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Supartz FX (J7321)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Synvisc (J7325)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Synvisc-One (J7325)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **TriVisc (J7329)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Synojoynt (J7331)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Triluron (J7332)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Visco-3 (J7321)** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Durolane (J7318)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Euflexxa (J7323)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Gel-One (J7326)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Gelsyn-3 (J7328)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **GenVisc 850 (J7320)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Hyalgan (J7321)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Hymovis (J7322)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Monovisc (J7327)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Orthovisc (J7324)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Supartz FX (J7321)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Synvisc (J7325)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Synvisc-One (J7325)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **TriVisc (J7329)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Synojoynt (J7331)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Triluron (J7332)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Visco-3 (J7321)** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
 
 ### Arthroplasty
 
-- **Primary total knee arthroplasty 27447** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Partial / unicompartmental knee 27446** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Revision total knee 27486 / 27487** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Primary total hip arthroplasty 27130** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
-- **Revision total hip 27134 / 27137 / 27138** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Primary total knee arthroplasty 27447** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Partial / unicompartmental knee 27446** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Revision total knee 27486 / 27487** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Primary total hip arthroplasty 27130** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
+- **Revision total hip 27134 / 27137 / 27138** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Humana (Medicare Advantage)
 
 ### MACI
 
 - **MACI stage 1 cartilage harvest S2112** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **MACI stage 2 implantation 27412** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **MACI stage 2 implantation 27412** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **MACI stage 3 cultured cell product J7330 authorization** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 
 ### Sports knee
 
-- **ACL reconstruction 29888** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **ACL reconstruction 29888** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **BEAR ACL repair / implant** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Meniscus repair 29882 / 29883** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Meniscus repair 29882 / 29883** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **Meniscus root repair** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Arthroscopic partial meniscectomy 29881** — HMSA (Individual Exchange, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Arthroscopic partial meniscectomy 29881** — HMSA (Individual Exchange, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 
 ### Hand
 
 - **Open carpal tunnel release 64721** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **Endoscopic carpal tunnel release 29848** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Balloon-assisted ultrasound-guided CTR 64728** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
-- **Non-balloon ultrasound-guided CTR (no code)** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Balloon-assisted ultrasound-guided CTR 64728** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
+- **Non-balloon ultrasound-guided CTR (no code)** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **Trigger finger release, open 26055** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 - **Percutaneous / ultrasound-guided trigger finger release** — HMSA (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage, Federal employee / postal); UnitedHealthcare (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); Kaiser Permanente (Commercial, Individual Exchange, QUEST / Medicaid, Medicare Advantage); UHA (Commercial); HMAA (Commercial); AlohaCare (QUEST / Medicaid, Medicare Advantage); ʻOhana / Wellcare (QUEST / Medicaid); Traditional Medicare (Traditional Medicare); Humana (Medicare Advantage)
 
@@ -538,78 +538,87 @@ Carrier / managed care. Lines with plan sources: Commercial, Individual Exchange
 | Service | Commercial | Individual Exchange | QUEST / Medicaid | Medicare Advantage |
 | --- | --- | --- | --- | --- |
 | **Osteoporosis injections** |  |  |  |  |
-| Prolia (denosumab) J0897 | REVIEWED (3) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Jubbonti (denosumab-bbdz) biosimilar | REVIEWED (3) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Bildyos (denosumab-nxxp) biosimilar | REVIEWED (3) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Evenity (romosozumab) J3111 | REVIEWED (3) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
+| Prolia (denosumab) J0897 | REVIEWED (3) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Jubbonti (denosumab-bbdz) biosimilar | REVIEWED (3) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Bildyos (denosumab-nxxp) biosimilar | REVIEWED (3) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Evenity (romosozumab) J3111 | REVIEWED (3) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
 | Reclast (zoledronic acid) J3489 | PARTIAL (1) | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Osteoporosis oral / pharmacy benefit** |  |  |  |  |
 | Alendronate (oral, pharmacy benefit) | MISSING | MISSING | LIVE FORMULARY | MISSING |
 | Teriparatide / Forteo (pharmacy benefit) | MISSING | MISSING | LIVE FORMULARY | MISSING |
 | Tymlos (abaloparatide, pharmacy benefit) | MISSING | MISSING | LIVE FORMULARY | MISSING |
 | **Viscosupplementation** |  |  |  |  |
-| Durolane (J7318) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Euflexxa (J7323) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Gel-One (J7326) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Gelsyn-3 (J7328) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| GenVisc 850 (J7320) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Hyalgan (J7321) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Hymovis (J7322) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Monovisc (J7327) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Orthovisc (J7324) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Supartz FX (J7321) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Synvisc (J7325) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Synvisc-One (J7325) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| TriVisc (J7329) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Synojoynt (J7331) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Triluron (J7332) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Visco-3 (J7321) | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
+| Durolane (J7318) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Euflexxa (J7323) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Gel-One (J7326) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Gelsyn-3 (J7328) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| GenVisc 850 (J7320) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Hyalgan (J7321) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Hymovis (J7322) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Monovisc (J7327) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Orthovisc (J7324) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Supartz FX (J7321) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Synvisc (J7325) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Synvisc-One (J7325) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| TriVisc (J7329) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Synojoynt (J7331) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Triluron (J7332) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Visco-3 (J7321) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
 | **Arthroplasty** |  |  |  |  |
-| Primary total knee arthroplasty 27447 | REVIEWED (2) | REVIEWED (2) | PARTIAL (1) | ROUTE ONLY |
-| Partial / unicompartmental knee 27446 | REVIEWED (2) | REVIEWED (2) | PARTIAL (1) | ROUTE ONLY |
-| Revision total knee 27486 / 27487 | REVIEWED (2) | REVIEWED (2) | PARTIAL (1) | ROUTE ONLY |
-| Primary total hip arthroplasty 27130 | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
-| Revision total hip 27134 / 27137 / 27138 | REVIEWED (2) | REVIEWED (2) | ROUTE ONLY | ROUTE ONLY |
+| Primary total knee arthroplasty 27447 | REVIEWED (2) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) |
+| Partial / unicompartmental knee 27446 | REVIEWED (2) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) |
+| Revision total knee 27486 / 27487 | REVIEWED (2) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) |
+| Primary total hip arthroplasty 27130 | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
+| Revision total hip 27134 / 27137 / 27138 | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) | REVIEWED (1) |
 | **MACI** |  |  |  |  |
 | MACI stage 1 cartilage harvest S2112 | PARTIAL (2) | PARTIAL (2) | PARTIAL (2) | MISSING (1) |
-| MACI stage 2 implantation 27412 | REVIEWED (3) | REVIEWED (3) | PARTIAL (2) | MISSING (1) |
+| MACI stage 2 implantation 27412 | REVIEWED (3) | REVIEWED (3) | REVIEWED (3) | REVIEWED (2) |
 | MACI stage 3 cultured cell product J7330 authorization | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | **Sports knee** |  |  |  |  |
-| ACL reconstruction 29888 | REVIEWED (2) | REVIEWED (2) | PARTIAL (1) | ROUTE ONLY |
+| ACL reconstruction 29888 | REVIEWED (2) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) |
 | BEAR ACL repair / implant | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
-| Meniscus repair 29882 / 29883 | REVIEWED (2) | REVIEWED (2) | PARTIAL (1) | ROUTE ONLY |
+| Meniscus repair 29882 / 29883 | REVIEWED (2) | REVIEWED (2) | REVIEWED (2) | REVIEWED (1) |
 | Meniscus root repair | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
-| Arthroscopic partial meniscectomy 29881 | REVIEWED (1) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
+| Arthroscopic partial meniscectomy 29881 | REVIEWED (1) | REVIEWED (1) | REVIEWED (1) | REVIEWED (1) |
 | **Hand** |  |  |  |  |
 | Open carpal tunnel release 64721 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | Endoscopic carpal tunnel release 29848 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
-| Balloon-assisted ultrasound-guided CTR 64728 | REVIEWED (2) · restrictive | REVIEWED (2) · restrictive | ROUTE ONLY | PARTIAL (1) · restrictive |
-| Non-balloon ultrasound-guided CTR (no code) | REVIEWED (1) · no code | REVIEWED (1) · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
+| Balloon-assisted ultrasound-guided CTR 64728 | REVIEWED (2) · restrictive | REVIEWED (2) · restrictive | REVIEWED (1) | REVIEWED (2) · restrictive |
+| Non-balloon ultrasound-guided CTR (no code) | REVIEWED (1) · no code | REVIEWED (1) · no code | REVIEWED (1) · no code | REVIEWED (1) · no code |
 | Trigger finger release, open 26055 | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY | ROUTE ONLY |
 | Percutaneous / ultrasound-guided trigger finger release | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code | ROUTE ONLY · no code |
 | **SI joint** |  |  |  |  |
 | Minimally invasive SI joint fusion | REVIEWED (1) | REVIEWED (1) | ROUTE ONLY | ROUTE ONLY |
 
-<details><summary>Records behind UnitedHealthcare (18)</summary>
+<details><summary>Records behind UnitedHealthcare (27)</summary>
 
 | Record | Kind | Version / effective | Review | Flags |
 | --- | --- | --- | --- | --- |
 | [UHC Denosumab — Commercial and Individual Exchange Medical Benefit Drug Policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/denosumab-prolia-xgeva.pdf) | reviewed-snapshot | 2026D0068U · 2026-10-01 | due 2027-02-13 | — |
 | [UHC Commercial Medication Sourcing Protocol](https://www.uhcprovider.com/content/dam/provider/docs/public/resources/pharmacy/UHC-Admin-Drug-Chart.pdf) | general-reference | PCA-1-26-01739-E&I-QRG_09102026 | due 2027-02-05 | general-reference |
 | [Denosumab · initial osteoporosis therapy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/denosumab-prolia-xgeva.pdf) | reviewed-extract | 2026D0068U · 2026-10-01 | reviewed 2026-11-06 | — |
+| [UHC Denosumab — Community Plan Medical Benefit Drug Policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medicaid-comm-plan/denosumab-prolia-xgeva-cs.pdf) | reviewed-snapshot | CS2026D0068Y · 2026-09-01 | due 2027-02-13 | — |
+| [UHC Medicare Part B Step Therapy Programs — Medicare Advantage](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medadv-mp/medicare-part-b-step-therapy-programs.pdf) | reviewed-snapshot | IAP.001.31 · 2026-10-01 | due 2027-02-13 | — |
 | [UHC Evenity (romosozumab-aqqg) — Commercial and Individual Exchange Medical Benefit Drug Policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/evenity-romosozumab-aqqg.pdf) | reviewed-snapshot | 2026D0080M · 2026-11-01 | due 2027-02-13 | — |
 | [Evenity · initial therapy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/evenity-romosozumab-aqqg.pdf) | reviewed-extract | 2026D0080M · 2026-11-01 | reviewed 2026-11-06 | — |
+| [UHC Evenity (romosozumab-aqqg) — Community Plan Medical Benefit Drug Policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medicaid-comm-plan/evenity-romosozumab-aqqg-cs.pdf) | reviewed-snapshot | CS2026D0080S · 2026-11-01 | due 2027-02-13 | — |
 | [UHC Sodium Hyaluronate — Commercial and Individual Exchange Medical Benefit Drug Policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/sodium-hyaluronate.pdf) | reviewed-snapshot | 2026D0081M · 2026-10-01 | due 2027-02-13 | — |
 | [UnitedHealthcare commercial medical-benefit sodium hyaluronate policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/sodium-hyaluronate.pdf) | policy-link | — | checked 2026-11-07 | — |
 | [UnitedHealthcare Individual Exchange sodium hyaluronate policy](https://www.uhcprovider.com/en/policies-protocols/exchange-policies/exchanges-medical-drug-policies.html) | policy-link | — | checked 2026-11-07 | — |
+| [UHC Sodium Hyaluronate — Community Plan Medical Benefit Drug Policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medicaid-comm-plan/sodium-hyaluronate-cs.pdf) | reviewed-snapshot | CS2026D0081Q · 2026-10-01 | due 2027-02-13 | — |
 | [UHC Surgery of the Knee — Commercial and Individual Exchange](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf) | reviewed-snapshot | 2026T0553JJ · 2026-09-10 | due 2027-02-13 | — |
 | [UnitedHealthcare Surgery of the Knee (September 2026)](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-knee.pdf) | policy-link | — | checked 2026-11-07 | — |
+| [UHC Surgery of the Knee — Community Plan](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medicaid-comm-plan/surgery-knee-cs.pdf) | reviewed-snapshot | CS068.AE · 2026-11-01 | due 2027-02-13 | — |
 | [UnitedHealthcare Community Plan surgery of knee medical policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medicaid-comm-plan/surgery-knee-cs.pdf) | policy-link | — | checked 2026-11-07 | — |
+| [UHC Joint Procedures — Medicare Advantage Medical Policy](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medadv-mp/joint-procedures.pdf) | reviewed-snapshot | MMP052.14 · 2026-10-01 | due 2027-02-13 | — |
 | [UHC Surgery of the Hip — Commercial and Individual Exchange](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/surgery-hip.pdf) | reviewed-snapshot | 2026T0503KK · 2026-09-10 | due 2027-02-13 | — |
 | [UnitedHealthcare Surgery of the Hip (September 2026)](https://www.uhcprovider.com/en/policies-protocols/commercial-policies/commercial-medical-drug-policies.html) | policy-link | — | checked 2026-11-07 | — |
+| [UHC Surgery of the Hip — Community Plan](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medicaid-comm-plan/surgery-hip-cs.pdf) | reviewed-snapshot | CS056.AC · 2026-11-01 | due 2027-02-13 | — |
 | [MACI manufacturer billing and staged authorization references](https://www.maci.com/healthcare-professionals/practice-resources/approval-billing-codes/) | reference | — | checked 2026-11-07 | — |
 | [UHC Omnibus Codes — percutaneous carpal tunnel decompression (CPT 64728)](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/omnibus-codes.pdf) | reviewed-snapshot | 2026T0535XXX · 2026-06-01 | due 2027-02-13 | — |
 | [UnitedHealthcare omnibus codes: CPT 64728](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/omnibus-codes.pdf) | restrictive-review | — | checked 2026-11-07 | restrictive |
+| [UHC Omnibus Codes (Community Plan) — percutaneous carpal tunnel decompression (CPT 64728)](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medicaid-comm-plan/omnibus-codes-cs.pdf) | reviewed-snapshot | CS087.AAA · 2026-07-01 | due 2027-02-13 | — |
+| [UHC Omnibus Codes (Medicare Advantage) — percutaneous carpal tunnel decompression (CPT 64728)](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medadv-mp/omnibus-codes-mamp.pdf) | reviewed-snapshot | MMP107.09 · 2026-06-01 | due 2027-02-13 | — |
 | [UnitedHealthcare Medicare Advantage Omnibus Codes policy (64728)](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/medadv-mp/omnibus-codes-mamp.pdf) | restrictive-review | — | checked 2026-11-07 | restrictive |
 | [UHC Sacroiliac Joint Interventions — Commercial and Individual Exchange](https://www.uhcprovider.com/content/dam/provider/docs/public/policies/comm-medical-drug/sacroiliac-joint-interventions.pdf) | reviewed-snapshot | 2026T0621P · 2026-11-01 | due 2027-02-13 | — |
 

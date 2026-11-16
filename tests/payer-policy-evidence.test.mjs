@@ -7,11 +7,11 @@ import {verifyPolicySnapshot} from '../server/policy-snapshot.mjs';
 const scope={payer:'HMSA',line:'Commercial',benefit:'Medical',planId:'Unverified fictional plan',productId:'gel-monovisc',serviceDate:'2026-11-07',setting:'Office',state:'HI',medication:true};
 const refs=(patch={})=>payerEvidenceFor({...scope,...patch},'2026-11-07');
 test('reviewed evidence contains source identity and digest, never procurement permissions',()=>{
- assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,24);
+ assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,33);
  const register=JSON.parse(readFileSync(new URL('../docs/policy-source-checksums.json',import.meta.url))).snapshots;
  const sums=register.map(x=>x.sha256);
  const fingerprinted=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly!==true),directoryOnly=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly===true);
- assert.equal(fingerprinted.length,18);assert.equal(directoryOnly.length,6);
+ assert.equal(fingerprinted.length,27);assert.equal(directoryOnly.length,6);
  // Register and module agree in both directions.
  for(const s of fingerprinted){const row=register.find(r=>r.sourceId===s.id);assert.ok(row,s.id);assert.equal(row.status,'bound');assert.equal(row.sha256,s.sourceSha256,s.id);}
  for(const row of register.filter(r=>r.status==='bound')){const s=PAYER_POLICY_EVIDENCE.find(x=>x.id===row.sourceId);assert.ok(s,row.sourceId);assert.equal(s.sourceSha256,row.sha256);}
@@ -81,7 +81,8 @@ test('publication code is not silently converted to an effective date or buy-and
  const gelPolicy=uhc.find(s=>s.id==='uhc-gel-2026');assert.match(gelPolicy.summary,/Durolane, Euflexxa and Gelsyn-3/);assert.match(gelPolicy.limitations,/not coverage/);
  assert.equal(refs().some(s=>s.id.startsWith('uhc-')),false);
  assert.match(source.summary,/administration only/);assert.match(source.summary,/UMR/);assert.equal(source.orderingAllowed,false);
- assert.equal(refs({payer:'UnitedHealthcare',line:'Medicare Advantage'}).length,0);
+ // The commercial sourcing protocol and commercial policies never reach Medicare Advantage; only MA-specific records do.
+ assert.ok(refs({payer:'UnitedHealthcare',line:'Medicare Advantage'}).every(s=>s.id.startsWith('uhc-ma-')));
  assert.match(source.limitations,/not prove buy-and-bill/);
 });
 test('dated extracts become overdue and cannot imply exact-plan adoption',()=>{

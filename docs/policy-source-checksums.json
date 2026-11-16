@@ -157,6 +157,69 @@
       "retrieved": "2026-11-15",
       "sourceId": "hmsa-gel-ma-preference-2026",
       "status": "bound"
+    },
+    {
+      "document": "sodium-hyaluronate-cs-CS2026D0081Q.pdf",
+      "sha256": "eb2cdddf3d5c321f54e47e8a65804a541e92143e4b132497da31177bd8343041",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-cs-gel-2026",
+      "status": "bound"
+    },
+    {
+      "document": "surgery-knee-cs-CS068.AE.pdf",
+      "sha256": "4ef1f672df2139614ac51d4222de615d7ccff1b797a599bef333e549018b43e3",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-cs-knee-2026",
+      "status": "bound"
+    },
+    {
+      "document": "surgery-hip-cs-CS056.AC.pdf",
+      "sha256": "92d6e335075ac091368f2fa30428ca55f652bcf044380fba8ed5cc189dad7d4b",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-cs-hip-2026",
+      "status": "bound"
+    },
+    {
+      "document": "evenity-romosozumab-aqqg-cs-CS2026D0080S.pdf",
+      "sha256": "a87333cf005d3a882438d30682949c60c1b8651519ea08f76db6bd2c509f19d2",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-cs-evenity-2026",
+      "status": "bound"
+    },
+    {
+      "document": "denosumab-prolia-xgeva-cs-CS2026D0068Y.pdf",
+      "sha256": "4b2b5b0c79f93668c646258804a3515f2bfdd5c87b13d524de059579067562d4",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-cs-denosumab-2026",
+      "status": "bound"
+    },
+    {
+      "document": "omnibus-codes-cs-CS087.AAA.pdf",
+      "sha256": "f715066ef1384bedc8f89c9d034d89beb9453d9f46c87afef8cb5672ed475722",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-cs-omnibus-carpal-2026",
+      "status": "bound"
+    },
+    {
+      "document": "joint-procedures-MMP052.14.pdf",
+      "sha256": "1eb1d1ccb37f5523c9b8ce2caa88022b1b6ec89e9707a7b655a686a52ce37724",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-ma-joint-2026",
+      "status": "bound"
+    },
+    {
+      "document": "medicare-part-b-step-therapy-programs-IAP.001.31.pdf",
+      "sha256": "c506bc24ff8201b5d9cbdd14724a76b5e0b65ab5c3a0d124961e7be097920f83",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-ma-partb-step-2026",
+      "status": "bound"
+    },
+    {
+      "document": "omnibus-codes-mamp-MMP107.09.pdf",
+      "sha256": "792615956ede7a20248cb93414c6279f90e6b7f11d914ae246593eb2cb445cd8",
+      "retrieved": "2026-11-15",
+      "sourceId": "uhc-ma-omnibus-carpal-2026",
+      "status": "bound"
     }
   ]
 }

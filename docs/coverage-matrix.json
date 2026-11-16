@@ -3,17 +3,17 @@
  "generatedFrom": "shared/coverage-matrix.mjs",
  "caveat": "No cell verifies exact-plan adoption, member eligibility, prior authorization approval, payment or a medication supply route. REVIEWED means a reviewed public source exists for the payer, line and product; staff must still confirm the member product and the current source version.",
  "counts": {
-  "reviewed": 151,
+  "reviewed": 213,
   "stale": 0,
-  "partial": 40,
+  "partial": 33,
   "live-formulary": 12,
-  "routing-only": 869,
-  "missing": 380,
+  "routing-only": 815,
+  "missing": 379,
   "n/a": 88
  },
  "registry": {
-  "evidenceRecords": 24,
-  "fingerprinted": 18,
+  "evidenceRecords": 33,
+  "fingerprinted": 27,
   "directoryOnly": 6,
   "reviewedExtracts": 6,
   "formularyEntries": 5,
@@ -43,13 +43,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -108,13 +101,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -170,13 +156,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -229,13 +208,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -543,13 +515,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -602,13 +567,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -667,13 +625,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -726,13 +677,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -791,13 +735,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -850,13 +787,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -915,13 +845,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -974,13 +897,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -1039,13 +955,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -1098,13 +1007,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -1163,13 +1065,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -1222,13 +1117,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -1287,13 +1175,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -1346,13 +1227,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -1411,13 +1285,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -1470,13 +1337,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -1535,12 +1395,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -1593,12 +1447,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "Medicare Advantage"
      ]
     },
     {
@@ -1657,12 +1505,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -1718,13 +1560,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -1777,13 +1612,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -1909,12 +1737,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "Medicare Advantage"
      ]
     },
     {
@@ -2052,12 +1874,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -2192,12 +2008,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "Medicare Advantage"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -2329,13 +2139,6 @@
      "lines": [
       "Individual Exchange",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -2549,12 +2352,6 @@
      ]
     },
     {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid"
-     ]
-    },
-    {
      "payer": "Kaiser Permanente",
      "lines": [
       "Commercial",
@@ -2616,13 +2413,6 @@
       "QUEST / Medicaid",
       "Medicare Advantage",
       "Federal employee / postal"
-     ]
-    },
-    {
-     "payer": "UnitedHealthcare",
-     "lines": [
-      "QUEST / Medicaid",
-      "Medicare Advantage"
      ]
     },
     {
@@ -14653,8 +14443,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "prolia",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-denosumab-2026"
+   ],
    "routes": 1,
    "codes": [
     "J0897"
@@ -14667,11 +14459,13 @@
    "line": "Medicare Advantage",
    "serviceId": "prolia",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "J0897"
@@ -14726,8 +14520,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "jubbonti",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-denosumab-2026"
+   ],
    "routes": 1,
    "codes": [
     "Q5136"
@@ -14740,11 +14536,13 @@
    "line": "Medicare Advantage",
    "serviceId": "jubbonti",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "Q5136"
@@ -14799,8 +14597,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "bildyos",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-denosumab-2026"
+   ],
    "routes": 1,
    "codes": [
     "Q5162"
@@ -14813,11 +14613,13 @@
    "line": "Medicare Advantage",
    "serviceId": "bildyos",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "Q5162"
@@ -14872,8 +14674,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "evenity",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-evenity-2026"
+   ],
    "routes": 1,
    "codes": [
     "J3111"
@@ -14886,11 +14690,13 @@
    "line": "Medicare Advantage",
    "serviceId": "evenity",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "J3111"
@@ -15187,8 +14993,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "durolane",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15203,11 +15011,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "durolane",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15266,8 +15076,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "euflexxa",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15282,11 +15094,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "euflexxa",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15345,8 +15159,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "gel-one",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15361,11 +15177,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "gel-one",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15424,8 +15242,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "gelsyn-3",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15440,11 +15260,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "gelsyn-3",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15503,8 +15325,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "genvisc",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15519,11 +15343,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "genvisc",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15582,8 +15408,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "hyalgan",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15598,11 +15426,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "hyalgan",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15661,8 +15491,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "hymovis",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15677,11 +15509,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "hymovis",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15740,8 +15574,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "monovisc",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15756,11 +15592,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "monovisc",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15819,8 +15657,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "orthovisc",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15835,11 +15675,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "orthovisc",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15898,8 +15740,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "supartz",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15914,11 +15758,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "supartz",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15977,8 +15823,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -15993,11 +15841,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16056,8 +15906,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc-one",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16072,11 +15924,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc-one",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16135,8 +15989,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "trivisc",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16151,11 +16007,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "trivisc",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16214,8 +16072,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "synojoynt",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16230,11 +16090,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "synojoynt",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16293,8 +16155,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "triluron",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16309,11 +16173,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "triluron",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16372,8 +16238,10 @@
    "serviceId": "knee-gel",
    "gelProductId": "visco-3",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-gel-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16388,11 +16256,13 @@
    "serviceId": "knee-gel",
    "gelProductId": "visco-3",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-partb-step-2026"
+   ],
    "routes": 1,
    "codes": [
     "20610",
@@ -16446,8 +16316,9 @@
    "line": "QUEST / Medicaid",
    "serviceId": "total-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
+    "uhc-cs-knee-2026",
     "uhc-community-knee"
    ],
    "routes": 1,
@@ -16462,11 +16333,13 @@
    "line": "Medicare Advantage",
    "serviceId": "total-knee",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "27447"
@@ -16519,8 +16392,9 @@
    "line": "QUEST / Medicaid",
    "serviceId": "partial-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
+    "uhc-cs-knee-2026",
     "uhc-community-knee"
    ],
    "routes": 1,
@@ -16535,11 +16409,13 @@
    "line": "Medicare Advantage",
    "serviceId": "partial-knee",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "27446"
@@ -16596,8 +16472,9 @@
    "line": "QUEST / Medicaid",
    "serviceId": "revision-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
+    "uhc-cs-knee-2026",
     "uhc-community-knee"
    ],
    "routes": 1,
@@ -16614,11 +16491,13 @@
    "line": "Medicare Advantage",
    "serviceId": "revision-knee",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "27486",
@@ -16673,8 +16552,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "total-hip",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-hip-2026"
+   ],
    "routes": 1,
    "codes": [
     "27130"
@@ -16687,11 +16568,13 @@
    "line": "Medicare Advantage",
    "serviceId": "total-hip",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "27130"
@@ -16750,8 +16633,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "revision-hip",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-hip-2026"
+   ],
    "routes": 1,
    "codes": [
     "27134",
@@ -16767,11 +16652,13 @@
    "line": "Medicare Advantage",
    "serviceId": "revision-hip",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "27134",
@@ -16905,8 +16792,9 @@
    "line": "QUEST / Medicaid",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
+    "uhc-cs-knee-2026",
     "uhc-community-knee",
     "maci-billing"
    ],
@@ -16922,11 +16810,12 @@
    "line": "Medicare Advantage",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "missing",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-ma-joint-2026",
     "maci-billing"
    ],
    "routes": 1,
@@ -17046,8 +16935,9 @@
    "line": "QUEST / Medicaid",
    "serviceId": "acl-reconstruction",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
+    "uhc-cs-knee-2026",
     "uhc-community-knee"
    ],
    "routes": 1,
@@ -17062,11 +16952,13 @@
    "line": "Medicare Advantage",
    "serviceId": "acl-reconstruction",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "29888"
@@ -17184,8 +17076,9 @@
    "line": "QUEST / Medicaid",
    "serviceId": "meniscus-repair",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
+    "uhc-cs-knee-2026",
     "uhc-community-knee"
    ],
    "routes": 1,
@@ -17201,11 +17094,13 @@
    "line": "Medicare Advantage",
    "serviceId": "meniscus-repair",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "29882",
@@ -17322,8 +17217,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-knee-2026"
+   ],
    "routes": 1,
    "codes": [
     "29881",
@@ -17337,11 +17234,13 @@
    "line": "Medicare Advantage",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-joint-2026"
+   ],
    "routes": 1,
    "codes": [
     "29881",
@@ -17527,8 +17426,10 @@
    "line": "QUEST / Medicaid",
    "serviceId": "carpal-balloon",
    "benefit": "Medical",
-   "status": "routing-only",
-   "records": [],
+   "status": "reviewed",
+   "records": [
+    "uhc-cs-omnibus-carpal-2026"
+   ],
    "routes": 1,
    "codes": [
     "64728"
@@ -17541,12 +17442,13 @@
    "line": "Medicare Advantage",
    "serviceId": "carpal-balloon",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "restrictive",
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-ma-omnibus-carpal-2026",
     "uhc-ma-carpal"
    ],
    "routes": 1,
@@ -17597,11 +17499,13 @@
    "line": "QUEST / Medicaid",
    "serviceId": "carpal-ultrasound-other",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "no-candidate-code"
    ],
-   "records": [],
+   "records": [
+    "uhc-cs-omnibus-carpal-2026"
+   ],
    "routes": 1,
    "codes": [],
    "template": "procedure-carpal-ultrasound-other",
@@ -17612,12 +17516,14 @@
    "line": "Medicare Advantage",
    "serviceId": "carpal-ultrasound-other",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "no-candidate-code",
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-ma-omnibus-carpal-2026"
+   ],
    "routes": 1,
    "codes": [],
    "template": "procedure-carpal-ultrasound-other",

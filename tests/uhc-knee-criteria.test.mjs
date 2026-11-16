@@ -26,9 +26,29 @@ test('UHC hip, SI fusion, percutaneous carpal tunnel and denosumab records are s
  assert.deepEqual(at('procedure-carpal-balloon'),['uhc-omnibus-carpal-2026']);
  assert.deepEqual(at('procedure-carpal-open'),[]); // the unproven entry never attaches to open or endoscopic release
  assert.ok(at('bone-jubbonti',{medication:true}).includes('uhc-denosumab-2026'));
- assert.equal(at('procedure-total-hip',{line:'Medicare Advantage'}).length,0);
+ assert.deepEqual(at('procedure-total-hip',{line:'Medicare Advantage'}),['uhc-ma-joint-2026']);
  assert.equal(at('procedure-si-joint-fusion',{payer:'HMSA'}).some(x=>x.startsWith('uhc-')),false);
  const d=payerEvidenceFor({...scope,productId:'bone-jubbonti',medication:true,serviceDate:'2026-11-15'},'2026-11-15').find(x=>x.id==='uhc-denosumab-2026');
  assert.match(d.summary,/Jubbonti and Ospomyv are typically excluded/);
  assert.match(d.limitations,/never carry a preference across payers/);
+});
+test('UHC Commercial, QUEST and Medicare Advantage each get only their own line\'s records and preferred lists',()=>{
+ const at=(line,productId,medication=false)=>payerEvidenceFor({payer:'UnitedHealthcare',line,benefit:'Medical',productId,medication,serviceDate:'2026-11-15'},'2026-11-15');
+ const ids=(...a)=>at(...a).map(x=>x.id).filter(id=>id!=='uhc-sourcing-2026');
+ assert.deepEqual(ids('QUEST / Medicaid','procedure-total-knee'),['uhc-cs-knee-2026']);
+ assert.deepEqual(ids('Medicare Advantage','procedure-total-knee'),['uhc-ma-joint-2026']);
+ assert.deepEqual(ids('Medicare Advantage','procedure-total-hip'),['uhc-ma-joint-2026']);
+ assert.deepEqual(ids('QUEST / Medicaid','procedure-carpal-balloon'),['uhc-cs-omnibus-carpal-2026']);
+ assert.deepEqual(ids('Medicare Advantage','procedure-carpal-balloon'),['uhc-ma-omnibus-carpal-2026']);
+ assert.deepEqual(ids('Commercial','bone-jubbonti',true),['uhc-denosumab-2026']);
+ assert.deepEqual(ids('QUEST / Medicaid','bone-jubbonti',true),['uhc-cs-denosumab-2026']);
+ assert.deepEqual(ids('Medicare Advantage','bone-jubbonti',true),['uhc-ma-partb-step-2026']);
+ assert.deepEqual(ids('Medicare Advantage','bone-evenity',true),['uhc-ma-partb-step-2026']);
+ assert.deepEqual(ids('QUEST / Medicaid','gel-euflexxa',true),['uhc-cs-gel-2026']);
+ // Three lines, three different stances on the same products.
+ assert.match(at('Commercial','bone-jubbonti',true)[0].summary,/Jubbonti and Ospomyv are typically excluded/);
+ assert.match(at('QUEST / Medicaid','bone-jubbonti',true)[0].summary,/Prolia and Stoboclo are non-preferred here/);
+ assert.match(at('Medicare Advantage','bone-jubbonti',true).find(x=>x.id==='uhc-ma-partb-step-2026').summary,/Jubbonti, Prolia and Stoboclo are preferred/);
+ assert.match(at('Medicare Advantage','procedure-total-knee')[0].summary,/L36575/);
+ assert.match(at('Medicare Advantage','procedure-total-knee')[0].limitations,/Says nothing about whether prior authorization is required/);
 });
