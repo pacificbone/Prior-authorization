@@ -7,11 +7,11 @@ import {verifyPolicySnapshot} from '../server/policy-snapshot.mjs';
 const scope={payer:'HMSA',line:'Commercial',benefit:'Medical',planId:'Unverified fictional plan',productId:'gel-monovisc',serviceDate:'2026-11-07',setting:'Office',state:'HI',medication:true};
 const refs=(patch={})=>payerEvidenceFor({...scope,...patch},'2026-11-07');
 test('reviewed evidence contains source identity and digest, never procurement permissions',()=>{
- assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,18);
+ assert.equal(validatePayerEvidence(),true);assert.equal(PAYER_POLICY_EVIDENCE.length,24);
  const register=JSON.parse(readFileSync(new URL('../docs/policy-source-checksums.json',import.meta.url))).snapshots;
  const sums=register.map(x=>x.sha256);
  const fingerprinted=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly!==true),directoryOnly=PAYER_POLICY_EVIDENCE.filter(s=>s.directoryOnly===true);
- assert.equal(fingerprinted.length,8);assert.equal(directoryOnly.length,10);
+ assert.equal(fingerprinted.length,18);assert.equal(directoryOnly.length,6);
  // Register and module agree in both directions.
  for(const s of fingerprinted){const row=register.find(r=>r.sourceId===s.id);assert.ok(row,s.id);assert.equal(row.status,'bound');assert.equal(row.sha256,s.sourceSha256,s.id);}
  for(const row of register.filter(r=>r.status==='bound')){const s=PAYER_POLICY_EVIDENCE.find(x=>x.id===row.sourceId);assert.ok(s,row.sourceId);assert.equal(s.sourceSha256,row.sha256);}
@@ -23,7 +23,10 @@ test('reviewed evidence contains source identity and digest, never procurement p
  assert.equal(PAYER_POLICY_EVIDENCE.find(s=>s.id==='hmsa-evenity-ma-2025').sourceSha256,'dbfc5b1a4a2990c13a24ed9852ad05fb0ffc7492d59d60fbc4ba5f5f794f9175');
  assert.equal(PAYER_POLICY_EVIDENCE.find(s=>s.id==='uhc-sourcing-2026').referenceType,'sourcing');
  assert.deepEqual([...PAYER_POLICY_EVIDENCE.find(s=>s.id==='uhc-knee-2026').lines],['Commercial','Individual Exchange']);
- assert.ok(directoryOnly.some(s=>s.id==='hmsa-evolent-matrix-2026'));
+ // Re-downloaded and matched on 2026-11-15: the Evolent matrix and the UHC policies are fingerprinted snapshots again.
+ assert.ok(fingerprinted.some(s=>s.id==='hmsa-evolent-matrix-2026'));
+ for(const id of ['uhc-knee-2026','uhc-hip-2026','uhc-gel-2026','uhc-evenity-2026','uhc-denosumab-2026','uhc-sij-2026','uhc-omnibus-carpal-2026']){const s=fingerprinted.find(x=>x.id===id);assert.ok(s,id);assert.equal(s.retrievedAt,'2026-11-15');assert.deepEqual([...s.lines],['Commercial','Individual Exchange']);}
+ assert.equal(register.some(r=>r.status==='pending-reverification'),false);
  for(const s of fingerprinted)assert.ok(sums.includes(s.sourceSha256),s.id);
  // Directory-only references never carry an invented digest and are never promoted to a fingerprinted snapshot.
  for(const s of directoryOnly){assert.equal(s.sourceSha256,null,s.id);assert.equal(sums.includes(s.sourceSha256),false);}
@@ -39,7 +42,11 @@ test('HMSA gel preferences and clinical evidence stay in their reviewed coverage
  assert.deepEqual(refs({line:'Medicare Advantage',productId:'bone-prolia'}).map(s=>s.id),['hmsa-prolia-ma-2026']);
  assert.deepEqual(refs({line:'Medicare Advantage',productId:'bone-evenity'}).map(s=>s.id),['hmsa-evenity-ma-2025']);
  assert.equal(refs({productId:'bone-evenity'}).some(s=>s.id==='hmsa-evenity-ma-2025'),false);
- assert.ok(refs({line:'Medicare Advantage'}).every(s=>s.directoryOnly===true&&s.sourceSha256===null));
+ // Medicare Advantage gel policies are their own fingerprinted documents with a different preferred list.
+ const maGel=refs({line:'Medicare Advantage'});assert.ok(maGel.every(s=>/^[0-9a-f]{64}$/.test(s.sourceSha256)));
+ assert.match(maGel.find(s=>s.id==='hmsa-gel-ma-preference-2026').summary,/Durolane, Euflexxa, Gelsyn-3 and Supartz FX/);
+ assert.match(maGel.find(s=>s.id==='hmsa-gel-ma-preference-2026').limitations,/supply route stays unverified/);
+ assert.doesNotMatch(maGel.find(s=>s.id==='hmsa-gel-ma-2026').summary,/six months of conservative/);
  assert.equal(refs({serviceDate:'2026-01-01'}).length,1);
  assert.match(refs()[0].summary,/Euflexxa, Synvisc and Synvisc One/);
  assert.match(refs()[1].summary,/last injection/);
@@ -69,7 +76,10 @@ test('Traditional Medicare LCD references stay on the Traditional Medicare line 
  assert.equal(payerEvidenceFor({...scope,payer:'UnitedHealthcare',productId:'procedure-total-knee',medication:false},'2026-11-08').some(s=>s.id.startsWith('medicare-')),false);
 });
 test('publication code is not silently converted to an effective date or buy-and-bill authority',()=>{
- const source=refs({payer:'UnitedHealthcare'})[0];assert.equal(source.effectiveFrom,null);
+ const uhc=refs({payer:'UnitedHealthcare'});const source=uhc.find(s=>s.id==='uhc-sourcing-2026');assert.equal(source.effectiveFrom,null);
+ // The UHC gel policy is a separate fingerprinted record and states its own scope; it never reaches HMSA or MA.
+ const gelPolicy=uhc.find(s=>s.id==='uhc-gel-2026');assert.match(gelPolicy.summary,/Durolane, Euflexxa and Gelsyn-3/);assert.match(gelPolicy.limitations,/not coverage/);
+ assert.equal(refs().some(s=>s.id.startsWith('uhc-')),false);
  assert.match(source.summary,/administration only/);assert.match(source.summary,/UMR/);assert.equal(source.orderingAllowed,false);
  assert.equal(refs({payer:'UnitedHealthcare',line:'Medicare Advantage'}).length,0);
  assert.match(source.limitations,/not prove buy-and-bill/);
@@ -113,7 +123,8 @@ test('snapshot verification rejects wrong-title downloads by byte identity and r
  const registry=[{id:'fictional',title:'Fictional reviewed policy',sourceSha256:sha}];
  const r=await verifyPolicySnapshot('fictional',bytes,registry);assert.equal(r.snapshotMatches,true);assert.equal(r.orderingAllowed,false);assert.equal(r.planAdoptionVerified,false);
  await assert.rejects(()=>verifyPolicySnapshot('hmsa-prolia-cq-2026',bytes),/mismatch/);
- await assert.rejects(()=>verifyPolicySnapshot('hmsa-evolent-matrix-2026',bytes),/No fingerprint on record.*register digest 9f0be978/);
+ await assert.rejects(()=>verifyPolicySnapshot('hmsa-evolent-matrix-2026',bytes),/mismatch/); // re-bound on 2026-11-15 after a matching re-download
+ await assert.rejects(()=>verifyPolicySnapshot('pending',bytes,[{id:'pending',title:'Pending record',sourceSha256:null,registerSha256:'9f0be978'+'0'.repeat(56)}]),/No fingerprint on record.*register digest 9f0be978/);
  await assert.rejects(()=>verifyPolicySnapshot('medicare-noridian-tka-l36575',bytes),/directory entry or web document/);
  await assert.rejects(()=>verifyPolicySnapshot('fictional',new TextEncoder().encode('<html>Login</html>'),registry),/PDF/);
  await assert.rejects(()=>verifyPolicySnapshot('wrong',bytes,registry),/Unknown/);

@@ -1,4 +1,4 @@
-# Implementation status — November 8, 2026 (Hawaiʻi policy day)
+# Implementation status — November 15, 2026 (Hawaiʻi policy day)
 
 Branch `claude/determined-faraday-grbpp3`, built on the unmerged draft PR #14 lineage; `main` is still at commit 79fc27a. This page reports five things **separately**, because a green test suite says nothing about payer-policy completeness, and a complete payer registry says nothing about HIPAA readiness. Dates follow the application's policy day (Pacific/Honolulu).
 
@@ -10,7 +10,7 @@ Everything below describes a **synthetic-data trial**. No exact-plan adoption, m
 | --- | --- | --- |
 | Staff workup (insurer → plan → service → requirements → cost → packet → blank addendum) | Implemented, synthetic | Six numbered steps on one screen; payer-scoped plan lists; plan-year availability enforced; unsupported lines (Part D, federal/postal, delegated administrators) produce an explanation instead of a cost case. |
 | Clinical addendum templates | Implemented | 68 templates (16 gel products, 14 bone-health products, 27 procedures, 1 cell product, 4 injections, 4 diagnostics, 2 therapy/DME) with scaffolds by service type; blank by design, completed only in an approved clinical system. |
-| Payer evidence registry and verification worksheet | Implemented | 18 public references: 8 fingerprinted PDF snapshots and 10 directory or web-document entries, labelled differently on the printed worksheet. Documentation branches are scoped by request type and product. |
+| Payer evidence registry and verification worksheet | Implemented | 24 public references: 18 fingerprinted PDF snapshots and 6 web-document entries (the Noridian Medicare records), labelled differently on the printed worksheet. Documentation branches are scoped by request type and product. |
 | Traditional Medicare (Noridian JE) | Implemented as web-document references | LCDs L36575, L34163, L39810 with L39462, proposed DL40456 marked not in effect, and a dated negative search for Part B osteoporosis drugs. No prior authorization exists for these services under Original Medicare; records support claim-level documentation only and never apply to Medicare Advantage. |
 | Coverage matrix | Implemented, generated | `npm run matrix` writes [COVERAGE-MATRIX.md](COVERAGE-MATRIX.md) from the registries for 21 payers × their coverage lines × 44 priority services; `npm run matrix:check` and a test fail on drift. |
 | Patient cost estimator | Implemented, fail-closed | Components follow the service type; payer and plan line must be consistent; Original Medicare OPPS facility and pharmacy-benefit deductibles are never pre-filled; every total carries a confidence label (assumption-only / staff-verified inputs / cash scenario) and is never a quote. |
@@ -26,36 +26,47 @@ Everything below describes a **synthetic-data trial**. No exact-plan adoption, m
 | Check | Result at the latest commit on this branch |
 | --- | --- |
 | `npm run check` | 84 JavaScript modules pass syntax validation; `wrangler.jsonc` keeps preview URLs disabled. |
-| `npm test` | 404 tests pass, including the server-hardening, deployment-gate, local-server, adapter and documentation-link tests added on November 8. |
+| `npm test` | 405 tests pass, including the server-hardening, deployment-gate, local-server, adapter, documentation-link and UHC record-scoping tests. |
 | `npm run matrix:check` | Committed matrix documents match the registries for 2026-11-08 (now also run in CI). |
 | `npm run build` and its guards | Build succeeds; `PATIENT_DATA_ENABLED=true` is refused; `WORKERS_CI=1` without `SYNTHETIC_ONLY_ACK=true` is refused. |
 | `npm run test:browser` | 68 print/download/reset/mobile/lock flows pass against the local server with no external requests or data writes. |
 | GitHub Actions "Verify trial application" | Green on every push to this branch through 3ddd75f (runs 289–293). |
 
-What the tests do **not** establish: payer web documents could not be re-fetched from the build environment (hmsa.com, uhcprovider.com, radmd.com and medquest.hawaii.gov return 403 through the proxy), so no PDF was re-fingerprinted on November 8; no live AI provider or Cuptomize call was made; the 20-case clinical validation the handoff requires before any clinical rollout has not been performed.
+What the tests do **not** establish: no live AI provider or Cuptomize call was made, and the 20-case clinical validation the handoff requires before any clinical rollout has not been performed. Payer documents were re-fetched on November 15 from www.hmsa.com (PDFs via documents.hmsa.com and global-downloads.webdamdb.com), www.uhcprovider.com and www1.radmd.com; medquest.hawaii.gov is on the network allowlist but the site itself answers automated requests with 403, and medicare.gov is not allowlisted.
 
 ## 3. Payer policy completeness
 
-The generated [coverage matrix](COVERAGE-MATRIX.md) is the authoritative statement. Counts for 2026-11-08:
+The generated [coverage matrix](COVERAGE-MATRIX.md) is the authoritative statement. Counts for 2026-11-15:
 
 | Status | Cells |
 | --- | --- |
-| REVIEWED (fingerprinted or reviewed source applies) | 61 |
-| PARTIAL (directory entry, web document or incomplete reference) | 126 |
+| REVIEWED (fingerprinted or reviewed source applies) | 151 |
+| PARTIAL (directory entry, web document or incomplete reference) | 40 |
 | LIVE FORMULARY (exact plan/year file lookup) | 12 |
-| ROUTE ONLY (official PA route link, no criteria) | 873 |
+| ROUTE ONLY (official PA route link, no criteria) | 869 |
 | MISSING | 380 |
 | n/a (line not sold or service not applicable) | 88 |
 
-Register: 11 snapshots in [policy-source-checksums.json](policy-source-checksums.json) — 8 bound to their evidence records, 1 pending re-verification (the HMSA Evolent joint-surgery matrix, de-linked on 2026-11-08 after the digest was found copied onto unrelated records), 2 catalog-only extracts (HMAA formulary, MDX drug list).
+Register: 20 snapshots in [policy-source-checksums.json](policy-source-checksums.json) — 18 bound to their evidence records and 2 catalog-only extracts (HMAA formulary, MDX drug list). On November 15 every previously registered HMSA and UHC digest was re-downloaded and matched byte-for-byte, the HMSA Evolent joint-surgery matrix was re-bound after matching its registered digest, and nine documents were fingerprinted for the first time: UHC Surgery of the Knee (2026T0553JJ), Surgery of the Hip (2026T0503KK), Sodium Hyaluronate (2026D0081M), Evenity (2026D0080M), Denosumab (2026D0068U), Sacroiliac Joint Interventions (2026T0621P), Omnibus Codes (2026T0535XXX, CPT 64728) and the two HMSA Medicare Advantage hyaluronate documents.
 
 Priority gaps that need payer-site access or documents this environment cannot reach:
 
-- Reclast (zoledronic acid) medical policies for HMSA, UHC and Kaiser; Enoby and Stoboclo HCPCS codes.
-- UHC commercial sodium hyaluronate policy 2026D0081M (reviewed on November 7 per the audit record but never entered the registry; UHC commercial gel stays PARTIAL), UHC Surgery of the Hip PDF, UHC Evenity and denosumab fingerprints.
-- Commercial and Medicare Advantage policies for SI joint fusion, carpal tunnel release (including balloon 64728), trigger finger, partial knee and revision arthroplasty beyond HMSA/UHC knee.
-- Kaiser, AlohaCare and ʻOhana medical policies for procedures; plan-specific Medicare Advantage rules for every MA payer.
-- Re-download and re-fingerprint of the HMSA Evolent matrix.
+Findings from the November 15 retrieval that change staff guidance:
+
+- **Denosumab codes corrected.** The UHC denosumab policy code table lists Bildyos Q5162, Stoboclo Q5157 and Enoby Q5167; the catalog previously carried Q5157 for Bildyos and no code for Enoby or Stoboclo.
+- **HMSA Medicare Advantage gel preferences differ from Commercial/QUEST.** MA prefers Durolane, Euflexxa, Gelsyn-3 and Supartz FX (Synvisc and Synvisc-One are non-preferred); Commercial/QUEST prefers Euflexxa, Synvisc and Synvisc One. The MA policy also states hyaluronates must be billed by a contracted Part B provider as a medical claim. The earlier directory-only record described the MA program as "Synvisc and Synvisc One" and has been replaced.
+- **UHC and HMSA disagree on Jubbonti.** UHC prefers Bildyos, Enoby, Prolia and Stoboclo and typically excludes Jubbonti; HMSA Commercial/QUEST prefers Jubbonti.
+- **UHC gel:** only Durolane, Euflexxa and Gelsyn-3 are covered (the policy says without prior authorization); the other brands are typically excluded.
+- **UHC SI joint fusion:** proven only with a titanium triangular implant under InterQual criteria; other devices unproven. **UHC CPT 64728** (balloon-assisted or ultrasound-guided percutaneous carpal tunnel decompression) is unproven.
+- **HMSA/Evolent scope:** the 2026 joint-surgery matrix lists hip, knee and shoulder codes only. SI joint fusion, carpal tunnel release and trigger finger are not Evolent-managed and go through HMSA's own PA code list.
+- **Reclast:** neither HMSA's medical specialty drug directories (#–L and M–Z) nor UHC's commercial medical and drug policy directory lists a zoledronic acid policy. This is a dated negative search, not proof that no authorization or coverage rule applies.
+
+Gaps that remain:
+
+- UHC InterQual thresholds (licensed) for knee, hip and SI joint surgery; UHC Medicare Advantage and Community Plan (QUEST) versions of these policies.
+- HMSA's own rules for SI joint fusion, carpal tunnel release and trigger finger (the required-PA code lookup is an interactive tool, not a document).
+- Kaiser, AlohaCare and ʻOhana medical policies for procedures; plan-specific Medicare Advantage rules for every other MA payer.
+- Med-QUEST member cost-sharing page (site refuses automated requests; needs a manual download).
 
 Standing rules preserved throughout: PA code lists are not clinical criteria; a pharmacy formulary is not medical coverage; unverified stays blank or unknown; no approval or coverage is inferred.
 

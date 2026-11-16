@@ -1,20 +1,20 @@
 {
- "asOf": "2026-11-08",
+ "asOf": "2026-11-15",
  "generatedFrom": "shared/coverage-matrix.mjs",
  "caveat": "No cell verifies exact-plan adoption, member eligibility, prior authorization approval, payment or a medication supply route. REVIEWED means a reviewed public source exists for the payer, line and product; staff must still confirm the member product and the current source version.",
  "counts": {
-  "reviewed": 61,
+  "reviewed": 151,
   "stale": 0,
-  "partial": 126,
+  "partial": 40,
   "live-formulary": 12,
-  "routing-only": 873,
+  "routing-only": 869,
   "missing": 380,
   "n/a": 88
  },
  "registry": {
-  "evidenceRecords": 18,
-  "fingerprinted": 8,
-  "directoryOnly": 10,
+  "evidenceRecords": 24,
+  "fingerprinted": 18,
+  "directoryOnly": 6,
   "reviewedExtracts": 6,
   "formularyEntries": 5,
   "codeLists": 1,
@@ -2621,8 +2621,6 @@
     {
      "payer": "UnitedHealthcare",
      "lines": [
-      "Commercial",
-      "Individual Exchange",
       "QUEST / Medicaid",
       "Medicare Advantage"
      ]
@@ -2840,8 +2838,6 @@
     {
      "payer": "UnitedHealthcare",
      "lines": [
-      "Commercial",
-      "Individual Exchange",
       "QUEST / Medicaid",
       "Medicare Advantage"
      ]
@@ -3096,7 +3092,7 @@
    ],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -3113,7 +3109,7 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -3133,7 +3129,7 @@
    ],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -3153,7 +3149,7 @@
    ],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -3170,7 +3166,7 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -3683,7 +3679,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "durolane",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -3787,7 +3783,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "euflexxa",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -3891,7 +3887,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "gel-one",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -3995,7 +3991,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "gelsyn-3",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4099,7 +4095,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "genvisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4203,7 +4199,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "hyalgan",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4307,7 +4303,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "hymovis",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4411,7 +4407,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "monovisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4515,7 +4511,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "orthovisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4619,7 +4615,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "supartz",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4723,7 +4719,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4827,7 +4823,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc-one",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -4931,7 +4927,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "trivisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5035,7 +5031,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "synojoynt",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5139,7 +5135,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "triluron",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5243,7 +5239,7 @@
    "serviceId": "knee-gel",
    "gelProductId": "visco-3",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5582,7 +5578,7 @@
    "line": "Commercial",
    "serviceId": "total-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5618,7 +5614,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "total-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
     "hmsa-evolent-matrix-2026"
    ],
@@ -5634,7 +5630,7 @@
    "line": "Medicare Advantage",
    "serviceId": "total-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5670,7 +5666,7 @@
    "line": "Commercial",
    "serviceId": "revision-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5712,7 +5708,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "revision-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
     "hmsa-evolent-matrix-2026"
    ],
@@ -5731,7 +5727,7 @@
    "line": "Medicare Advantage",
    "serviceId": "revision-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5863,7 +5859,7 @@
    "line": "Commercial",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -5902,7 +5898,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
     "hmsa-evolent-matrix-2026",
     "maci-billing"
@@ -5919,7 +5915,7 @@
    "line": "Medicare Advantage",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -6038,7 +6034,7 @@
    "line": "Commercial",
    "serviceId": "acl-reconstruction",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -6074,7 +6070,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "acl-reconstruction",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
     "hmsa-evolent-matrix-2026"
    ],
@@ -6090,7 +6086,7 @@
    "line": "Medicare Advantage",
    "serviceId": "acl-reconstruction",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -6205,7 +6201,7 @@
    "line": "Commercial",
    "serviceId": "meniscus-repair",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -6243,7 +6239,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "meniscus-repair",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
     "hmsa-evolent-matrix-2026"
    ],
@@ -6260,7 +6256,7 @@
    "line": "Medicare Advantage",
    "serviceId": "meniscus-repair",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -6377,7 +6373,7 @@
    "line": "Commercial",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -6415,7 +6411,7 @@
    "line": "QUEST / Medicaid",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "records": [
     "hmsa-evolent-matrix-2026"
    ],
@@ -6432,7 +6428,7 @@
    "line": "Medicare Advantage",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -7174,7 +7170,7 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -7188,7 +7184,7 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -7202,7 +7198,7 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -7219,7 +7215,7 @@
    "records": [],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -9998,7 +9994,7 @@
    "records": [],
    "routes": 3,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -10015,7 +10011,7 @@
    "records": [],
    "routes": 3,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -11562,7 +11558,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -11579,7 +11575,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -13092,7 +13088,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -13874,7 +13870,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -14621,6 +14617,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-denosumab-2026",
     "uhc-sourcing-2026",
     "uhc-denosumab-2026-10"
    ],
@@ -14641,6 +14638,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-denosumab-2026",
     "uhc-denosumab-2026-10"
    ],
    "routes": 2,
@@ -14692,6 +14690,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-denosumab-2026",
     "uhc-sourcing-2026",
     "uhc-denosumab-2026-10"
    ],
@@ -14712,6 +14711,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-denosumab-2026",
     "uhc-denosumab-2026-10"
    ],
    "routes": 2,
@@ -14763,12 +14763,13 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-denosumab-2026",
     "uhc-sourcing-2026",
     "uhc-denosumab-2026-10"
    ],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -14783,11 +14784,12 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-denosumab-2026",
     "uhc-denosumab-2026-10"
    ],
    "routes": 2,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -14801,7 +14803,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -14818,7 +14820,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -14834,6 +14836,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-evenity-2026",
     "uhc-sourcing-2026",
     "uhc-evenity-2026-11"
    ],
@@ -14854,6 +14857,7 @@
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-evenity-2026",
     "uhc-evenity-2026-11"
    ],
    "routes": 2,
@@ -15139,11 +15143,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "durolane",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15160,11 +15165,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "durolane",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15216,11 +15222,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "euflexxa",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15237,11 +15244,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "euflexxa",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15293,11 +15301,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "gel-one",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15314,11 +15323,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "gel-one",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15370,11 +15380,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "gelsyn-3",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15391,11 +15402,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "gelsyn-3",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15447,11 +15459,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "genvisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15468,11 +15481,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "genvisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15524,11 +15538,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "hyalgan",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15545,11 +15560,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "hyalgan",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15601,11 +15617,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "hymovis",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15622,11 +15639,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "hymovis",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15678,11 +15696,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "monovisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15699,11 +15718,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "monovisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15755,11 +15775,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "orthovisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15776,11 +15797,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "orthovisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15832,11 +15854,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "supartz",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15853,11 +15876,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "supartz",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15909,11 +15933,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -15930,11 +15955,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -15986,11 +16012,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc-one",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -16007,11 +16034,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "synvisc-one",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -16063,11 +16091,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "trivisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -16084,11 +16113,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "trivisc",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -16140,11 +16170,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "synojoynt",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -16161,11 +16192,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "synojoynt",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -16217,11 +16249,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "triluron",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -16238,11 +16271,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "triluron",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -16294,11 +16328,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "visco-3",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-commercial"
    ],
    "routes": 3,
@@ -16315,11 +16350,12 @@
    "serviceId": "knee-gel",
    "gelProductId": "visco-3",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-gel-2026",
     "uhc-gel-exchange"
    ],
    "routes": 2,
@@ -16370,7 +16406,7 @@
    "line": "Commercial",
    "serviceId": "total-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16390,7 +16426,7 @@
    "line": "Individual Exchange",
    "serviceId": "total-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16443,7 +16479,7 @@
    "line": "Commercial",
    "serviceId": "partial-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16463,7 +16499,7 @@
    "line": "Individual Exchange",
    "serviceId": "partial-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16516,7 +16552,7 @@
    "line": "Commercial",
    "serviceId": "revision-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16538,7 +16574,7 @@
    "line": "Individual Exchange",
    "serviceId": "revision-knee",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16597,11 +16633,12 @@
    "line": "Commercial",
    "serviceId": "total-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-hip-2026",
     "uhc-surgery-hip"
    ],
    "routes": 3,
@@ -16616,11 +16653,12 @@
    "line": "Individual Exchange",
    "serviceId": "total-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-hip-2026",
     "uhc-surgery-hip"
    ],
    "routes": 2,
@@ -16666,11 +16704,12 @@
    "line": "Commercial",
    "serviceId": "revision-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-hip-2026",
     "uhc-surgery-hip"
    ],
    "routes": 3,
@@ -16688,11 +16727,12 @@
    "line": "Individual Exchange",
    "serviceId": "revision-hip",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-hip-2026",
     "uhc-surgery-hip"
    ],
    "routes": 2,
@@ -16823,7 +16863,7 @@
    "line": "Commercial",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16844,7 +16884,7 @@
    "line": "Individual Exchange",
    "serviceId": "maci-implant",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16966,7 +17006,7 @@
    "line": "Commercial",
    "serviceId": "acl-reconstruction",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -16986,7 +17026,7 @@
    "line": "Individual Exchange",
    "serviceId": "acl-reconstruction",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -17102,7 +17142,7 @@
    "line": "Commercial",
    "serviceId": "meniscus-repair",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -17123,7 +17163,7 @@
    "line": "Individual Exchange",
    "serviceId": "meniscus-repair",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -17242,7 +17282,7 @@
    "line": "Commercial",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -17262,7 +17302,7 @@
    "line": "Individual Exchange",
    "serviceId": "knee-meniscectomy",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
@@ -17445,12 +17485,13 @@
    "line": "Commercial",
    "serviceId": "carpal-balloon",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "restrictive",
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-omnibus-carpal-2026",
     "uhc-percutaneous"
    ],
    "routes": 3,
@@ -17465,12 +17506,13 @@
    "line": "Individual Exchange",
    "serviceId": "carpal-balloon",
    "benefit": "Medical",
-   "status": "partial",
+   "status": "reviewed",
    "flags": [
     "restrictive",
     "plan-family-sources-only"
    ],
    "records": [
+    "uhc-omnibus-carpal-2026",
     "uhc-percutaneous"
    ],
    "routes": 2,
@@ -17519,12 +17561,14 @@
    "line": "Commercial",
    "serviceId": "carpal-ultrasound-other",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "no-candidate-code",
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-omnibus-carpal-2026"
+   ],
    "routes": 3,
    "codes": [],
    "template": "procedure-carpal-ultrasound-other",
@@ -17535,12 +17579,14 @@
    "line": "Individual Exchange",
    "serviceId": "carpal-ultrasound-other",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "no-candidate-code",
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-omnibus-carpal-2026"
+   ],
    "routes": 2,
    "codes": [],
    "template": "procedure-carpal-ultrasound-other",
@@ -17710,11 +17756,13 @@
    "line": "Commercial",
    "serviceId": "si-joint-fusion",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-sij-2026"
+   ],
    "routes": 3,
    "codes": [
     "27279",
@@ -17728,11 +17776,13 @@
    "line": "Individual Exchange",
    "serviceId": "si-joint-fusion",
    "benefit": "Medical",
-   "status": "routing-only",
+   "status": "reviewed",
    "flags": [
     "plan-family-sources-only"
    ],
-   "records": [],
+   "records": [
+    "uhc-sij-2026"
+   ],
    "routes": 2,
    "codes": [
     "27279",
@@ -17820,7 +17870,7 @@
    "records": [],
    "routes": 3,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -18602,7 +18652,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -19388,7 +19438,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -20170,7 +20220,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -20952,7 +21002,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -21779,7 +21829,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -22567,7 +22617,7 @@
    ],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -23387,7 +23437,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -24120,7 +24170,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -24898,7 +24948,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -25676,7 +25726,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -26454,7 +26504,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -27232,7 +27282,7 @@
    "records": [],
    "routes": 0,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"
@@ -28010,7 +28060,7 @@
    "records": [],
    "routes": 1,
    "codes": [
-    "Q5157"
+    "Q5162"
    ],
    "template": "bone-bildyos",
    "formulary": "n/a"

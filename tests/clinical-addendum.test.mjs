@@ -47,7 +47,7 @@ test('brand variants and procedure variants contain their own documentation prom
  assert.equal(authTemplateForService('total-knee').category,'surgery');
  // Cautionary descriptions are notes, never mandatory field labels.
  for(const t of AUTH_TEMPLATE_CATALOG)for(const f of t.fields)assert.equal(/\.$/.test(f.label.trim())&&/may vary|require|review/.test(f.label),false,t.id+': '+f.label);
- assert.deepEqual(authTemplateForService('jubbonti').codes,['Q5136']);assert.deepEqual(authTemplateForService('bildyos').codes,['Q5157']);assert.deepEqual(authTemplateForService('enoby').codes,[]);
+ assert.deepEqual(authTemplateForService('jubbonti').codes,['Q5136']);assert.deepEqual(authTemplateForService('bildyos').codes,['Q5162']);assert.deepEqual(authTemplateForService('enoby').codes,['Q5167']);assert.deepEqual(authTemplateForService('stoboclo').codes,['Q5157']);
  assert.deepEqual(authTemplateForService('si-joint-fusion').codes,['27279','27278']);
  assert.deepEqual(authTemplateForService('carpal-ultrasound-other').codes,[]);assert.deepEqual(authTemplateForService('carpal-balloon').codes,['64728']);
  assert.match(findAuthTemplate('bone-evenity').fields.at(-1).label,/cardiovascular/);

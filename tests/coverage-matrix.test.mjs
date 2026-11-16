@@ -30,7 +30,8 @@ test('no cell ever asserts coverage, approval, eligibility or procurement',()=>{
 });
 test('reviewed HMSA Commercial/QUEST gel and bone records never leak to Medicare Advantage or other payers',()=>{
  const ma=cell('HMSA','Medicare Advantage','knee-gel','synvisc-one');
- assert.equal(ma.status,'partial');
+ assert.equal(ma.status,'reviewed'); // the separate Medicare Advantage gel policies were fingerprinted on 2026-11-15
+ assert.deepEqual(ma.records.map(r=>r.id).filter(id=>id.startsWith('hmsa-gel')).sort(),['hmsa-gel-ma-2026','hmsa-gel-ma-preference-2026']);
  assert.ok(ma.records.every(r=>!['hmsa-gel-clinical-2026','hmsa-gel-preference-2026'].includes(r.id)));
  assert.equal(cell('HMSA','Commercial','knee-gel','synvisc-one').status,'reviewed');
  assert.equal(cell('UnitedHealthcare','Commercial','total-knee').records.some(r=>r.id.startsWith('hmsa-')),false);

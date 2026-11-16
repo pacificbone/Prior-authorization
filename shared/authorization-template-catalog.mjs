@@ -15,9 +15,10 @@ const gelFields=[
 ];
 const boneProducts=[
  // Q-codes for Jubbonti and Bildyos are cited in the reviewed MDX/UHC Medicare Advantage PA list; Enoby and Stoboclo codes are not yet verified.
- ['bildyos','Bildyos (denosumab-nxxp)','Q5157'],
- ['enoby','Enoby (denosumab-qbde)',null],
- ['stoboclo','Stoboclo (denosumab-bmwo)',null],
+ // Product-specific HCPCS codes as listed in the UHC denosumab policy 2026D0068U code table (fingerprinted 2026-11-15).
+ ['bildyos','Bildyos (denosumab-nxxp)','Q5162'],
+ ['enoby','Enoby (denosumab-qbde)','Q5167'],
+ ['stoboclo','Stoboclo (denosumab-bmwo)','Q5157'],
  ['jubbonti','Jubbonti (denosumab-bbdz)','Q5136'],
  ['alendronate','Alendronate',null],
  ['risedronate','Risedronate',null],
