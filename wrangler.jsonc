@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "pbj-prior-authorization-trial",
+  "name": "prior-authorization",
   "main": "server/worker.mjs",
   "compatibility_date": "2026-11-06",
   "preview_urls": false,

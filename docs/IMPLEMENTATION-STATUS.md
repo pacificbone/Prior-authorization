@@ -84,8 +84,8 @@ Standing rules preserved throughout: PA code lists are not clinical criteria; a 
 | Item | Status |
 | --- | --- |
 | Sanctioned deploy path | Manual `workflow_dispatch` in `.github/workflows/deploy-cloudflare-trial.yml`, gated by `synthetic_only_ack` and the `synthetic-trial` environment. Never run from this branch. |
-| **Cloudflare Workers Builds integration** | Attached to this public repository and runs on every push to every branch, outside the gated workflow. It currently fails within a second (configuration stage: `wrangler.jsonc` names `pbj-prior-authorization-trial` while the Cloudflare Worker is `prior-authorization`; `dist/` is not committed). The build now fails closed whenever `WORKERS_CI` is set without `SYNTHETIC_ONLY_ACK=true`, so an accidental fix of that misconfiguration cannot auto-deploy. **Owner action:** disconnect Workers Builds or restrict it to the gated path. |
-| Worker name | Mismatch between `wrangler.jsonc` and the Worker that holds the Access and bridge secrets; choosing the name is a deployment decision left to the owner (see [PRIVATE-CUPTOMIZE-PRICING.md](PRIVATE-CUPTOMIZE-PRICING.md)). |
+| Cloudflare Workers Builds integration | The owner reported disconnecting it on 2026-11-16 (not independently verified from here). The build still fails closed whenever `WORKERS_CI` is set without `SYNTHETIC_ONLY_ACK=true`, so reconnecting it cannot auto-deploy. |
+| Worker name | Resolved 2026-11-16: `wrangler.jsonc` now uses `prior-authorization`, the existing Cloudflare Worker that holds the Access and bridge secrets. |
 | Public hostname | `workers_dev` is not disabled; an Access-protected custom hostname is required for a staff-only trial (owner decision; `preview_urls` is now false). |
 | Private dependency | The synthetic Worker binds to the private `cup-optimize` Worker; that service and three secrets must exist in the same account before `wrangler deploy` succeeds. |
 | OpenAI static preview | `.openai/hosting.json` describes a static copy of `dist/`; undocumented reach and status — confirm or retire. |
