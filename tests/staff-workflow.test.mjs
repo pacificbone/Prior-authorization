@@ -48,7 +48,9 @@ test('delegated administrator lists, partial published-list extracts and benefit
  assert.deepEqual(mdx.supplementaryPA.map(p=>p.id),['mdx-uhc-ma-drug-list-2026']);
  assert.equal(mdx.primaryPolicy,null);
  assert.ok(mdx.restrictions.some(x=>/UnitedHealthcare \(Medicare Advantage\)/.test(x)));
- const hmaa=staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy'});
+ // The HMAA extract is the July–December 2026 edition and expires 2026-12-31, so the as-of day is pinned.
+ const hmaa=staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2026-11-08'});
+ assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2027-01-02'}).formularyEntries.length,0); // expired editions are never shown as current
  assert.deepEqual(hmaa.formularyEntries.map(p=>p.id),['hmaa-premium-2026-h2-alendronate']);
  assert.ok(hmaa.restrictions.some(x=>/NOT verified/.test(x)&&/HMAA-OPTUMRX-PREMIUM-2026-H2/.test(x)));
  assert.ok(hmaa.sourceLinks.some(x=>x.status==='formulary-extract'));

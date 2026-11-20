@@ -7,12 +7,11 @@ import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverag
 import {PUBLISHED_FORMULARIES} from '/shared/live-formularies.mjs';
 import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
-import {newCostCase,validateCostCase,costWorksheet,getCostService,costContextForPlan,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
+import {newCostCase,validateCostCase,costWorksheet,getCostService,costContextForPlan,estimatePatientCost,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
 import {renderCostPage} from './cost-page.mjs';
 import {staffContext,staffPlansForPayer,staffGetService,staffDefaultBenefit,staffServices,STAFF_CATEGORY_LABELS,staffAuthorizePacket,staffPatientScript} from '/shared/staff-workflow.mjs';
 import {renderStaffPage} from './staff-page.mjs';
 import {keragonBuildPrompt} from '/shared/keragon-pa.mjs';
-import {COST_PAYERS} from '/shared/patient-cost.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

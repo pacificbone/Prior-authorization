@@ -12,6 +12,11 @@ jobs:
           node-version: '22'
       - run: npm run check
       - run: npm test
+      - name: Tests must not depend on today's date (about +45, +120 and +400 days)
+        run: |
+          for days in 45 120 400; do
+            FAKE_NOW=$(date -u -d "+$days days" +%Y-%m-%dT12:00:00Z) node --import ./tests/support/shift-clock.mjs --test tests/*.test.mjs
+          done
       - run: npm run matrix:check
       - run: npm run build
       - name: Confirm PHI build remains blocked

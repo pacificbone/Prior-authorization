@@ -117,7 +117,7 @@ function policyScope(plan,benefit) {
  return {payer,line,benefit,planCode,carrier:'',plan:'',adoptionVerified:false,
    potentialFormularyCode:exactFormulary?.code||null};
 }
-export function staffContext({payer='',planId='',year=2026,serviceId='',benefit='Medical',requestType='Initial',gelProductId='',guidance='without-ultrasound'}={}) {
+export function staffContext({payer='',planId='',year=2026,serviceId='',benefit='Medical',requestType='Initial',gelProductId='',guidance='without-ultrasound',asOf}={}) {
  if(!STAFF_YEARS.includes(year))throw Error('Choose a supported plan year.');
  if(payer&&!STAFF_PAYERS.some(x=>x.name===payer))throw Error('Unknown insurer.');
  if(!['Medical','Pharmacy'].includes(benefit))throw Error('Select the medical or pharmacy benefit.');
@@ -155,7 +155,8 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
    // Keep policy listings as contextual review requirements, not approval
    // determinations. MDX delegated UHC never becomes all UHC plans.
    if(plan.program!=='delegated'&&plan.payer!=='Medigap'&&!['Medicare Part D','Federal employee / postal','VA / Community Care','TRICARE'].includes(scope.line)){
-     const candidates=matchingPolicies(scope,service.id,[]);
+     // asOf is for tests and reports; the staff screen omits it and uses today's Hawaiʻi policy day.
+     const candidates=asOf?matchingPolicies(scope,service.id,[],asOf):matchingPolicies(scope,service.id,[]);
      matchedPolicies=candidates.filter(x=>x.kind==='medical-policy');
      supplementaryPA=candidates.filter(x=>x.kind==='authorization-list');
      formularyEntries=candidates.filter(x=>x.kind==='formulary');
