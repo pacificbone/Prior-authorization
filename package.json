@@ -12,6 +12,13 @@
     "test:browser": "node tests/browser/clinical-addendum.e2e.mjs",
     "check": "node scripts/check.mjs",
     "matrix": "node scripts/coverage-matrix.mjs",
-    "matrix:check": "node scripts/coverage-matrix.mjs --check"
+    "matrix:check": "node scripts/coverage-matrix.mjs --check",
+    "sources:due": "node scripts/sources-due.mjs",
+    "sources:check": "node scripts/check-sources.mjs",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "10.15.0",
+    "globals": "17.14.0"
   }
 }

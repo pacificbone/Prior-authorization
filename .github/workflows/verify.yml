@@ -24,6 +24,10 @@ jobs:
           if PATIENT_DATA_ENABLED=true npm run build; then
             exit 1
           fi
+      # Lint tooling is installed last, so the steps above prove check, tests and build need no dependencies.
+      - name: Install lint tooling (devDependencies only)
+        run: npm ci
+      - run: npm run lint
   browser:
     runs-on: ubuntu-latest
     steps:
