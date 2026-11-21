@@ -1,6 +1,6 @@
 // API Gateway HTTP API payload v2. Configure a JWT authorizer in AWS before exposure.
 import {handleApi} from './api.mjs';
-import {json,secureResponse} from './security.mjs';
+import {json,logFailure,secureResponse} from './security.mjs';
 const toLambda=async response=>({statusCode:response.status,headers:Object.fromEntries(response.headers),body:await response.text(),isBase64Encoded:false});
 export async function handler(event) {
   // Early refusals carry the same JSON and security-header contract as API replies.
@@ -13,5 +13,5 @@ export async function handler(event) {
     const method=event.requestContext.http.method;
     const request=new Request(url,{method,headers:event.headers||{},...(!['GET','HEAD'].includes(method)?{body:event.isBase64Encoded?Buffer.from(event.body||'','base64'):event.body||''}:{})});
     return toLambda(await handleApi(request,process.env));
-  } catch {return refuse('Request failed.',500);}
+  } catch(error) {logFailure(typeof event?.rawPath==='string'?event.rawPath:undefined,500,error);return refuse('Request failed.',500);}
 }

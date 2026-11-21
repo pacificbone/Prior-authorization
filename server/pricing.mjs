@@ -5,7 +5,7 @@
 import {verifyStaffAccess} from './access.mjs';
 import {staffContext} from '../shared/staff-workflow.mjs';
 import {COST_FACILITIES,COST_SETTINGS} from '../shared/patient-cost.mjs';
-import {readBoundedJson} from './security.mjs';
+import {logFailure,readBoundedJson} from './security.mjs';
 
 const keys=new Set(['payer','planId','year','serviceId','benefit','facilityId','setting','code']);
 const DRGS=new Set(['DRG 469','DRG 470','DRG 461','DRG 462']);
@@ -91,7 +91,8 @@ export function createStaffRateBridge({verify=verifyStaffAccess}={}){
    catch{return respond({error:'Invalid JSON or oversized request.'},400);}
    let input;
    try{input=validateStaffRateRequest(body);}
-   catch(e){return respond({error:e instanceof StaffRateInputError?e.message:'Invalid non-patient query.'},400);}
+   catch(e){if(!(e instanceof StaffRateInputError))logFailure(u.pathname,400,e);
+     return respond({error:e instanceof StaffRateInputError?e.message:'Invalid non-patient query.'},400);}
    const evidenceRequest={payer:input.payer,year:input.year,facilityId:input.facilityId,
      setting:input.setting,code:input.code};
    try{
@@ -121,7 +122,8 @@ export function createStaffRateBridge({verify=verifyStaffAccess}={}){
        selectedSourceLabel:input.planName,planPrecision:input.planPrecision,
        rateScope:'payer-level, not plan-specific',
        exactMemberPlanVerified:false,patientQuoteReady:false,applyAutomatically:false});
-   }catch{
+   }catch(error){
+     logFailure(u.pathname,503,error);
      return respond({error:'Protected Cuptomize rate response could not be validated. No rate can be used as a patient quote.'},503);
    }
  };

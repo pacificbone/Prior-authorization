@@ -14,12 +14,21 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  // Owner decision: observability stays off. If it were enabled, the Worker would surface only the
+  // metadata lines from logFailure ({event, route, status, error class}); it never logs bodies,
+  // query strings, headers, tokens or anything typed.
   "observability": {
     "enabled": false
   },
   "vars": {
     "AI_PROVIDER": "none",
-    "AI_TRIAL_ENABLED": "false"
+    "AI_TRIAL_ENABLED": "false",
+    // The Worker verifies the Cloudflare Access JWT on every request (assets and /api/*) itself.
+    // The owner MUST set the ACCESS_TEAM_DOMAIN and ACCESS_AUD secrets (wrangler secret put), or
+    // every request answers 503 and nothing is served. Requests without a valid Access JWT get 403.
+    "REQUIRE_ACCESS": "true",
+    // The legacy AI evidence extractor route answers 404 unless this is "on"; deployed builds keep it off.
+    "LEGACY_TOOLS": "off"
   },
   "services": [
     {

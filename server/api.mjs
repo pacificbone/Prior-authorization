@@ -5,7 +5,7 @@ import {applyPolicyPathway} from '../shared/domain.mjs';
 import {aiConfiguration,extractEvidence} from './ai.mjs';
 import {handleStaffRateRequest,pricingBridgeConfigured} from './pricing.mjs';
 import {accessConfigured} from './access.mjs';
-import {json,readBoundedJson,secureResponse,tokenMatches} from './security.mjs';
+import {json,logFailure,readBoundedJson,secureResponse,tokenMatches} from './security.mjs';
 // Trial rate limiting is per process/isolate, not a production distributed control.
 const SEARCH_LIMIT=30;
 export function createApi({fetcher=fetch,now=()=>Date.now()}={}) {
@@ -15,7 +15,7 @@ export function createApi({fetcher=fetch,now=()=>Date.now()}={}) {
     const url=new URL(request.url);
     const reply=(data,status=200)=>secureResponse(json(data,status),request.url);
     // Unauthenticated: expose only what the client renders, never configuration detail.
-    if(url.pathname==='/api/status'&&request.method==='GET'){const {provider,configured}=aiConfiguration(env);return reply({provider,configured,accessConfigured:accessConfigured(env),pricingBridgeConfigured:pricingBridgeConfigured(env),mode:'synthetic-only',phiRelease:'blocked'});}
+    if(url.pathname==='/api/status'&&request.method==='GET'){const {provider,configured}=aiConfiguration(env);return reply({provider,configured,accessConfigured:accessConfigured(env),accessRequired:env.REQUIRE_ACCESS==='true',pricingBridgeConfigured:pricingBridgeConfigured(env),mode:'synthetic-only',phiRelease:'blocked'});}
     if(url.pathname==='/api/staff/rates')
       return secureResponse(await handleStaffRateRequest(request,env),request.url);
     if(url.pathname==='/api/formulary/search') {
@@ -31,9 +31,11 @@ export function createApi({fetcher=fetch,now=()=>Date.now()}={}) {
       if(searches.length>=SEARCH_LIMIT) return reply({error:'Trial limit reached. Try again in a minute.'},429);
       searches.push(now());
       try{return reply(await searchPublicFormulary(input));}
-      catch{return reply({error:'The official published list could not be verified right now. No formulary conclusion is available. Use the payer source link and try again later.'},503);}
+      catch(error){logFailure(url.pathname,503,error);return reply({error:'The official published list could not be verified right now. No formulary conclusion is available. Use the payer source link and try again later.'},503);}
     }
     if(url.pathname!=='/api/ai/extract') return reply({error:'Not found.'},404);
+    // Legacy AI evidence extractor: absent unless LEGACY_TOOLS is exactly 'on' (`npm start -- --legacy-tools`); wrangler.jsonc keeps it off.
+    if(env.LEGACY_TOOLS!=='on') return reply({error:'Not available in this build.'},404);
     if(request.method!=='POST') return reply({error:'Method not allowed.'},405);
     const origin=request.headers.get('origin');
     const allowed=env.APP_ORIGIN||url.origin;
@@ -53,7 +55,7 @@ export function createApi({fetcher=fetch,now=()=>Date.now()}={}) {
     try {
       const evidence=await extractEvidence(sample,applyPolicyPathway(policy,sample.pathwayId,sample.drugId),env,fetcher);
       return reply({evidence,provider:env.AI_PROVIDER,synthetic:true,requiresClinicianReview:true});
-    } catch {return reply({error:'AI extraction failed or returned unsupported evidence. No changes were applied. Check provider/model permissions and server configuration.'},502);}
+    } catch(error) {logFailure(url.pathname,502,error);return reply({error:'AI extraction failed or returned unsupported evidence. No changes were applied. Check provider/model permissions and server configuration.'},502);}
   };
 }
 export const handleApi=createApi();
