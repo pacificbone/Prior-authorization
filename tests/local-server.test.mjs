@@ -4,6 +4,7 @@ import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
 import http from 'node:http';
 import {fileURLToPath} from 'node:url';
+import {readFileSync} from 'node:fs';
 const script=fileURLToPath(new URL('../server/local.mjs',import.meta.url));
 const freePort=()=>new Promise((resolve,reject)=>{const s=createServer();s.on('error',reject);s.listen(0,'127.0.0.1',()=>{const {port}=s.address();s.close(()=>resolve(port));});});
 function start(args){
@@ -38,6 +39,37 @@ test('preview mode keeps Host validation, defaults to loopback and honours --all
   assert.equal((await get(port,`preview.example:${port}`)).status,200);
   assert.equal((await get(port,'evil.example')).status,403);
   assert.equal((await get(port,`evil.example:${port}`)).status,403);
+ }finally{child.kill();}
+});
+const post=(port,path,body)=>new Promise((resolve,reject)=>{
+ const r=http.request({host:'127.0.0.1',port,path,method:'POST',headers:{Host:`localhost:${port}`,Origin:`http://localhost:${port}`,'Content-Type':'application/json'}},res=>{let text='';res.on('data',d=>text+=d);res.on('end',()=>resolve({status:res.statusCode,body:text}));});
+ r.on('error',reject);r.end(JSON.stringify(body));
+});
+const policyAsOf=JSON.parse(readFileSync(new URL('../docs/coverage-matrix.json',import.meta.url),'utf8')).asOf;
+test('local dev answers /version.json itself and keeps legacy tools off without --legacy-tools',async()=>{
+ const port=await freePort();const {child,out}=await start(['--port',String(port)]);
+ try{
+  assert.doesNotMatch(out(),/Legacy reference tools ON/);
+  const version=await get(port,`localhost:${port}`,'/version.json');
+  assert.equal(version.status,200);const data=JSON.parse(version.body);
+  assert.deepEqual(Object.keys(data).sort(),['builtAt','commit','policyAsOf']);
+  assert.match(data.commit,/^(?:[0-9a-f]{4,40}|local)$/);assert.equal(data.policyAsOf,policyAsOf);
+  assert.match(data.builtAt,/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  assert.equal((await get(port,'evil.example','/version.json')).status,403);
+  for(const path of ['/','/index.html'])assert.match((await get(port,`localhost:${port}`,path)).body,/<meta name="pbj-legacy-tools" content="off">/);
+  const extract=await post(port,'/api/ai/extract',{sampleId:'osteoporosis-evenity',policyId:'uhc-evenity-2026-11'});
+  assert.equal(extract.status,404);assert.deepEqual(JSON.parse(extract.body),{error:'Not available in this build.'});
+ }finally{child.kill();}
+});
+test('--legacy-tools serves index.html with the flag on and opens the AI route to its own configuration checks',async()=>{
+ const port=await freePort();const {child,out}=await start(['--port',String(port),'--legacy-tools']);
+ try{
+  assert.match(out(),/Legacy reference tools ON/);
+  const page=await get(port,`localhost:${port}`,'/');
+  assert.equal(page.status,200);assert.match(page.body,/<meta name="pbj-legacy-tools" content="on">/);assert.doesNotMatch(page.body,/content="off"/);
+  // Past the build flag, the route still needs a configured provider and trial token (none here: 503).
+  assert.equal((await post(port,'/api/ai/extract',{sampleId:'osteoporosis-evenity',policyId:'uhc-evenity-2026-11'})).status,503);
+  assert.equal((await get(port,`localhost:${port}`,'/version.json')).status,200);
  }finally{child.kill();}
 });
 test('--allow-host outside preview mode and malformed names are refused at startup',async()=>{

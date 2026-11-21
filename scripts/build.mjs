@@ -1,6 +1,7 @@
 import path from 'node:path';
-import {pathToFileURL} from 'node:url';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 import {assertSyntheticBuild} from '../shared/release-boundary.mjs';
+import {buildCommit,gitShortSha,legacyToolsRequested,readPolicyAsOf,setLegacyToolsMeta} from '../server/build-meta.mjs';
 // Cloudflare Workers Builds (WORKERS_CI=1) runs on every push to every branch and
 // would bypass the manual synthetic_only_ack gate. Only the acknowledged GitHub
 // workflow exports SYNTHETIC_ONLY_ACK=true, so an unattended build fails closed.
@@ -14,16 +15,19 @@ export async function build(argv=process.argv,env=process.env){
   assertSyntheticBuild(env);
   const {mkdir,rm,cp,readFile,writeFile}=await import('node:fs/promises');
   const root=new URL('../',import.meta.url);
+  // Everything that can fail is resolved before dist/ is touched.
+  const policyAsOf=await readPolicyAsOf(root);
+  const legacy=legacyToolsRequested(argv,env);
+  let html=setLegacyToolsMeta(await readFile(new URL('public/index.html',root),'utf8'),legacy);
+  if(argv.includes('--static-preview'))html=html.replace('name="pbj-api-mode" content="server"','name="pbj-api-mode" content="static-preview"');
+  const version={commit:buildCommit(env,()=>gitShortSha(fileURLToPath(root))),builtAt:new Date().toISOString(),policyAsOf};
   await rm(new URL('dist/',root),{recursive:true,force:true});
   await mkdir(new URL('dist/',root),{recursive:true});
   await cp(new URL('public/',root),new URL('dist/',root),{recursive:true});
   await cp(new URL('shared/',root),new URL('dist/shared/',root),{recursive:true});
-  if(argv.includes('--static-preview')){
-    const target=new URL('dist/index.html',root);
-    const html=await readFile(target,'utf8');
-    await writeFile(target,html.replace('name="pbj-api-mode" content="server"','name="pbj-api-mode" content="static-preview"'));
-  }
-  console.log('Built dist/ with local assets only. Server credentials and adapters are excluded.');
+  await writeFile(new URL('dist/index.html',root),html);
+  await writeFile(new URL('dist/version.json',root),JSON.stringify(version)+'\n');
+  console.log(`Built dist/ with local assets only (legacy tools ${legacy?'ON':'off'}; commit ${version.commit}; policy as of ${policyAsOf}). Server credentials and adapters are excluded.`);
 }
 // Run only as `node scripts/build.mjs`; importing the guard performs no build.
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){

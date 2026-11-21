@@ -14,6 +14,17 @@ export function secureResponse(response,url) {
   return new Response(response.body,{status:response.status,headers});
 }
 export function json(data,status=200) {return new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json; charset=utf-8'}});}
+// Metadata-only failure line: route, status and error class name. Never the message, query
+// string, body, headers or anything typed. Only the app's fixed routes are named; any other
+// pathname is logged as '/api/other' or '/other', so a hand-typed URL cannot reach the log.
+const LOG_ROUTES=new Set(['/','/index.html','/version.json','/api/status','/api/staff/rates','/api/formulary/search','/api/ai/extract']);
+export function logRoute(route) {
+  let path='/other';if(typeof route==='string')try{path=new URL(route,'https://route.invalid').pathname;}catch{}
+  return LOG_ROUTES.has(path)?path:path.startsWith('/api/')?'/api/other':'/other';
+}
+export function logFailure(route,status,error) {
+  console.error(JSON.stringify({event:'request_failed',route:logRoute(route),status:Number.isInteger(status)?status:0,error:typeof error?.name==='string'&&/^[A-Za-z]{1,40}$/.test(error.name)?error.name:'Error'}));
+}
 export async function readBoundedJson(request,limit=2048) {
   if(!request.headers.get('content-type')?.toLowerCase().startsWith('application/json')) throw new Error('Use application/json.');
   if(Number(request.headers.get('content-length')||0)>limit) throw new Error('Request too large.');

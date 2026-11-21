@@ -5,7 +5,7 @@ import {createApi} from '../server/api.mjs';
 import {handler} from '../server/lambda.mjs';
 import {samples} from '../shared/fixtures.mjs';
 const token='synthetic-test-token-01234567890123456789';
-const env={AI_PROVIDER:'openai',AI_MODEL:'test-model',OPENAI_API_KEY:'fake-key-for-mocked-transport',AI_TRIAL_ENABLED:'true',TRIAL_ACCESS_TOKEN:token};
+const env={LEGACY_TOOLS:'on',AI_PROVIDER:'openai',AI_MODEL:'test-model',OPENAI_API_KEY:'fake-key-for-mocked-transport',AI_TRIAL_ENABLED:'true',TRIAL_ACCESS_TOKEN:token};
 const sample=samples['osteoporosis-evenity'];
 const request=(payload,headers={},method='POST')=>new Request('https://app.example/api/ai/extract',{method,headers:{'Content-Type':'application/json','Origin':'https://app.example','X-Trial-Token':token,...headers},...(method==='POST'?{body:JSON.stringify(payload)}:{})});
 const ids={sampleId:'osteoporosis-evenity',policyId:'uhc-evenity-2026-11'};
@@ -23,15 +23,28 @@ test('encrypted workspace round-trip uses random salt/IV and never stores plaint
   await assert.rejects(()=>openWorkspace({...a,iterations:1},pass));
 });
 test('AI is disabled by default and patient-data mode stays false even with an env switch',async()=>{
-  const api=createApi();assert.equal((await api(request(ids),{})).status,503);
+  const api=createApi();assert.equal((await api(request(ids),{LEGACY_TOOLS:'on'})).status,503);
   const response=await api(new Request('https://app.example/api/status'),{...env,PATIENT_DATA_ENABLED:'true'});
   const status=await response.json();assert.equal(status.phiRelease,'blocked');assert.equal(status.mode,'synthetic-only');
-  assert.deepEqual(Object.keys(status).sort(),['accessConfigured','configured','mode','phiRelease','pricingBridgeConfigured','provider']);
-  assert.equal(status.accessConfigured,false);assert.equal(status.pricingBridgeConfigured,false);
+  assert.deepEqual(Object.keys(status).sort(),['accessConfigured','accessRequired','configured','mode','phiRelease','pricingBridgeConfigured','provider']);
+  assert.equal(status.accessConfigured,false);assert.equal(status.accessRequired,false);assert.equal(status.pricingBridgeConfigured,false);
+  for(const value of ['TRUE','yes','1','false',''])assert.equal((await (await api(new Request('https://app.example/api/status'),{REQUIRE_ACCESS:value})).json()).accessRequired,false);
+  assert.equal((await (await api(new Request('https://app.example/api/status'),{REQUIRE_ACCESS:'true'})).json()).accessRequired,true);
   assert.ok(!JSON.stringify(status).includes('fake-key'));
   const wired=await (await api(new Request('https://app.example/api/status'),{ACCESS_TEAM_DOMAIN:'synthetic-team.cloudflareaccess.com',ACCESS_AUD:'synthetic-audience-value',CUP_PRICE_BRIDGE_TOKEN:'bridge-secret-value-that-must-not-leak',CUP_PRICE_SERVICE:{fetch:async()=>new Response()}})).json();
   assert.equal(wired.accessConfigured,true);assert.equal(wired.pricingBridgeConfigured,true);
   assert.ok(!JSON.stringify(wired).includes('must-not-leak'));assert.ok(!JSON.stringify(wired).includes('synthetic-team'));
+});
+test('the legacy AI extractor answers 404 unless the build or server was started with legacy tools on',async()=>{
+  let calls=0;const api=createApi({fetcher:async()=>{calls++;throw new Error('Must not call');}});
+  for(const value of [undefined,'','off','true','ON','1',true]){
+    const {LEGACY_TOOLS,...rest}=env;const response=await api(request(ids),value===undefined?rest:{...rest,LEGACY_TOOLS:value});
+    assert.equal(response.status,404);assert.deepEqual(await response.json(),{error:'Not available in this build.'});
+    assert.equal(response.headers.get('Cache-Control'),'no-store');
+  }
+  assert.equal((await api(request(ids,{},'GET'),{...env,LEGACY_TOOLS:'off'})).status,404);
+  assert.equal(calls,0);
+  assert.equal((await api(request(ids,{},'GET'),env)).status,405);
 });
 test('cross-origin, missing-token, wrong-token and oversized requests never call the provider',async()=>{
   let calls=0;const api=createApi({fetcher:async()=>{calls++;throw new Error('Must not call');}});
