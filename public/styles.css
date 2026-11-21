@@ -226,3 +226,59 @@
 
 .staff-connectivity{font-size:.82rem;margin:.4rem 0 .6rem;}
 .staff-connectivity td,.staff-connectivity th{padding:.2rem .5rem;text-align:left;vertical-align:top;}
+
+/* Staff workup round 2: search count, planned service date, at-a-glance evidence (published statements only). */
+.staff-search-count{display:block;font-size:10px;font-weight:500;color:#6d8273;line-height:1.5;min-height:15px}
+.staff-search-count.none{color:#9b6a1f}
+.staff-date-row{margin-bottom:14px;max-width:340px}
+.staff-date-field{min-width:0}
+.staff-date-field small{font-weight:400;color:#8a9a8c;font-size:10px}
+.staff-date-field input{display:block;margin-top:6px;width:100%;max-width:220px}
+.staff-glance{border:1px solid #d9e6dc;background:#f7faf7;border-radius:12px;padding:16px 18px;margin:0 0 14px}
+.staff-glance-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+.staff-glance-head>div{min-width:0}
+.staff-glance-head h3{margin:0 0 4px;font-size:14px;color:#275d40}
+.staff-glance-head .staff-date-field{flex:0 0 250px}
+.staff-glance-caveat{margin:0;font-size:11px;line-height:1.6;color:#8a6420;font-weight:550}
+.staff-glance-empty{margin:12px 0 0;font-size:12px;color:#8a6420;font-weight:550}
+.staff-glance-selected{margin:12px 0 0;font-size:12px;line-height:1.7;color:#3f5f4a}
+.staff-glance-selected .pill{font-size:10px;vertical-align:1px}
+.staff-glance-warn{margin:12px 0 0;font-size:12px;line-height:1.7;color:#7c561a;border-left:3px solid #d49a3a}
+.staff-glance-warn strong{color:#6d4a12}
+.staff-glance-signals{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.staff-glance-signals li{background:#fff;border:1px solid #e1ebe3;border-radius:9px;padding:10px 12px;min-width:0}
+.staff-glance-signals strong{display:block;font-size:12px;color:#275d40;line-height:1.5}
+.staff-glance-signals span{display:block;font-size:11px;color:#5d7363;line-height:1.6;margin-top:3px}
+.staff-glance-signals small{display:block;font-size:10px;color:#86978a;line-height:1.5;margin-top:4px}
+.staff-glance-lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px 16px;margin:12px 0 6px}
+.staff-glance-lists span{display:block;font-size:9px;letter-spacing:.9px;text-transform:uppercase;font-weight:700;color:#7a8f80}
+.staff-glance-lists p{margin:3px 0 0;font-size:12px;line-height:1.6;color:#3f5f4a}
+.staff-glance-refs{margin-top:8px}
+.staff-glance .staff-year-note,.staff-year-note{margin:10px 0 0;font-size:11px;line-height:1.6;color:#7c561a;border-left:3px solid #d49a3a}
+.staff-answer span small{display:block;font-size:11px;color:#8a6420;margin-top:2px}
+.nav-item .count.alert{background:#fbeed6;color:#94621c;font-weight:700}
+.build-version{white-space:nowrap}
+.deploy-status{margin-top:4px}
+.deploy-status dd{font-size:12px;color:#365b43;font-weight:600}
+/* Sources due page */
+.source-due-explainer{margin:0 0 20px;font-size:11px}
+.source-due-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+.source-due-group{margin-bottom:16px}
+.source-due-group .panel-content{padding-top:12px}
+.source-due-list{list-style:none;margin:8px 0 0;padding:0}
+.source-due-row{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #e8eee9}
+.source-due-row:last-child{border-bottom:0}
+.source-due-main{min-width:0}
+.source-due-main strong{display:block;font-size:12px;color:#2f513c;line-height:1.5;margin-top:5px;overflow-wrap:anywhere}
+.source-due-main small{display:block;font-size:10px;color:#86978a;line-height:1.55;overflow-wrap:anywhere}
+.source-due-tags{display:flex;flex-wrap:wrap;gap:5px}
+.source-due-date{flex:0 0 150px;text-align:right}
+.source-due-date strong{display:block;font-size:12px;color:#2f513c}
+.source-due-date small{display:block;font-size:10px;color:#86978a}
+.source-due-row.state-overdue .source-due-date small,.source-due-row.state-expired .source-due-date small{color:#a05238;font-weight:600}
+.source-due-row.state-due-soon .source-due-date small{color:#94621c;font-weight:600}
+.source-due-none{font-size:11px;color:#8d9c81;margin:8px 0 0}
+.source-due-footnote{margin:6px 0 10px}
+@media(max-width:820px){.staff-glance-head{display:block}.staff-glance-head .staff-date-field{margin-top:10px}}
+@media(max-width:650px){.nav-item .count.alert{display:inline-block}.source-due-metrics{grid-template-columns:1fr 1fr}.source-due-row{display:block}.source-due-date{text-align:left;margin-top:6px;display:flex;gap:10px;align-items:baseline}.staff-glance{padding:14px}.build-version{white-space:normal}.staff-date-field input{max-width:none}}
+@media print{.staff-glance{border-color:#999}}

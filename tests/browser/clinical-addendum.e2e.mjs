@@ -78,7 +78,10 @@ try{
  await page.click('[data-action="staff-print-verification"]');
  await page.selectOption('#staff-service-select','total-knee');
  assert.equal(await page.locator('#print-region').textContent(),'');
- assert.equal(await page.locator('#staff-service-date').inputValue(),'');
+ // A newly chosen service defaults the planned service date to the page's Hawaiʻi policy day (never hard-coded).
+ const policyDay=await page.evaluate(()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Pacific/Honolulu',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));
+ assert.equal(await page.locator('#staff-service-date').inputValue(),policyDay);
+ assert.equal(await page.locator('#staff-service-date').count(),1);
  await page.fill('#staff-service-date','2026-11-07');
  await page.locator('#staff-service-date').dispatchEvent('change');
  assert.match(await page.locator('#staff-policy-evidence').textContent(),/Guideline 1763/);
@@ -94,5 +97,5 @@ try{
  assert.equal(await page.locator('#staff-clinical-template').count(),0);
  assert.equal(publicLookups.length,1);
  assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.deepEqual(mutations,[]);
- console.log('PASS: '+expectedTemplates+' browser print flows; download; date/selection reset; print CSS; mobile; lock cleanup; scoped payer evidence and verification worksheet; no external requests or data writes.');
+ console.log('PASS: '+expectedTemplates+' browser print flows; download; date default on selection; print CSS; mobile; lock cleanup; scoped payer evidence and verification worksheet; no external requests or data writes.');
 }finally{await browser.close();}

@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {renderStaffPage} from '../public/staff-page.mjs';
+import {renderStaffPage,staffDefaultYear,staffGlance,glanceSignals,addendumPanel,STAFF_SEARCH_NO_MATCH,STAFF_GLANCE_CAVEAT,STAFF_DATE_NEEDED,PA_SIGNAL_LABELS} from '../public/staff-page.mjs';
 import {newCostCase} from '../shared/patient-cost.mjs';
-import {staffContext,staffPlansForPayer,staffGetService} from '../shared/staff-workflow.mjs';
+import {staffContext,staffPlansForPayer,staffGetService,STAFF_YEARS} from '../shared/staff-workflow.mjs';
+const h=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function state(payer='',planId='',serviceId='',benefit='Medical'){
  const plan=payer&&planId?staffContext({payer,planId,serviceId,benefit}).plan:null;
@@ -123,4 +124,90 @@ test('service catalog search can find peripheral procedures and medicines',()=>{
  assert.match(html,/Billing code not verified/);
  x.serviceId='evenity';x.search='evenity';x.cost=newCostCase({procedureId:'drug-evenity',payer:'HMSA',line:'Commercial'});
  assert.match(renderStaffPage(x),/Evenity/);
+});
+// Round 2: plan-year default, search counts, planned service date in step 3 and the at-a-glance block.
+// Every case passes an explicit service date or day, so nothing depends on today's date.
+const dated=(payer,planId,serviceId,gelProductId,serviceDate='2026-11-21')=>({...state(payer,planId,serviceId,'Medical'),gelProductId,serviceDate});
+const glanceOf=html=>(html.match(/<section class="staff-glance"[\s\S]*?<\/section>/)||[''])[0];
+test('plan year defaults to the policy-day year within the supported years, else the latest one',()=>{
+ assert.equal(staffDefaultYear('2026-11-21'),2026);
+ assert.equal(staffDefaultYear('2027-01-05'),2027);
+ assert.equal(staffDefaultYear('2028-03-01'),STAFF_YEARS.at(-1));
+ assert.equal(staffDefaultYear('2025-12-31'),STAFF_YEARS.at(-1));
+});
+test('search shows a match count, and a hint when nothing matches',()=>{
+ const x=state();x.search='TKA';
+ const html=renderStaffPage(x);
+ assert.match(html,/id="staff-search-count"[^>]*>\d+ match(es)?</);
+ assert.match(html,/<option value="total-knee"/);
+ x.search='zzqx';
+ assert.ok(renderStaffPage(x).includes(STAFF_SEARCH_NO_MATCH));
+ assert.equal(STAFF_SEARCH_NO_MATCH,'No match - try a brand, procedure name or code (for example TKA, Synvisc, 27447).');
+ x.search='';
+ assert.match(renderStaffPage(x),/id="staff-search-count"[^>]*><\/small>/);
+});
+test('the planned service date input sits in step 3 exactly once, even if step 6 still prints its own',()=>{
+ for(const st of [state(),dated('HMSA','hmsa-select-choice','knee-gel','synvisc-one')]){
+  const html=renderStaffPage(st);
+  assert.equal(html.match(/id="staff-service-date"/g).length,1);
+  const step3=html.slice(html.indexOf('id="staff-requirements"'),html.indexOf('id="staff-cost"'));
+  assert.match(step3,/id="staff-service-date"/);
+ }
+ assert.doesNotMatch(addendumPanel(dated('HMSA','hmsa-quest','prolia','')),/staff-service-date/);
+ assert.match(renderStaffPage(dated('HMSA','hmsa-quest','prolia','')),/id="staff-service-date" value="2026-11-21"/);
+});
+test('at a glance shows published PA signals deduped by signal, the product lists and the preferred status',()=>{
+ const html=renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','synvisc-one'));
+ const glance=glanceOf(html);
+ assert.ok(glance.includes(h(STAFF_GLANCE_CAVEAT)),'caveat');
+ assert.equal(STAFF_GLANCE_CAVEAT,"Published policy statements - this member's plan adoption, eligibility and authorization are not verified.");
+ assert.match(glance,/<span class="pill">Preferred<\/span> <strong>Synvisc-One<\/strong>/);
+ // Two HMSA documents carry the precertification signal; it is shown once with both titles.
+ assert.equal(glance.match(/<li><strong>/g).length,1);
+ assert.match(glance,/Source: HMSA Hyaluronate Products — Exceptions Criteria · HMSA Hyaluronate Products — Clinical Policy/);
+ assert.match(glance,/Preferred<\/span><p>Euflexxa, Synvisc, Synvisc-One<\/p>/);
+ assert.match(glance,/Non-preferred<\/span><p>Durolane/);
+ assert.doesNotMatch(glance,/staff-glance-warn/);
+ assert.doesNotMatch(html,/Not verified for this particular plan and service/);
+ assert.match(html,/Prior authorization<\/strong><span>Published policy states prior authorization \(precertification\) is required\.<small>Member-level authorization: not verified\.<\/small>/);
+ assert.doesNotMatch(html,/Approved|Guaranteed|is covered\b/);
+ // The at-a-glance block is the first thing in step 3.
+ const step3=html.slice(html.indexOf('id="staff-requirements"'));
+ assert.ok(step3.indexOf('id="staff-glance"')<step3.indexOf('Formulary / coverage'));
+});
+test('non-preferred and excluded selections get an amber notice with the exception text',()=>{
+ const hmsa=glanceOf(renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','durolane')));
+ assert.match(hmsa,/<p class="notice amber staff-glance-warn" role="note"><strong>Durolane is listed as non-preferred<\/strong>/);
+ assert.match(hmsa,/Exception path stated: Section B/);
+ const uhc=glanceOf(renderStaffPage(dated('UnitedHealthcare','uhc-commercial','knee-gel','synvisc')));
+ assert.match(uhc,/staff-glance-warn[\s\S]*Synvisc is listed as typically excluded/);
+ assert.match(uhc,/Typically excluded<\/span>/);
+ assert.match(uhc,/Listed as covered on policy criteria<\/span><p>Durolane, Euflexxa, Gelsyn-3<\/p>/);
+ // UHC states no PA rule for an excluded brand: the headline says so instead of "Not verified".
+ assert.match(renderStaffPage(dated('UnitedHealthcare','uhc-commercial','knee-gel','synvisc')),/Published policy reference on file; it states no prior-authorization rule[\s\S]*Member-level authorization: not verified/);
+});
+test('an empty date asks for one only when a date would show references; no evidence keeps the old headline',()=>{
+ const noDate=renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','synvisc-one',''));
+ assert.match(glanceOf(noDate),new RegExp(STAFF_DATE_NEEDED.replace(/\./g,'\\.')));
+ assert.equal(STAFF_DATE_NEEDED,'Enter a planned service date to see payer references.');
+ assert.match(noDate,/Prior authorization<\/strong><span>Not verified for this particular plan and service/);
+ const none=renderStaffPage(dated('AlohaCare','aloha-quest','carpal-open',''));
+ assert.doesNotMatch(none,/Enter a planned service date|Published policy statements -/);
+ assert.match(none,/No published payer reference is indexed/);
+ assert.match(none,/Not verified for this particular plan and service/);
+});
+test('a service date outside the plan year is flagged in step 3',()=>{
+ const html=renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','synvisc-one','2027-02-01'));
+ assert.match(html,/The planned service date is in 2027; this plan view is for 2026\./);
+ assert.doesNotMatch(renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','synvisc-one','2026-12-01')),/staff-year-note/);
+ assert.match(renderStaffPage({...state(),serviceDate:'2027-03-01'}),/The planned service date is in 2027; this plan view is for 2026\./);
+});
+test('a step-6 template override never changes the step-3 glance; legacy letter builder only with legacy on',()=>{
+ const st={...dated('HMSA','hmsa-select-choice','knee-gel','synvisc-one'),clinicalTemplateId:'gel-durolane'};
+ assert.match(glanceOf(renderStaffPage(st)),/Preferred<\/span> <strong>Synvisc-One/);
+ assert.equal(staffGlance(st,'2026-11-21').glance.selected.productId,'gel-synvisc-one');
+ assert.deepEqual(glanceSignals(staffGlance(st,'2026-11-21').glance).map(x=>x.signal),['precertification-required']);
+ assert.doesNotMatch(renderStaffPage(state()),/data-page="authorization"/);
+ assert.match(renderStaffPage(state(),{legacy:true}),/data-page="authorization"/);
+ for(const key of Object.keys(PA_SIGNAL_LABELS))assert.match(PA_SIGNAL_LABELS[key],/\S/);
 });

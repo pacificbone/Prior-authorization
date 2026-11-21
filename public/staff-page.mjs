@@ -1,5 +1,7 @@
-import {renderClinicalAddendumPanel} from './clinical-addendum-panel.mjs';
+import {renderClinicalAddendumPanel,staffVerificationScope} from './clinical-addendum-panel.mjs';
 import {STAFF_PAYERS,STAFF_YEARS,STAFF_CATEGORY_LABELS,staffPlansForPayer,staffPlanProgramLine,staffContext,staffServices} from '../shared/staff-workflow.mjs';
+import {evidenceAtAGlance} from '../shared/product-preferences.mjs';
+import {policyDay,validPolicyDate} from '../shared/plan-adoption.mjs';
 import {COST_FACILITIES,COST_RATE_SOURCES,COST_METHODS,estimatePatientCost} from '../shared/patient-cost.mjs';
 import {orthoGelProducts,orthoSourceKinds} from '../shared/orthopedic-procedures.mjs';
 import {coverageStatusLabels} from '../shared/hawaii-plan-sources.mjs';
@@ -11,6 +13,45 @@ const opts=function opts(items,current,empty='',getter=(x)=>({v:x,label:x})){
   return (empty?`<option value="">${h(empty)}</option>`:'')+items.map(x=>{const {v,label}=getter(x);return `<option value="${h(v)}" ${String(v)===String(current)?'selected':''}>${h(label)}</option>`}).join('');
 };
 const money=function money(amount){return amount===null||amount===undefined?'Not yet available':'$'+Number(amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+// Plan-year default: the Hawaiʻi policy-day year when the registry supports it, else the latest supported year.
+export function staffDefaultYear(day=policyDay()){const y=Number(String(day).slice(0,4));return STAFF_YEARS.includes(y)?y:STAFF_YEARS[STAFF_YEARS.length-1];}
+export const STAFF_SEARCH_NO_MATCH='No match - try a brand, procedure name or code (for example TKA, Synvisc, 27447).';
+export const STAFF_GLANCE_CAVEAT="Published policy statements - this member's plan adoption, eligibility and authorization are not verified.";
+export const STAFF_DATE_NEEDED='Enter a planned service date to see payer references.';
+// Plain-English headings for the published PA signals in shared/product-preferences.mjs. Each restates a document; none is a determination.
+export const PA_SIGNAL_LABELS=Object.freeze({
+ 'precertification-required':'Published policy states prior authorization (precertification) is required',
+ 'pa-not-required-per-policy':'Published policy states prior authorization is not required for this product',
+ 'step-therapy':'Published step-therapy program lists this product as non-preferred',
+ 'interqual-criteria':'Published policy: medical necessity is reviewed against licensed InterQual criteria, not reproduced here',
+ 'lcd-no-prior-auth':'Published LCD record: Original Medicare has no prior authorization; the LCD governs claim and record review',
+ 'unproven':'Published policy lists this service or device as unproven / not medically necessary',
+ 'not-reasonable-and-necessary':'Published policy lists this service as not reasonable and necessary'
+});
+const PREF_LABELS=Object.freeze({preferred:'Preferred','non-preferred':'Non-preferred',excluded:'Excluded per policy','covered-on-criteria':'Criteria-based per policy'});
+const PREF_TEXT=Object.freeze({preferred:'listed as preferred','non-preferred':'listed as non-preferred',excluded:'listed as typically excluded','covered-on-criteria':'listed as covered when the policy criteria are met'});
+// Step 3 always reads the step-2 selection; a step-6 template override never changes this block.
+export function staffGlance(state,asOf=policyDay()){
+ const scope=staffVerificationScope({...state,clinicalTemplateId:''});
+ if(validPolicyDate(state.serviceDate))return {needsDate:false,glance:evidenceAtAGlance(scope,asOf)};
+ // Evidence is empty only because no date is set when the same selection on the policy day has references.
+ return {needsDate:evidenceAtAGlance({...scope,serviceDate:asOf},asOf).hasEvidence,glance:null};
+}
+export function glanceSignals(glance){
+ const titles=new Map(glance.references.map(r=>[r.id,r.title])),out=new Map();
+ for(const s of glance.paSignals){const row=out.get(s.signal)||{signal:s.signal,label:PA_SIGNAL_LABELS[s.signal]||s.signal,text:s.text,sources:[]};const t=titles.get(s.evidenceId);if(t&&!row.sources.includes(t))row.sources.push(t);out.set(s.signal,row);}
+ return [...out.values()];
+}
+function renderGlance(glance){
+ const signals=glanceSignals(glance),sel=glance.selected,titles=new Map(glance.references.map(r=>[r.id,r.title]));
+ const lists=[['Preferred',glance.preferred],['Non-preferred',glance.nonPreferred],['Typically excluded',glance.excluded],['Listed as covered on policy criteria',glance.coveredOnCriteria]].filter(([,v])=>v.length);
+ const warn=sel&&(sel.status==='non-preferred'||sel.status==='excluded');
+ return `${sel?(warn?`<p class="notice amber staff-glance-warn" role="note"><strong>${h(sel.displayName)} is ${h(PREF_TEXT[sel.status])}</strong> in ${h(titles.get(sel.evidenceId)||'the published policy')}.${sel.exception?` ${sel.status==='excluded'?'Policy text':'Exception path stated'}: ${h(sel.exception)}`:''}</p>`
+   :`<p class="staff-glance-selected"><span class="pill">${h(PREF_LABELS[sel.status])}</span> <strong>${h(sel.displayName)}</strong> — ${h(PREF_TEXT[sel.status])} in ${h(titles.get(sel.evidenceId)||'the published policy')} (published policy statement).</p>`):''}
+ ${signals.length?`<ul class="staff-glance-signals">${signals.map(s=>`<li><strong>${h(s.label)}</strong><span>${h(s.text)}</span><small>Source: ${h(s.sources.join(' · '))}</small></li>`).join('')}</ul>`:'<p class="helper">The matched references state no prior-authorization rule for this selection; read the source before relying on that.</p>'}
+ ${lists.length?`<div class="staff-glance-lists">${lists.map(([label,names])=>`<div><span>${h(label)}</span><p>${h(names.join(', '))}</p></div>`).join('')}</div><p class="helper">Product lists are for this insurer and plan line only, as printed in the matched documents.</p>`:''}
+ <p class="helper staff-glance-refs">References: ${glance.references.map(r=>`${h(r.title)} (${h(r.version)})${r.reviewState==='overdue'?' — <strong class="warn-text">review overdue</strong>':r.reviewState==='ends-before-service'?' — review window ends before the service date':''}`).join(' · ')}. Full fingerprints and prompts are in step 6.</p>`;
+}
 function renderRateEvidence(st,ctx){
   const service=ctx.service;
   if(service?.type!=='procedure')return '';
@@ -48,14 +89,19 @@ function renderRateEvidence(st,ctx){
     <p class="helper">Requires verified Cloudflare Access and a configured private Cuptomize Worker connection. A missing result does not mean $0 or no coverage.</p>
   </section>`;
 }
-export function renderStaffPage(state){
- const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,search,docs}=state;
+// The planned service date input lives in step 3. Step 6 is rendered by clinical-addendum-panel.mjs, which
+// may still print its own copy: drop that label so id="staff-service-date" appears exactly once.
+const DATE_LABEL=/<label\b[^>]*>(?:(?!<\/label>)[\s\S])*?id="staff-service-date"(?:(?!<\/label>)[\s\S])*<\/label>\s*/;
+export function addendumPanel(state){return renderClinicalAddendumPanel(state).replace(DATE_LABEL,'');}
+export function renderStaffPage(state,{legacy=false}={}){
+ const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,search,docs,serviceDate}=state;
  const plans=staffPlansForPayer(payer,year);
  const ctx=staffContext({payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance});
  const plan=ctx.plan,service=ctx.service;
  const cost=state.cost;
  const estimate=cost?estimatePatientCost(cost):null;
  const matches=staffServices({query:search});
+ const searchCount=String(search||'').trim()?(matches.length?matches.length+' match'+(matches.length===1?'':'es'):h(STAFF_SEARCH_NO_MATCH)):'';
  const visible=matches.some(x=>x.id===serviceId)?matches:(service?[service,...matches]:matches);
  const grouped=[...new Set(visible.map(x=>x.category))].map(cat=>({cat,items:visible.filter(x=>x.category===cat)}));
  const servicesMarkup=grouped.map(({cat,items})=>`<optgroup label="${h(STAFF_CATEGORY_LABELS[cat]||cat)}">${opts(items,serviceId,'',x=>({v:x.id,label:x.name}))}</optgroup>`).join('');
@@ -93,6 +139,11 @@ export function renderStaffPage(state){
  const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(sourceStatusLabel(x.status))}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
  const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages]:[];
  const rateEvidence=renderRateEvidence(state,ctx);
+ const {needsDate,glance}=plan&&service?staffGlance(state):{needsDate:false,glance:null};
+ const signals=glance?.hasEvidence?glanceSignals(glance):[];
+ const dateField=`<label class="staff-date-field">Planned service date <small>Policy context only; defaults to today in Hawaiʻi</small><input type="date" id="staff-service-date" value="${h(serviceDate||'')}"></label>`;
+ const dateYear=validPolicyDate(serviceDate)?Number(serviceDate.slice(0,4)):null;
+ const yearNote=dateYear&&dateYear!==Number(year)?`<p class="notice amber staff-year-note">The planned service date is in ${dateYear}; this plan view is for ${h(year)}.</p>`:'';
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
    ${!costShown?`<p class="helper">${state.costUnavailable?h(state.costUnavailable):'Choose the insurer, plan and treatment above to begin. No price will be invented.'}</p>`:`
    ${(()=>{const total=estimate?.totalRequired??null;const verified=estimate?.isScenario===true;
@@ -130,7 +181,8 @@ export function renderStaffPage(state){
  ${plan?`<p class="staff-plan-identified"><strong>${h(plan.payer)} · ${h(plan.name)}</strong> <span>${h(plan.network)} · ${h(staffPlanProgramLine(plan))}</span><br><small>${h(ctx.planPrecision.label)}${service&&(service.type==='procedure'||benefit==='Medical')&&ctx.planPrecision.level==='published-plan-id'?' (pharmacy file identity — not relevant to the medical benefit)':''} · ${h(planStatus)}. Actual group and eligibility must still be verified.</small></p>`:''}
  </div></section>
  <section class="panel staff-stage" id="staff-service"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">2</span> Medication or procedure</h2></div><div class="panel-content">
- <div class="staff-main-grid"><label>Search by drug, generic, condition or procedure<input id="staff-service-query" type="search" maxlength="80" placeholder="e.g., Prolia, TKA, MACI, gel, carpal tunnel" value="${h(search||'')}" autocomplete="off"></label>
+ <div class="staff-main-grid"><label>Search by drug, generic, condition or procedure<input id="staff-service-query" type="search" maxlength="80" placeholder="e.g., Prolia, TKA, MACI, gel, carpal tunnel" value="${h(search||'')}" autocomplete="off" aria-describedby="staff-search-count">
+ <small class="staff-search-count ${search&&!matches.length?'none':''}" id="staff-search-count" aria-live="polite">${searchCount}</small></label>
  <label>Requested service<select id="staff-service-select"><option value="">Choose a treatment</option>${servicesMarkup}</select></label>
  <label>Benefit channel<select id="staff-benefit" ${service?.type==='procedure'?'disabled':''}>${opts(['Medical','Pharmacy'],benefit)}</select></label>
  </div>
@@ -142,9 +194,12 @@ export function renderStaffPage(state){
  ${service?`<p class="helper"><strong>${h(service.name)}</strong>${service.description?` — ${h(service.description)}`:''}${ctx.possibleCodes.length?`<br>Candidate codes: ${ctx.possibleCodes.map(c=>h(c.code)).join(' · ')} (verify coding)`:(service.type==='procedure'?'<br>Billing code not verified — confirm technique and payer coding before submission.':'')}</p>`:''}
  </div></section>
  <section class="panel staff-stage" id="staff-requirements"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">3</span> Formulary, coverage and PA requirements</h2></div><div class="panel-content">
- ${needPlan||needService?'<p class="helper">Choose an insurer-owned plan and a requested treatment first. No cross-insurer policy will be shown.</p>':`
+ ${needPlan||needService?`<div class="staff-date-row">${dateField}</div>${yearNote}<p class="helper">Choose an insurer-owned plan and a requested treatment first. No cross-insurer policy will be shown.</p>`:`
+ <section class="staff-glance" id="staff-glance" aria-labelledby="staff-glance-title"><div class="staff-glance-head"><div><h3 id="staff-glance-title">At a glance</h3>${glance?.hasEvidence?`<p class="staff-glance-caveat">${h(STAFF_GLANCE_CAVEAT)}</p>`:''}</div>${dateField}</div>${yearNote}
+ ${needsDate?`<p class="staff-glance-empty">${h(STAFF_DATE_NEEDED)}</p>`:glance?.hasEvidence?renderGlance(glance):'<p class="helper">No published payer reference is indexed for this plan, treatment and date. Use the authorization routes and official sources below.</p>'}</section>
  <div class="staff-answer"><strong>Formulary / coverage</strong><span>${med?(benefit==='Medical'?'Medical-benefit drug — pharmacy formulary alone is not coverage':(live?'Exact-plan public pharmacy search available':ctx.formularyEntries?.length?'Reviewed extract from a published list is shown below; plan adoption is not verified':'Drug formulary for this plan is not imported; not verified')):'Procedure medical benefit — confirm current plan coverage and any exclusions'}</span></div>
- <div class="staff-answer"><strong>Prior authorization</strong><span>${ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
+ <div class="staff-answer"><strong>Prior authorization</strong><span>${glance?.hasEvidence?`${signals.length?signals.map(x=>h(x.label)).join('; ')+'.':'Published policy reference on file; it states no prior-authorization rule for this selection. Read the source.'}<small>Member-level authorization: not verified.</small>`
+  :ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
  ${ctx.policyConflict?'<p class="notice amber">Conflicting medical policies were found; no automatic authorization conclusion can be made.</p>':''}
  ${ctx.formularyEntries?.length?`<p class="staff-note"><strong>Reviewed extract (adoption unverified):</strong> ${ctx.formularyEntries.map(e=>h(e.title)+' — listed as '+h(e.formularyStatus)+(e.summary?'; '+h(e.summary):'')).join(' · ')}</p>`:''}
  ${paRouteMarkup}
@@ -168,12 +223,12 @@ export function renderStaffPage(state){
  <div class="local-buttons"><button class="button primary" data-action="staff-export-packet">Download authorization checklist / letter template</button><button class="button secondary" data-action="staff-patient-script">Copy patient explanation</button></div>
  <p class="helper">Packet includes a blank authorization cover sheet, candidate codes, source-specific criteria and labeled placeholders. It is not a completed patient letter and cannot be submitted with patient data in this trial.</p>`}
  </div></section>
- ${renderClinicalAddendumPanel(state)}
+ ${addendumPanel(state)}
  <details class="staff-advanced"><summary>Advanced reference tools (staff administrators only)</summary><div class="local-buttons">
  <button class="button secondary" data-page="formulary">Legacy formulary explorer</button>
  <button class="button secondary" data-page="coverage">Hawaiʻi plan source directory</button>
  <button class="button secondary" data-page="procedures">Procedure criteria library</button>
  <button class="button secondary" data-page="costs">Detailed cost calculator</button>
- <button class="button secondary" data-page="authorization">Existing letter builder</button>
+ ${legacy?'<button class="button secondary" data-page="authorization">Existing letter builder</button>':''}
  <button class="button secondary" data-page="policies">Policy source library</button></div><p class="helper">Advanced modules are kept for reference; the new workflow above is the primary staff-facing process.</p></details>`;
 }
