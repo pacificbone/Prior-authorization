@@ -58,6 +58,16 @@ try{
  const download=await downloadPromise;
  assert.match(download.suggestedFilename(),/synthetic-clinical-addendum/);
  await page.click('[data-action="staff-print-addendum"]');
+ // The printed addendum appends the matching payer documentation prompts, each with an empty answer line.
+ const printed=await page.locator('#print-region').textContent();
+ assert.ok(printed.includes('Payer-policy documentation prompts (public reference; plan adoption not verified)'));
+ assert.ok(printed.includes('Request type: Initial'));
+ assert.match(printed,/HMSA Commercial\/QUEST Prolia and biosimilars — initial\nSource: HMSA Prolia and Biosimilars/);
+ assert.match(printed,/- Indication-specific coverage branch\n\s+_{20,}\n/);
+ assert.ok(printed.includes('SYNTHETIC ONLY — NOT FOR SUBMISSION'));assert.ok(printed.trimEnd().endsWith('Clinician review/signature: ______________________'));
+ // Review states, when any reference has one, show as amber badges on the collapsed record summaries.
+ for(const badge of await page.locator('#staff-policy-evidence .review-badge[data-review-state]').all())
+  assert.equal(await badge.evaluate(el=>el.parentElement.tagName),'SUMMARY');
  await page.emulateMedia({media:'print'});
  assert.equal(await page.locator('#print-region').isVisible(),true);
  assert.equal(await page.locator('.app-shell').isVisible(),false);
@@ -97,5 +107,5 @@ try{
  assert.equal(await page.locator('#staff-clinical-template').count(),0);
  assert.equal(publicLookups.length,1);
  assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.deepEqual(mutations,[]);
- console.log('PASS: '+expectedTemplates+' browser print flows; download; date default on selection; print CSS; mobile; lock cleanup; scoped payer evidence and verification worksheet; no external requests or data writes.');
+ console.log('PASS: '+expectedTemplates+' browser print flows; download; payer documentation prompts in the printed addendum; date default on selection; print CSS; mobile; lock cleanup; scoped payer evidence and verification worksheet; no external requests or data writes.');
 }finally{await browser.close();}

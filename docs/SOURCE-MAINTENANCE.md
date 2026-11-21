@@ -53,7 +53,7 @@ It downloads each fingerprinted payer PDF again (UnitedHealthcare and Evolent/Ra
 
 Exit status: 1 if anything is CHANGED, 2 if nothing changed but something was UNREACHABLE, otherwise 0. On a network that requires an HTTPS proxy, run it as `NODE_USE_ENV_PROXY=1 npm run sources:check`.
 
-Known gaps today: the two HMSA Medicare Advantage records (Prolia and biosimilars; Evenity) are SKIPPED because their records hold a file name instead of HMSA's document number. On November 21, 2026 their HMSA directory links (document numbers 203599464 and 203599181) matched the registered fingerprints byte for byte; a developer can record those numbers so the weekly check covers them. Two QUEST formulary files (HMSA and UnitedHealthcare Community Plan) have no recorded review date and show as UNDATED.
+Known gaps today: the six Traditional Medicare (Noridian) web-document records are SKIPPED because they have no file fingerprint. The two HMSA Medicare Advantage records (Prolia and biosimilars; Evenity) now carry HMSA document numbers 203599464 and 203599181, recorded on November 21, 2026 after those directory links matched the registered fingerprints byte for byte, so the weekly check covers them. Two QUEST formulary files (HMSA and UnitedHealthcare Community Plan) have no recorded review date and show as UNDATED.
 
 ## The weekly automatic check
 

@@ -4,7 +4,6 @@
 const G=(...ids)=>ids.map(id=>'gel-'+id),B=(...ids)=>ids.map(id=>'bone-'+id);
 const ALL_REQUESTS=['Initial','Repeat / continuation','Reconsideration / appeal'];
 const allGel=G('durolane','euflexxa','gel-one','gelsyn-3','genvisc','hyalgan','hymovis','monovisc','orthovisc','supartz','synvisc','synvisc-one','trivisc','synojoynt','triluron','visco-3');
-const denosumab=B('prolia','bildyos','enoby','stoboclo','jubbonti');
 const arthroplasty=['procedure-total-knee','procedure-partial-knee','procedure-revision-knee','procedure-total-hip','procedure-revision-hip'];
 const hmsaCqGelNonPreferred=G('durolane','gel-one','gelsyn-3','genvisc','hyalgan','hymovis','monovisc','orthovisc','supartz','triluron','trivisc','visco-3');
 const hmsaMaGelNonPreferred=G('gel-one','genvisc','hyalgan','hymovis','monovisc','orthovisc','synvisc','synvisc-one','triluron','trivisc','visco-3');

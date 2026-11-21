@@ -1,5 +1,5 @@
-import {COST_YEARS,COST_PAYERS,COST_LINES,COST_SETTINGS,COST_NETWORKS,COST_COVERAGE,COST_SECONDARY,COST_RATE_SOURCES,COST_METHODS,COST_FACILITIES,COST_MEDICATIONS,estimatePatientCost,getCostService,selectCostGuidance} from '../shared/patient-cost.mjs';
-import {orthoCategories,orthoProcedures,orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
+import {COST_YEARS,COST_PAYERS,COST_LINES,COST_SETTINGS,COST_RATE_SOURCES,COST_METHODS,COST_FACILITIES,estimatePatientCost,getCostService,selectCostGuidance} from '../shared/patient-cost.mjs';
+import {orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
 import {STAFF_SERVICES,STAFF_CATEGORY_LABELS} from '../shared/staff-workflow.mjs';
 const escapeCost=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const costOpt=function costOpt(options,current){

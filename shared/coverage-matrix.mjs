@@ -74,8 +74,6 @@ export const MATRIX_STATUSES=Object.freeze({
  'n/a':'n/a — the coverage line cannot pay for this service type (for example Part D for surgery)'
 });
 
-
-function lineForProgram(program){return staffPlanProgramLine({program});}
 function payerLines(payer){
  const plans=STAFF_YEARS.flatMap(y=>staffPlansForPayer(payer,y));
  const lines=[...new Set(plans.map(p=>staffPlanProgramLine(p)).filter(Boolean))];
@@ -176,7 +174,8 @@ export function assessCoverageCell({payer,line,entry,asOf=policyDay()}={}){
  ].filter((r,i,a)=>a.findIndex(x=>x.id===r.id)===i);
  if(!records.length&&routes.length)records.push(...routes.map(r=>({kind:'routing',id:r.id,title:r.name,version:null,effective:null,sourceUrl:r.sourceUrl,flags:[]})));
  const evidenceIds=records.filter(r=>['reviewed-snapshot','directory-reference'].includes(r.kind)).map(r=>r.id);
- const prompts=documentationBranchesFor(evidenceIds,'Initial').length;
+ // Branches scoped to other brands of the same policy are not counted for this cell's product.
+ const prompts=documentationBranchesFor(evidenceIds,'Initial',template?.id||'').length;
  const formulary=formularyState({payer,line,benefit,service,plans});
  let status=rollup(records);
  if(service.type==='medication'&&benefit==='Pharmacy'&&['missing','routing-only'].includes(status)){

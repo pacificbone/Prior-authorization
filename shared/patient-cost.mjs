@@ -703,7 +703,7 @@ export function estimatePatientCost(data){
  if(data.setting==='Hospital inpatient')messages.push('Inpatient facility billing may require MS-DRG, Part A benefit period, length of stay and separate admission rules; a per-CPT outpatient price is not a reliable inpatient estimate.');
  let remainingDed=data.deductibleRemaining===null?null:Math.round(data.deductibleRemaining*100);
  let remainingOop=(data.network==='in-network'&&!originalMedicare&&!selfPay&&data.benefit==='Medical'&&data.oopRemaining!==null)?Math.round(data.oopRemaining*100):null;
- let total=0,priced=0,pricedRequired=0,knownShare=0;
+ let total=0,priced=0,knownShare=0;
  for(const line of data.items){
    let missingReason='';
    if(line.required&&line.id==='surgeon'&&!line.code)missingReason='No verified procedure code.';
@@ -745,7 +745,7 @@ export function estimatePatientCost(data){
    const patientShare=share/100;
    total+=share;
    // knownComponentShare is the share of the priced REQUIRED lines only (optional extras excluded).
-   if(line.required){knownShare+=share;pricedRequired++;}
+   if(line.required)knownShare+=share;
    priced++;
    components.push({
      id:line.id,label:line.label,allowed:line.allowed,patientShare,preCapShare,oopCapped,

@@ -105,3 +105,21 @@ test('every real fingerprinted record has an automatic route or an explicit skip
  assert.equal(findHmsaDocumentLink('<a href="?x=1&amp;ti=42#top">',  '42','https://www.hmsa.com/prc/'),'https://www.hmsa.com/prc/?x=1&ti=42#top');
  assert.equal(findHmsaDocumentLink('<a href="?ti=420">','42','https://www.hmsa.com/prc/'),null);
 });
+test('the HMSA Medicare Advantage Prolia and Evenity records are found by HMSA document number, not skipped',()=>{
+ for(const [id,documentId] of [['hmsa-prolia-ma-2026','203599464'],['hmsa-evenity-ma-2025','203599181']]){
+  const r=PAYER_POLICY_EVIDENCE.find(x=>x.id===id);
+  assert.equal(r.documentId,documentId,id);
+  assert.deepEqual(sourceCheckMethod(r),{method:'hmsa'},id);
+ }
+ // No fingerprinted HMSA record is left on the manual-check path.
+ assert.deepEqual(PAYER_POLICY_EVIDENCE.filter(r=>r.payer==='HMSA'&&r.sourceSha256&&new URL(r.sourceUrl).hostname==='www.hmsa.com'&&sourceCheckMethod(r).method!=='hmsa').map(r=>r.id),[]);
+});
+test('a directory page listing the Medicare Advantage document numbers resolves each one to its own link',async()=>{
+ const records=PAYER_POLICY_EVIDENCE.filter(r=>['hmsa-prolia-ma-2026','hmsa-evenity-ma-2025'].includes(r.id)).map(r=>({...r,sourceSha256:sha(pdf(r.id))}));
+ const html=records.map(r=>`<a href="/documents/download?ti=${r.documentId}&amp;token=x">${r.title}</a>`).join('');
+ const {fetcher}=fakeFetch({...Object.fromEntries(HMSA_DIRECTORIES.map(u=>[u,html])),
+  ...Object.fromEntries(records.map(r=>['https://www.hmsa.com/documents/download?ti='+r.documentId+'&token=x',pdf(r.id)]))});
+ const out=await checkSources({fetcher,records});
+ assert.deepEqual(out.results.map(x=>[x.id,x.status]),[['hmsa-prolia-ma-2026','UNCHANGED'],['hmsa-evenity-ma-2025','UNCHANGED']]);
+ assert.equal(out.exitCode,0);
+});

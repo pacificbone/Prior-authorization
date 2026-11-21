@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
- STAFF_PAYERS,STAFF_SERVICES,STAFF_CATEGORY_LABELS,staffPlansForPayer,
+ STAFF_SERVICES,STAFF_CATEGORY_LABELS,staffPlansForPayer,
  staffGetPlan,staffGetService,staffServices,staffContext,
  staffAuthorizePacket,staffPatientScript,validateStaffRegistry,gelProductForQuery
 } from '../shared/staff-workflow.mjs';

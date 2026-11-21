@@ -14,7 +14,39 @@ export function selectedClinicalTemplate(state){
 export function staffVerificationScope(state){
  const template=selectedClinicalTemplate(state);
  return {payer:state.payer,planId:state.planId,line:staffPlanProgramLine(staffGetPlan(state.payer,state.planId,state.year||2026)),benefit:state.benefit,
-  productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,medication:!!template&&['viscosupplementation','bone-health'].includes(template.category)};
+  productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,medication:!!template&&['viscosupplementation','bone-health'].includes(template.category),
+  requestType:state.requestType||'Initial'};
+}
+// Review-state wording for one payer evidence record (shared/payer-policy-evidence.mjs reviewState). '' when current.
+const inDays=n=>n===0?'today':n===1?'in 1 day':'in '+n+' days';
+export function reviewStateText(s){
+ return s.reviewState==='overdue'?`Review overdue (due ${s.reviewDue})`
+  :s.reviewState==='ends-before-service'?`Reviewed ${s.retrievedAt}; this review window ends ${s.reviewDue}, before the service date: re-check closer to the date of service`
+  :s.reviewState==='due-soon'?`Review due ${s.reviewDue} (${inDays(s.reviewDueInDays)})`:'';
+}
+// Short amber badge for the record's <summary>, so the state shows without expanding it.
+export function reviewBadgeText(s){
+ return s.reviewState==='overdue'?'Review overdue':s.reviewState==='ends-before-service'?'Review window ends before service'
+  :s.reviewState==='due-soon'?'Review due '+inDays(s.reviewDueInDays):'';
+}
+function reviewHelper(s){
+ const kind=s.directoryOnly?'Directory entry / web document':'Fingerprinted snapshot',text=reviewStateText(s);
+ if(!text)return `${kind} ${s.directoryOnly?'checked':'reviewed'} ${h(s.retrievedAt)}; plan applicability unverified.`;
+ return `${s.reviewState==='ends-before-service'?kind+'.':`${kind} ${s.directoryOnly?'checked':'reviewed'} ${h(s.retrievedAt)}.`} <strong class="review-flag">${h(text)}</strong>. Plan applicability unverified.`;
+}
+export const ADDENDUM_PROMPTS_HEADING='Payer-policy documentation prompts (public reference; plan adoption not verified)';
+const ANSWER_LINE='  ______________________________________________________________';
+// Matching documentation branches for the printed addendum. Each prompt is followed by an empty answer line:
+// the addendum stays blank by design and is completed only in an approved clinical system.
+export function addendumDocumentationPrompts(state,asOf=policyDay()){
+ const scope=staffVerificationScope(state),refs=payerEvidenceFor(scope,asOf);
+ const branches=refs.length?documentationBranchesFor(refs.map(r=>r.id),scope.requestType,scope.productId||''):[];
+ const source=new Map(refs.map(r=>[r.id,r.title+' ('+r.version+')']));
+ return {branches,lines:[ADDENDUM_PROMPTS_HEADING,'Request type: '+scope.requestType,
+  'Blank by design: complete each line only in the approved clinical system. These prompts restate published payer policy text; they do not establish coverage, authorization, eligibility or plan adoption.',
+  ...(branches.length?branches.flatMap(b=>['',b.title,'Source: '+source.get(b.evidenceId),...b.fields.flatMap(f=>['- '+f.label,ANSWER_LINE]),...(b.notes?['Note: '+b.notes]:[])])
+   :[refs.length?'No documentation branch matches this request type and product; review the source policy manually.'
+    :'No public payer reference matches this insurer, plan line, treatment and planned service date; obtain the exact policy before documenting criteria.'])]};
 }
 function templateOverride(state){
  const template=selectedClinicalTemplate(state);
@@ -37,19 +69,24 @@ export function staffVerificationWorksheet(state,asOf=policyDay()){
  }
  return lines.join('\n');
 }
-export function staffClinicalAddendum(state){
+export function staffClinicalAddendum(state,asOf=policyDay()){
  const template=selectedClinicalTemplate(state);
  if(!template)throw new Error('Choose a clinical template first');
  // Blank export by design: clinical findings must be entered in an approved system.
- return renderAuthTemplateNote(template.id,{}, {plan:state.payer&&state.planId?state.payer+' / '+state.planId+' (member product not verified)':'[NOT VERIFIED]',date:state.serviceDate||'[DATE NOT SELECTED]'});
+ const lines=renderAuthTemplateNote(template.id,{}, {plan:state.payer&&state.planId?state.payer+' / '+state.planId+' (member product not verified)':'[NOT VERIFIED]',date:state.serviceDate||'[DATE NOT SELECTED]'}).split('\n');
+ const at=lines.findIndex(l=>l.startsWith('Clinician review/signature'));
+ lines.splice(at<0?lines.length:at,0,'',...addendumDocumentationPrompts(state,asOf).lines,'');
+ return lines.join('\n');
 }
-export function renderClinicalAddendumPanel(state){
+export function renderClinicalAddendumPanel(state,asOf=policyDay()){
  const template=selectedClinicalTemplate(state);
  const scope=staffVerificationScope(state);
  const fulfillment=resolveFulfillment(scope);
- const refs=payerEvidenceFor(scope);
+ const refs=payerEvidenceFor(scope,asOf);
  const override=templateOverride(state);
- const branches=documentationBranchesFor(refs.map(r=>r.id),state.requestType||'Initial',template?.id||'');
+ const branches=documentationBranchesFor(refs.map(r=>r.id),scope.requestType,template?.id||'');
+ const flagged=refs.filter(s=>reviewBadgeText(s)).length;
+ const promptFields=template?addendumDocumentationPrompts(state,asOf).branches.reduce((n,b)=>n+b.fields.length,0):0;
  const extracts=override?[]:catalogCriteriaExtracts(state);
  const routes=payerRoutingFor({payer:scope.payer,line:scope.line,category:scope.medication?'medication':'surgery'});
  const submissionFields=submissionRequirementsFor(scope);
@@ -64,7 +101,7 @@ export function renderClinicalAddendumPanel(state){
  <label>Clinical template library<select id="staff-clinical-template"><option value="">Use selected treatment (choose a gel brand when applicable)</option>${groups.map(([cat,label])=>`<optgroup label="${h(label)}">${AUTH_TEMPLATE_CATALOG.filter(t=>t.category===cat).map(t=>`<option value="${h(t.id)}" ${state.clinicalTemplateId===t.id?'selected':''}>${h(t.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
  ${override?`<p class="notice amber"><strong>Template override:</strong> the addendum, payer references, supply-route review and worksheet below are for <strong>${h(override.template.name)}</strong>, not the step-2 selection (${h(override.derived.name)}). Choose “Use selected treatment” to return to the selected service.</p>`:''}
  <label>Planned service date (policy context only)<input type="date" id="staff-service-date" value="${h(state.serviceDate||'')}"></label>
- ${template?`<h3>${h(template.name)}</h3><p class="helper">${h(template.notes)} Candidate codes: ${h(template.codes.join(', ')||'Coding determination required')}.</p><details><summary>Preview blank clinical addendum (${template.fields.length} fields)</summary><pre class="clinical-template-preview">${h(staffClinicalAddendum(state))}</pre></details><div class="local-buttons"><button class="button secondary" data-action="staff-print-addendum">Print / Save addendum as PDF</button><button class="button secondary" data-action="staff-download-addendum">Download blank clinical addendum</button></div>`:'<p class="helper">Choose a supported treatment or a template from the library.</p>'}
+ ${template?`<h3>${h(template.name)}</h3><p class="helper">${h(template.notes)} Candidate codes: ${h(template.codes.join(', ')||'Coding determination required')}.</p><details><summary>Preview blank clinical addendum (${template.fields.length} fields${promptFields?` + ${promptFields} payer-policy prompts`:''})</summary><pre class="clinical-template-preview">${h(staffClinicalAddendum(state,asOf))}</pre></details><div class="local-buttons"><button class="button secondary" data-action="staff-print-addendum">Print / Save addendum as PDF</button><button class="button secondary" data-action="staff-download-addendum">Download blank clinical addendum</button></div>`:'<p class="helper">Choose a supported treatment or a template from the library.</p>'}
  <section id="staff-auth-preflight"><h3>Authorization packet preflight</h3>
  <p class="notice amber"><strong>${h(packet.status)} — not cleared for submission.</strong> The clinical template is available, but no verified exact-plan authorization criteria or patient-specific evidence have been loaded.</p>
  <div class="staff-answer"><strong>Clinical documentation</strong><span>${h(packet.clinical?.status||"Select a template")}${packet.clinical?.missing?.length?" · "+packet.clinical.missing.length+" fields to document":""}</span></div>
@@ -82,9 +119,9 @@ export function renderClinicalAddendumPanel(state){
  <section id="staff-payer-routing"><h3>Other Hawaiʻi payer authorization routing</h3>
  ${routes.length?routes.map(r=>`<div class="staff-source"><strong>${h(r.title)}</strong><p>${h(r.note)}</p><a href="${h(r.sourceUrl)}" target="_blank" rel="noopener noreferrer">Payer source</a>${r.secondaryUrl?` · <a href="${h(r.secondaryUrl)}" target="_blank" rel="noopener noreferrer">Additional policy</a>`:""}</div>`).join(""):"<p class=\"helper\">No reviewed payer routing reference for this combination. Confirm with the payer.</p>"}
  <p class="helper">Public routing information only. Exact member product, delegated administrator, code-level PA and buy-and-bill or pharmacy sourcing remain unverified.</p></section>
- <section id="staff-policy-evidence"><h3>Source verification and exact-plan adoption</h3>
+ <section id="staff-policy-evidence"><h3>Source verification and exact-plan adoption${flagged?` <span class="pill amber review-badge">${flagged} ${flagged===1?'reference needs':'references need'} review</span>`:''}</h3>
  <p><strong>Exact-plan adoption: NOT VERIFIED.</strong> Public document retrieval does not confirm the member's plan, benefits or supply permissions.</p>
- ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. ${s.directoryOnly?'Directory entry / web document checked':'Fingerprinted snapshot reviewed'} ${h(s.retrievedAt)}; ${s.reviewOverdue?'REVIEW OVERDUE':'plan applicability unverified'}. ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}${s.referenceType==='sourcing'?' Sourcing reference only — not a coverage or criteria source.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256||(evidenceDigestStatus(s)==='unbound-pending-reverification'?'register digest '+s.registerSha256+' pending re-verification (not bound)':'none — directory entry or web document'))}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
+ ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}${reviewBadgeText(s)?` <span class="pill amber review-badge" data-review-state="${h(s.reviewState)}">${h(reviewBadgeText(s))}</span>`:''}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. ${reviewHelper(s)} ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}${s.referenceType==='sourcing'?' Sourcing reference only — not a coverage or criteria source.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256||(evidenceDigestStatus(s)==='unbound-pending-reverification'?'register digest '+s.registerSha256+' pending re-verification (not bound)':'none — directory entry or web document'))}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
  ${extracts.length?`<details class="staff-sources" open><summary>Reviewed criteria extracts from the medication catalog (${extracts.length}) — no PDF fingerprint</summary>${extracts.map(p=>`<section class="payer-evidence-entry"><strong>${h(p.title)}</strong><p class="helper">${h(p.policyNumber||'')}; effective ${h(p.effective||'n/a')}; reviewed ${h(p.reviewed)}; ${h(p.locator||'')}</p><p>${h(p.summary)}</p><p class="helper">${h(p.limitations)}</p><a href="${h(p.url)}" target="_blank" rel="noopener noreferrer">Open policy directory</a></section>`).join('')}</details>`:''}
  <details class="staff-sources"><summary>Source-linked documentation prompts (${branches.length})</summary>
  <p class="helper">Research aids only: the exact member plan has not been confirmed to adopt these criteria. Verify the current policy before submission.</p>

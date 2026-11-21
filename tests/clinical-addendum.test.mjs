@@ -5,7 +5,9 @@ import {renderCatalogAddendumHtml,renderAuthorizationAddendumHtml} from '../shar
 import {OFFLINE_AUTH_GUIDES,assessOfflinePacket,renderOfflineLetter,getOfflineGuide} from '../shared/offline-auth-guides.mjs';
 import {STAFF_SERVICES} from '../shared/staff-workflow.mjs';
 import {orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
-import {renderClinicalAddendumPanel,staffClinicalAddendum,selectedClinicalTemplate,staffVerificationWorksheet} from '../public/clinical-addendum-panel.mjs';
+import {renderClinicalAddendumPanel,staffClinicalAddendum,selectedClinicalTemplate,staffVerificationWorksheet,staffVerificationScope,addendumDocumentationPrompts,ADDENDUM_PROMPTS_HEADING} from '../public/clinical-addendum-panel.mjs';
+import {payerEvidenceFor} from '../shared/payer-policy-evidence.mjs';
+import {documentationBranchesFor} from '../shared/payer-documentation-branches.mjs';
 test('every procedure, gel brand and bone-health service has a template',()=>{
  assert.equal(new Set(AUTH_TEMPLATE_CATALOG.map(t=>t.id)).size,AUTH_TEMPLATE_CATALOG.length);
  for(const s of STAFF_SERVICES.filter(s=>s.type==='procedure'&&s.id!=='knee-gel'))assert.ok(authTemplateForService(s.id),s.id);
@@ -88,4 +90,63 @@ test('staff print/export uses selected service and exact template, never checkbo
  assert.doesNotMatch(staffVerificationWorksheet(state),/TEMPLATE OVERRIDE/);
  assert.match(renderClinicalAddendumPanel(state),/<optgroup label="Bone health medications">/);
  assert.match(renderClinicalAddendumPanel({...state,payer:'<script>bad</script>'}),/&lt;script/);
+});
+// Every date below is explicit: hmsa-prolia-cq-2026 was retrieved 2026-11-07 and is due for review 2027-02-05.
+const evidenceSection=html=>html.slice(html.indexOf('id="staff-policy-evidence"'),html.indexOf('Reviewed criteria extracts'));
+test('payer evidence shows each review state in words and as an amber badge on the record summary',()=>{
+ const at=(asOf,serviceDate)=>evidenceSection(renderClinicalAddendumPanel({...state,serviceDate},asOf));
+ const current=at('2026-11-21','2026-12-01');
+ assert.match(current,/Fingerprinted snapshot reviewed 2026-11-07; plan applicability unverified\./);
+ assert.doesNotMatch(current,/review-badge|REVIEW OVERDUE/);
+ const soon=at('2027-01-20','2026-12-01');
+ assert.match(soon,/Review due 2027-02-05 \(in 16 days\)/);
+ assert.match(soon,/<summary>HMSA Prolia and Biosimilars — HMO\/PPO\/QUEST · 2026-04-01 <span class="pill amber review-badge" data-review-state="due-soon">Review due in 16 days<\/span><\/summary>/);
+ assert.match(soon,/<h3>Source verification and exact-plan adoption <span class="pill amber review-badge">1 reference needs review<\/span><\/h3>/);
+ assert.match(at('2027-02-05','2026-12-01'),/Review due 2027-02-05 \(today\)/);
+ const overdue=at('2027-03-01','2026-12-01');
+ assert.match(overdue,/Review overdue \(due 2027-02-05\)/);assert.match(overdue,/data-review-state="overdue">Review overdue</);
+ assert.doesNotMatch(overdue,/REVIEW OVERDUE/);
+ const ends=at('2026-11-21','2027-03-01');
+ assert.match(ends,/Reviewed 2026-11-07; this review window ends 2027-02-05, before the service date: re-check closer to the date of service/);
+ assert.match(ends,/data-review-state="ends-before-service">Review window ends before service</);
+ // The badge sits inside the <summary>, so it is visible while the entry is collapsed.
+ for(const html of [soon,overdue,ends])assert.match(html,/<summary>[^<]*<span class="pill amber review-badge"/);
+});
+test('the verification scope carries the selected request type into the printed worksheet',()=>{
+ assert.equal(staffVerificationScope(state).requestType,'Initial');
+ assert.equal(staffVerificationScope({...state,requestType:'Repeat / continuation'}).requestType,'Repeat / continuation');
+ const initial=staffVerificationWorksheet(state,'2026-11-21'),renewal=staffVerificationWorksheet({...state,requestType:'Repeat / continuation'},'2026-11-21');
+ assert.match(initial,/^Request type: Initial$/m);assert.match(renewal,/^Request type: Repeat \/ continuation$/m);
+ assert.match(initial,/HMSA Commercial\/QUEST Prolia and biosimilars — initial/);
+ assert.doesNotMatch(renewal,/Prolia and biosimilars — initial/);
+});
+test('the printed addendum lists the matching payer documentation prompts with blank answer lines, never prefilled',()=>{
+ const asOf='2026-11-21';
+ for(const requestType of ['Initial','Repeat / continuation','Reconsideration / appeal'])for(const s of [state,{...state,serviceId:'knee-gel',gelProductId:'synvisc'},{...state,clinicalTemplateId:'gel-durolane'},{...state,payer:'UnitedHealthcare',planId:'uhc-commercial',serviceId:'total-knee'},{...state,payer:'UnitedHealthcare',planId:'uhc-ma',serviceId:'total-knee'}]){
+  const st={...s,requestType,docs:{diagnosis:true}},note=staffClinicalAddendum(st,asOf),lines=note.split('\n');
+  const scope=staffVerificationScope(st);
+  const expected=documentationBranchesFor(payerEvidenceFor(scope,asOf).map(r=>r.id),requestType,selectedClinicalTemplate(st).id);
+  assert.deepEqual(addendumDocumentationPrompts(st,asOf).branches.map(b=>b.id),expected.map(b=>b.id));
+  const start=lines.indexOf(ADDENDUM_PROMPTS_HEADING);assert.ok(start>0,requestType);
+  assert.equal(lines[start+1],'Request type: '+requestType);
+  for(const b of expected){
+   assert.ok(lines.includes(b.title),b.id);
+   for(const f of b.fields){const i=lines.indexOf('- '+f.label,start);assert.ok(i>start,f.label);assert.match(lines[i+1],/^\s+_{20,}$/);}
+  }
+  if(!expected.length)assert.match(note,/No (documentation branch matches|public payer reference matches)/);
+  // Synthetic and blank labels stay; the signature line is still last.
+  assert.match(note,/^SYNTHETIC ONLY — NOT FOR SUBMISSION/);assert.match(note,/\[NOT DOCUMENTED\]/);assert.match(note,/DO NOT ORDER/);
+  assert.match(lines.at(-1),/^Clinician review\/signature: _+$/);
+  assert.doesNotMatch(note.slice(note.indexOf(ADDENDUM_PROMPTS_HEADING)),/: (true|yes|met|documented)\b/i);
+ }
+ // The request type changes the branch set, and the UHC Medicare Advantage knee prompt is printed under its own heading.
+ assert.match(staffClinicalAddendum({...state,payer:'UnitedHealthcare',planId:'uhc-ma',serviceId:'total-knee'},asOf),/Source: UHC Joint Procedures — Medicare Advantage Medical Policy/);
+ const ids=t=>addendumDocumentationPrompts({...state,requestType:t},asOf).branches.map(b=>b.id).join();
+ assert.notEqual(ids('Initial'),ids('Repeat / continuation'));
+ // No insurer or date selected: the heading still prints with an explanation, and nothing is inferred.
+ const bare=staffClinicalAddendum({serviceId:'prolia'},asOf);
+ assert.match(bare,new RegExp(ADDENDUM_PROMPTS_HEADING.replace(/[()]/g,'\\$&')));
+ assert.match(bare,/No public payer reference matches this insurer/);
+ // The on-screen preview counts the prompts it appends.
+ assert.match(renderClinicalAddendumPanel(state,asOf),/Preview blank clinical addendum \(\d+ fields \+ \d+ payer-policy prompts\)/);
 });

@@ -282,3 +282,8 @@
 @media(max-width:820px){.staff-glance-head{display:block}.staff-glance-head .staff-date-field{margin-top:10px}}
 @media(max-width:650px){.nav-item .count.alert{display:inline-block}.source-due-metrics{grid-template-columns:1fr 1fr}.source-due-row{display:block}.source-due-date{text-align:left;margin-top:6px;display:flex;gap:10px;align-items:baseline}.staff-glance{padding:14px}.build-version{white-space:normal}.staff-date-field input{max-width:none}}
 @media print{.staff-glance{border-color:#999}}
+/* Payer evidence review states (step 6): amber badge on the record summary and the section heading. */
+.review-badge{margin-left:6px;font-size:9px;vertical-align:1px;white-space:normal}
+.payer-evidence-entry summary .review-badge{font-weight:600}
+.review-flag{color:#94621c;font-weight:600}
+@media(max-width:650px){.review-badge{font-size:11px;margin:4px 0 0 0;display:inline-block}}

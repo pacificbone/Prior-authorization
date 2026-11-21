@@ -38,7 +38,7 @@ test('AI is disabled by default and patient-data mode stays false even with an e
 test('the legacy AI extractor answers 404 unless the build or server was started with legacy tools on',async()=>{
   let calls=0;const api=createApi({fetcher:async()=>{calls++;throw new Error('Must not call');}});
   for(const value of [undefined,'','off','true','ON','1',true]){
-    const {LEGACY_TOOLS,...rest}=env;const response=await api(request(ids),value===undefined?rest:{...rest,LEGACY_TOOLS:value});
+    const rest={...env};delete rest.LEGACY_TOOLS;const response=await api(request(ids),value===undefined?rest:{...rest,LEGACY_TOOLS:value});
     assert.equal(response.status,404);assert.deepEqual(await response.json(),{error:'Not available in this build.'});
     assert.equal(response.headers.get('Cache-Control'),'no-store');
   }

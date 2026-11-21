@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {buildCoverageMatrix,renderCoverageMatrixMarkdown,compactCoverageMatrix,assessCoverageCell,MATRIX_PRIORITY_SERVICES,MATRIX_STATUSES,MATRIX_FOCUS_PAYERS} from '../shared/coverage-matrix.mjs';
 import {STAFF_SERVICES,STAFF_PAYERS} from '../shared/staff-workflow.mjs';
+import {documentationBranchesFor} from '../shared/payer-documentation-branches.mjs';
 const committed=JSON.parse(readFileSync(new URL('../docs/coverage-matrix.json',import.meta.url),'utf8'));
 const asOf=committed.asOf;
 const matrix=buildCoverageMatrix({asOf});
@@ -69,4 +70,12 @@ test('review windows are enforced: every reviewed record becomes stale once its 
  assert.ok(futureCells.some(c=>c.status==='stale'));
  assert.throws(()=>buildCoverageMatrix({asOf:'2027-13-01'}));
  assert.throws(()=>assessCoverageCell({payer:'HMSA',line:'Commercial',entry:{serviceId:'not-a-service'},asOf}));
+});
+test('documentation prompt counts are scoped to the cell product, not every brand on the same policy',()=>{
+ const ids=c=>c.records.filter(r=>['reviewed-snapshot','directory-reference'].includes(r.kind)).map(r=>r.id);
+ for(const c of cells.filter(c=>c.status!=='n/a'))assert.equal(c.documentationPrompts,documentationBranchesFor(ids(c),'Initial',c.template?.id||'').length,c.payer+' '+c.line+' '+c.serviceId+' '+c.gelProductId);
+ // HMSA Commercial lists Synvisc as preferred: the non-preferred exception branch no longer inflates its count.
+ const synvisc=cell('HMSA','Commercial','knee-gel','synvisc'),durolane=cell('HMSA','Commercial','knee-gel','durolane');
+ assert.ok(synvisc.documentationPrompts<documentationBranchesFor(ids(synvisc),'Initial').length);
+ assert.ok(durolane.documentationPrompts>synvisc.documentationPrompts);
 });
