@@ -10,3 +10,4 @@ coverage/
 *.key
 *.log
 .DS_Store
+.claude/worktrees/
