@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
  STAFF_PAYERS,STAFF_SERVICES,STAFF_CATEGORY_LABELS,staffPlansForPayer,
  staffGetPlan,staffGetService,staffServices,staffContext,
- staffAuthorizePacket,staffPatientScript,validateStaffRegistry
+ staffAuthorizePacket,staffPatientScript,validateStaffRegistry,gelProductForQuery
 } from '../shared/staff-workflow.mjs';
 import {newCostCase,estimatePatientCost,getCostService} from '../shared/patient-cost.mjs';
 
@@ -50,7 +50,15 @@ test('delegated administrator lists, partial published-list extracts and benefit
  assert.ok(mdx.restrictions.some(x=>/UnitedHealthcare \(Medicare Advantage\)/.test(x)));
  // The HMAA extract is the July–December 2026 edition and expires 2026-12-31, so the as-of day is pinned.
  const hmaa=staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2026-11-08'});
- assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2027-01-02'}).formularyEntries.length,0); // expired editions are never shown as current
+ const lapsed=staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2027-01-02'});
+ assert.equal(lapsed.formularyEntries.length,0); // expired editions are never shown as current
+ // ...but staff are told the reviewed edition lapsed instead of silently seeing nothing.
+ assert.ok(lapsed.restrictions.includes('The reviewed HMAA OptumRx Premium · Jul–Dec 2026 list expired 2026-12-31; no current edition is indexed. Verify on the payer\'s current list.'));
+ assert.equal(lapsed.restrictions.filter(x=>/expired/.test(x)).length,1);
+ assert.equal(hmaa.restrictions.some(x=>/expired/.test(x)),false);
+ assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'celecoxib',benefit:'Pharmacy',asOf:'2027-01-02'}).restrictions.some(x=>/expired/.test(x)),false); // no extract for this drug
+ assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Medical',asOf:'2027-01-02'}).restrictions.some(x=>/expired/.test(x)),false); // pharmacy list, medical benefit
+ assert.equal(staffContext({payer:'HMSA',planId:'hmsa-select-choice',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2027-01-02'}).restrictions.some(x=>/expired/.test(x)),false); // another payer's list never applies
  assert.deepEqual(hmaa.formularyEntries.map(p=>p.id),['hmaa-premium-2026-h2-alendronate']);
  assert.ok(hmaa.restrictions.some(x=>/NOT verified/.test(x)&&/HMAA-OPTUMRX-PREMIUM-2026-H2/.test(x)));
  assert.ok(hmaa.sourceLinks.some(x=>x.status==='formulary-extract'));
@@ -170,6 +178,35 @@ test('service catalog includes common and peripheral work and drug families, eac
  assert.ok(noSource.restrictions.some(x=>/No payer-specific procedure policy or code-list source is cataloged/.test(x))||noSource.sourceLinks.some(x=>x.status==='plan-check'));
  assert.ok(staffServices({query:'carpal'}).some(x=>x.id==='carpal-open'));
  assert.ok(Object.hasOwn(STAFF_CATEGORY_LABELS,'imaging'));
+});
+test('service search matches staff abbreviations, brand names and codes token by token',()=>{
+ const ids=q=>staffServices({query:q}).map(x=>x.id);
+ assert.equal(ids('TKA')[0],'total-knee');assert.ok(ids('tka').includes('revision-knee'));
+ assert.deepEqual(ids('synvisc'),['knee-gel']);assert.equal(gelProductForQuery('synvisc'),'synvisc');
+ assert.deepEqual(ids('Synvisc-One'),['knee-gel']);
+ for(const q of ['Synvisc-One','synvisc one','SYNVISC ONE','synviscone','Synvisc One injection'])assert.equal(gelProductForQuery(q),'synvisc-one',q);
+ assert.deepEqual(ids('27447'),['total-knee']);
+ assert.deepEqual(ids('J0897'),['prolia']);
+ assert.equal(ids('hip replacement')[0],'total-hip');assert.ok(ids('hip replacement').includes('revision-hip'));
+ assert.deepEqual(ids('Euflexxa'),['knee-gel']);assert.equal(gelProductForQuery('Euflexxa'),'euflexxa');
+ // Every query token must match somewhere; punctuation and case are ignored.
+ assert.equal(ids('total knee replacement')[0],'total-knee');assert.equal(ids('Total-Knee  REPLACEMENT!')[0],'total-knee');
+ assert.deepEqual(ids('hip unicorn'),[]);
+ assert.deepEqual(ids('Q5136'),['jubbonti']);assert.deepEqual(ids('q5162'),['bildyos']);assert.deepEqual(ids('J3489'),['zoledronic-acid']);
+ assert.ok(ids('Reclast').includes('zoledronic-acid'));assert.ok(ids('zoledronic').includes('zoledronic-acid'));
+ for(const id of ['prolia','bildyos','enoby','stoboclo','jubbonti'])assert.ok(ids('denosumab biosimilar').includes(id),id);
+ for(const [q,id] of [['UKA','partial-knee'],['partial knee','partial-knee'],['THA','total-hip'],['CTR','carpal-open'],['carpal tunnel','carpal-open'],['endoscopic carpal tunnel','carpal-endo'],['trigger finger','trigger-finger'],['SI fusion','si-joint-fusion'],['MACI','maci-harvest'],['autologous chondrocyte implantation','maci-implant'],['ACL','acl-reconstruction'],['viscosupplementation','knee-gel'],['hyaluronic acid','knee-gel'],['gel','knee-gel'],['J7325','knee-gel'],['20610','knee-gel'],['DEXA','dexa'],['Fosamax','alendronate']])
+  assert.equal(ids(q)[0],id,q);
+ for(const p of ['durolane','gel-one','gelsyn-3','genvisc','hyalgan','hymovis','monovisc','orthovisc','supartz','synvisc','synvisc-one','trivisc','synojoynt','triluron','visco-3'])assert.ok(ids(p.replace('-',' ')).includes('knee-gel'),p);
+ assert.equal(gelProductForQuery('Supartz FX'),'supartz');assert.equal(gelProductForQuery('Gel-One'),'gel-one');assert.equal(gelProductForQuery('GenVisc 850'),'genvisc');
+ assert.equal(gelProductForQuery('visco-3'),'visco-3');assert.equal(gelProductForQuery('gelsyn'),'gelsyn-3');
+ // No brand, or two different brands, preselects nothing.
+ for(const q of ['','knee gel','TKA','synvisc euflexxa','hyaluronic acid'])assert.equal(gelProductForQuery(q),null,q);
+ // Filters still apply, and an empty query keeps catalog order.
+ assert.deepEqual(staffServices({type:'medication',query:'J0897'}).map(x=>x.id),['prolia']);
+ assert.deepEqual(staffServices({type:'procedure',query:'J0897'}),[]);
+ assert.deepEqual(staffServices().map(x=>x.id),STAFF_SERVICES.map(x=>x.id));
+ assert.deepEqual(staffServices({category:'hand'}).map(x=>x.id),STAFF_SERVICES.filter(x=>x.category==='hand').map(x=>x.id));
 });
 
 test('documentation template contains placeholders and uncovered clinical gaps rather than invented findings',()=>{

@@ -52,3 +52,20 @@ test('UHC Commercial, QUEST and Medicare Advantage each get only their own line\
  assert.match(at('Medicare Advantage','procedure-total-knee')[0].summary,/L36575/);
  assert.match(at('Medicare Advantage','procedure-total-knee')[0].limitations,/Says nothing about whether prior authorization is required/);
 });
+test('UHC Medicare Advantage knee procedures: LCD prompts only for arthroplasty, the commercial InterQual fallback for the rest',()=>{
+ const at=productId=>payerEvidenceFor({payer:'UnitedHealthcare',line:'Medicare Advantage',benefit:'Medical',productId,serviceDate:'2026-11-15'},'2026-11-15').find(x=>x.id==='uhc-ma-joint-2026');
+ for(const p of ['procedure-acl-reconstruction','procedure-meniscus-repair','procedure-knee-meniscectomy','procedure-maci-implant']){
+  const r=at(p);
+  assert.equal(r.prompts.some(t=>/L36575|L34163/.test(t)),false,p);
+  assert.ok(r.prompts.some(t=>/falls back to the UnitedHealthcare Commercial Medical Policy titled Surgery of the Knee \(InterQual criteria\)/.test(t)),p);
+  assert.deepEqual(documentationBranchesFor([r.id],'Initial',p),[],p);
+ }
+ for(const p of ['procedure-total-knee','procedure-partial-knee','procedure-revision-knee','procedure-total-hip','procedure-revision-hip']){
+  const r=at(p);
+  assert.ok(r.prompts.some(t=>/Noridian LCD L36575 \(knee\) or L34163 \(hip\)/.test(t)),p);
+  assert.deepEqual(documentationBranchesFor([r.id],'Initial',p).map(b=>b.id),['uhc-ma-joint-lcd'],p);
+ }
+ // The commercial knee record keeps its generic InterQual prompts for every knee product.
+ const commercial=payerEvidenceFor({...scope,productId:'procedure-acl-reconstruction',serviceDate:'2026-11-15'},'2026-11-15').find(x=>x.id==='uhc-knee-2026');
+ assert.ok(commercial.prompts.some(t=>/InterQual/.test(t)));
+});
