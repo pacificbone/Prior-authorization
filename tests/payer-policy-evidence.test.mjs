@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {PAYER_POLICY_EVIDENCE,payerEvidenceFor,payerVerificationWorksheet,validatePayerEvidence} from '../shared/payer-policy-evidence.mjs';
+import {PAYER_POLICY_EVIDENCE,payerEvidenceFor,payerVerificationWorksheet,validatePayerEvidence,promptsFor,validateDocumentationBranches} from '../shared/payer-policy-evidence.mjs';
+import {PAYER_DOCUMENTATION_BRANCHES} from '../shared/payer-documentation-branches.mjs';
 import {renderClinicalAddendumPanel,staffVerificationWorksheet} from '../public/clinical-addendum-panel.mjs';
 import {verifyPolicySnapshot} from '../server/policy-snapshot.mjs';
 const scope={payer:'HMSA',line:'Commercial',benefit:'Medical',planId:'Unverified fictional plan',productId:'gel-monovisc',serviceDate:'2026-11-07',setting:'Office',state:'HI',medication:true};
@@ -86,9 +87,29 @@ test('publication code is not silently converted to an effective date or buy-and
  assert.match(source.limitations,/not prove buy-and-bill/);
 });
 test('dated extracts become overdue and cannot imply exact-plan adoption',()=>{
- for(const asOf of ['2027-02-06','2026-11-06'])assert.ok(payerEvidenceFor(scope,asOf).every(s=>s.reviewOverdue));
- assert.ok(refs({serviceDate:'2027-03-01'}).every(s=>s.reviewOverdue));
+ for(const asOf of ['2027-02-06','2026-11-06'])assert.ok(payerEvidenceFor(scope,asOf).every(s=>s.reviewOverdue&&s.reviewState==='overdue'&&!s.reviewEndsBeforeService&&!s.reviewDueSoon));
  assert.equal(payerEvidenceFor(scope,'bad').length,0);
+ for(const s of refs())assert.ok(Object.isFrozen(s)&&Object.isFrozen(s.prompts),s.id);
+});
+test('a booked-ahead service is not OVERDUE: review window ending before the service date and due-soon are separate states',()=>{
+ // Reviewed 2026-11-07, review due 2027-02-05; the as-of day is fixed so the clock never matters.
+ const ahead=refs({serviceDate:'2027-03-01'});
+ assert.ok(ahead.length&&ahead.every(s=>!s.reviewOverdue&&s.reviewEndsBeforeService&&s.reviewState==='ends-before-service'));
+ const fresh=refs();assert.ok(fresh.every(s=>s.reviewState==='current'&&!s.reviewDueSoon&&s.reviewDueInDays===90));
+ const soon=payerEvidenceFor({...scope,serviceDate:'2027-01-20'},'2027-01-20');
+ assert.ok(soon.length&&soon.every(s=>s.reviewState==='due-soon'&&s.reviewDueSoon&&s.reviewDueInDays===16&&!s.reviewOverdue));
+ // Precedence: overdue > ends-before-service > due-soon > current.
+ const both=payerEvidenceFor({...scope,serviceDate:'2027-03-01'},'2027-01-20');
+ assert.ok(both.every(s=>s.reviewDueSoon&&s.reviewEndsBeforeService&&s.reviewState==='ends-before-service'));
+ assert.equal(payerEvidenceFor({...scope,serviceDate:'2027-02-05'},'2027-02-05')[0].reviewDueInDays,0);
+ assert.equal(payerEvidenceFor({...scope,serviceDate:'2027-02-05'},'2027-02-05')[0].reviewState,'due-soon');
+ const sheet=d=>payerVerificationWorksheet({...scope,serviceDate:d.service},d.asOf);
+ const aheadSheet=sheet({service:'2027-03-01',asOf:'2026-11-07'});
+ assert.match(aheadSheet,/Review: Reviewed 2026-11-07; this review window ends 2027-02-05, before the service date: re-check closer to the date of service/);
+ assert.doesNotMatch(aheadSheet,/OVERDUE/);
+ assert.match(sheet({service:'2027-01-20',asOf:'2027-01-20'}),/fingerprinted snapshot reviewed 2026-11-07; review due 2027-02-05 \(in 16 days\)/);
+ assert.match(sheet({service:'2027-02-10',asOf:'2027-02-10'}),/Review: OVERDUE/);
+ assert.doesNotMatch(sheet({service:'2026-11-07',asOf:'2026-11-07'}),/OVERDUE|review due|re-check closer/);
 });
 test('printable workup separates retrieved sources from missing adoption, eligibility and supplier proof',()=>{
  const note=payerVerificationWorksheet(scope,'2026-11-07');
@@ -112,6 +133,70 @@ test('staff evidence and worksheet match selected template, plan line, benefit a
  assert.doesNotMatch(renderClinicalAddendumPanel({...state,benefit:'Pharmacy'}),/HMSA Hyaluronate Products/);
  assert.doesNotMatch(renderClinicalAddendumPanel({...state,clinicalTemplateId:'procedure-total-hip'}),/HMSA Hyaluronate Products/);
  assert.match(renderClinicalAddendumPanel({...state,payer:'<script>alert(1)</script>'}),/&lt;script/);
+});
+test('product-scoped prompts: an LCD, preference or product-only prompt never prints for a product it does not name',()=>{
+ const arthroplasty=['procedure-total-knee','procedure-partial-knee','procedure-revision-knee','procedure-total-hip','procedure-revision-hip'];
+ for(const s of PAYER_POLICY_EVIDENCE){
+  for(const p of s.prompts)if(typeof p!=='string'){assert.ok(Object.isFrozen(p)&&Object.isFrozen(p.products),s.id);assert.ok(p.products.every(x=>s.products.includes(x)),s.id);}
+  for(const productId of s.products.filter(p=>!arthroplasty.includes(p)))
+   assert.equal(promptsFor(s,productId).some(t=>/L36575|L34163/.test(t)),false,s.id+' '+productId);
+  // Without a product, only the unscoped prompts apply.
+  assert.deepEqual([...promptsFor(s,'')],s.prompts.filter(p=>typeof p==='string'));
+ }
+ const at=(line,productId,medication=false,payer='UnitedHealthcare')=>payerEvidenceFor({payer,line,benefit:'Medical',productId,medication,serviceDate:'2026-11-15'},'2026-11-15');
+ const maJoint=productId=>at('Medicare Advantage',productId).find(s=>s.id==='uhc-ma-joint-2026').prompts;
+ for(const p of ['procedure-acl-reconstruction','procedure-meniscus-repair','procedure-knee-meniscectomy','procedure-maci-implant']){
+  assert.equal(maJoint(p).some(t=>/L36575|L34163/.test(t)),false,p);
+  assert.ok(maJoint(p).some(t=>/No Noridian LCD is listed for this procedure/.test(t)&&/Surgery of the Knee \(InterQual/.test(t)),p);
+ }
+ for(const p of arthroplasty){assert.ok(maJoint(p).some(t=>/L36575/.test(t)),p);assert.equal(maJoint(p).some(t=>/No Noridian LCD is listed/.test(t)),false,p);}
+ // Evenity-only, Jubbonti-only and brand-preference language stays with its product.
+ const step=(p)=>at('Medicare Advantage',p,true).find(s=>s.id==='uhc-ma-partb-step-2026').prompts;
+ assert.ok(step('bone-evenity').some(t=>/Evenity is non-preferred/.test(t)));
+ for(const p of ['bone-prolia','bone-jubbonti','bone-bildyos','gel-synvisc'])assert.equal(step(p).some(t=>/Evenity/.test(t)),false,p);
+ assert.ok(step('gel-euflexxa').some(t=>/non-preferred hyaluronate/.test(t)));assert.equal(step('gel-durolane').some(t=>/non-preferred/.test(t)),false);
+ const den=p=>at('Commercial',p,true).find(s=>s.id==='uhc-denosumab-2026').prompts;
+ assert.ok(den('bone-jubbonti').some(t=>/Jubbonti is typically excluded/.test(t)));assert.equal(den('bone-prolia').some(t=>/typically excluded/.test(t)),false);
+ const hmsaPref=p=>refs({productId:'gel-'+p}).find(s=>s.id==='hmsa-gel-preference-2026').prompts;
+ assert.ok(hmsaPref('monovisc').some(t=>/nonpreferred brand/.test(t)));assert.equal(hmsaPref('euflexxa').some(t=>/nonpreferred brand/.test(t)),false);
+ assert.ok(hmsaPref('durolane').some(t=>/nonpreferred brand/.test(t))); // Durolane is in the Commercial/QUEST non-preferred group
+ const tka=p=>at('Traditional Medicare',p,false,'Traditional Medicare').find(s=>s.id==='medicare-noridian-tka-l36575').prompts;
+ assert.ok(tka('procedure-partial-knee').some(t=>/unicompartmental/.test(t)));assert.equal(tka('procedure-partial-knee').some(t=>/subchondral cysts/.test(t)),false);
+ assert.ok(tka('procedure-revision-knee').some(t=>/failure mechanism/.test(t)));assert.equal(tka('procedure-total-knee').some(t=>/failure mechanism/.test(t)),false);
+ const ma64728=p=>at('Medicare Advantage',p).find(s=>s.id==='uhc-ma-omnibus-carpal-2026').prompts;
+ assert.ok(ma64728('procedure-carpal-ultrasound-other').some(t=>/non-balloon/.test(t)));assert.equal(ma64728('procedure-carpal-balloon').some(t=>/non-balloon/.test(t)),false);
+ // Scoped prompts are validated against the record's own products.
+ const s=PAYER_POLICY_EVIDENCE.find(x=>x.id==='uhc-ma-joint-2026');
+ for(const bad of [{text:'x',products:['procedure-total-hip-typo']},{text:'x',products:[]},{text:'',products:['procedure-total-hip']},{text:'x',products:['procedure-total-hip'],extra:1},{products:['procedure-total-hip']}])
+  assert.throws(()=>validatePayerEvidence([{...s,prompts:[bad]}]),JSON.stringify(bad));
+ assert.equal(validatePayerEvidence([{...s,prompts:['x',{text:'y',products:['procedure-total-hip']}]}]),true);
+});
+test('every documentation branch cites a real evidence record and only that record\'s products',()=>{
+ assert.equal(validateDocumentationBranches(),true);
+ const b=PAYER_DOCUMENTATION_BRANCHES[0];
+ assert.throws(()=>validateDocumentationBranches([{...b,evidenceId:'missing'}]));
+ assert.throws(()=>validateDocumentationBranches([{...b,products:['bone-prolia']}]));
+ assert.throws(()=>validateDocumentationBranches([b,b]));
+});
+test('the verification worksheet prints the matching documentation branches as undocumented fields',()=>{
+ const block='PAYER-POLICY DOCUMENTATION PROMPTS (public reference; plan adoption not verified)';
+ const note=payerVerificationWorksheet(scope,'2026-11-07');
+ const at=note.indexOf(block);assert.ok(at>note.lastIndexOf('PUBLIC REFERENCE:'),'block follows the evidence references');assert.ok(at<note.indexOf('Verification attachments'));
+ assert.match(note,/Request type: Initial/);
+ assert.match(note,/HMSA Commercial\/QUEST hyaluronate — initial\n- OA diagnosis, knee and laterality \[NOT DOCUMENTED\]/);
+ assert.match(note,/nonpreferred hyaluronate exception/); // Monovisc is nonpreferred
+ assert.doesNotMatch(note,/hyaluronate — renewal/);
+ const renewal=payerVerificationWorksheet({...scope,requestType:'Repeat / continuation'},'2026-11-07');
+ assert.match(renewal,/Request type: Repeat \/ continuation/);assert.match(renewal,/hyaluronate — renewal/);assert.doesNotMatch(renewal,/hyaluronate — initial/);
+ assert.doesNotMatch(payerVerificationWorksheet({...scope,productId:'gel-euflexxa'},'2026-11-07'),/nonpreferred hyaluronate exception/);
+ assert.match(payerVerificationWorksheet({...scope,requestType:'Reconsideration / appeal'},'2026-11-07'),/nonpreferred hyaluronate exception/);
+ assert.doesNotMatch(payerVerificationWorksheet({...scope,payer:'Other'},'2026-11-07'),/PAYER-POLICY DOCUMENTATION PROMPTS/);
+ const lines=payerVerificationWorksheet(scope,'2026-11-07').split('\n');
+ const fieldLines=lines.slice(lines.indexOf(block)).filter(l=>l.startsWith('- '));
+ assert.ok(fieldLines.length>0&&fieldLines.every(l=>l.endsWith(' [NOT DOCUMENTED]')));
+ // A product without a matching branch says so instead of printing nothing.
+ assert.match(payerVerificationWorksheet({payer:'UnitedHealthcare',line:'Commercial',benefit:'Medical',productId:'procedure-acl-reconstruction',serviceDate:'2026-11-15'},'2026-11-15'),/UnitedHealthcare Commercial \/ Exchange — knee surgery evidence review/);
+ assert.match(payerVerificationWorksheet({payer:'UnitedHealthcare',line:'Commercial',benefit:'Medical',productId:'procedure-acl-reconstruction',serviceDate:'2026-11-15',requestType:'Reconsideration / appeal'},'2026-11-15'),/No documentation branch matches this request type and product/);
 });
 test('changed sources, malformed digests and permission laundering fail registry validation',()=>{
  const s=PAYER_POLICY_EVIDENCE[0];

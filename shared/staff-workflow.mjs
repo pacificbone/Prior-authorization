@@ -6,10 +6,11 @@
 import {hawaiiCoverageSources} from './hawaii-plan-sources.mjs';
 import {PUBLISHED_FORMULARIES} from './live-formularies.mjs';
 import {drugs,policies,formularyLists} from './catalog.mjs';
-import {matchingPolicies,applyPolicyPathway,formularyResult} from './domain.mjs';
-import {orthoProcedures,getOrthoActiveCriteria,getOrthoPayerSources,getOrthoProcedureCodes} from './orthopedic-procedures.mjs';
+import {matchingPolicies,applyPolicyPathway,formularyResult,policyFreshness,dateToday} from './domain.mjs';
+import {orthoProcedures,orthoGelProducts,getOrthoActiveCriteria,getOrthoPayerSources,getOrthoProcedureCodes} from './orthopedic-procedures.mjs';
 import {EXTRA_PROCEDURES,EXTRA_DRUGS} from './staff-service-catalog.mjs';
 import {staffAuthResources} from './staff-auth-resources.mjs';
+import {authTemplateForService} from './authorization-template-catalog.mjs';
 
 const NON_PLANS=new Set(['uha-medical-pa','aloha-wrap','va-cfuses','original-d','other-ma']);
 // Older catalogs key the same organizations differently; the staff selector names are canonical.
@@ -100,11 +101,88 @@ export function staffDefaultBenefit(service){
  if(!service||service.type==='procedure')return 'Medical';
  return OFFICE_ADMINISTERED_DRUGS.has(service.id)?'Medical':'Pharmacy';
 }
+// Search: lower-case, accents and punctuation dropped, so "Synvisc-One", "synvisc one" and "SYNVISC ONE" agree.
+const searchNorm=s=>String(s??'').normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const GEL_SPELLINGS=Object.freeze({'synvisc-one':['synvisc 1'],'gelsyn-3':['gelsyn']});
+const gelPhrases=p=>[...new Set([searchNorm(p.name),searchNorm(p.id),searchNorm(p.name).replace(/ /g,''),searchNorm(p.id).replace(/ /g,''),...(GEL_SPELLINGS[p.id]||[])])];
+const denosumabTerms=['denosumab','denosumab biosimilar','biosimilar','osteoporosis'];
+// Common staff words and abbreviations for each service. Search terms only: never coverage or coding statements.
+const SERVICE_ALIASES=Object.freeze({
+ 'total-knee':['TKA','TKR','total knee replacement','knee replacement','total knee'],
+ 'partial-knee':['UKA','UKR','partial knee','partial knee replacement','unicompartmental knee','uni knee','knee replacement'],
+ 'revision-knee':['revision TKA','TKA revision','knee revision','revision knee replacement'],
+ 'total-hip':['THA','THR','total hip replacement','hip replacement','total hip','anterior hip replacement'],
+ 'revision-hip':['revision THA','THA revision','hip revision','revision hip replacement'],
+ 'knee-gel':['viscosupplementation','viscosupplement','gel','gel injection','gel shot','hyaluronic acid','hyaluronan','hyaluronate','sodium hyaluronate','HA injection',...orthoGelProducts.flatMap(gelPhrases)],
+ 'maci-harvest':['MACI','ACI','cartilage biopsy','cartilage harvest','autologous chondrocyte'],
+ 'maci-implant':['MACI','ACI','autologous chondrocyte implantation','cartilage implant'],
+ 'maci-cell-product':['MACI','ACI','cultured chondrocytes','cell product'],
+ 'carpal-open':['CTR','OCTR','carpal tunnel','carpal tunnel release','open carpal tunnel','median nerve decompression'],
+ 'carpal-endo':['CTR','ECTR','carpal tunnel','carpal tunnel release','endoscopic carpal tunnel'],
+ 'carpal-balloon':['CTR','carpal tunnel','carpal tunnel release','percutaneous carpal tunnel','balloon carpal tunnel'],
+ 'carpal-ultrasound-other':['CTR','carpal tunnel','carpal tunnel release','percutaneous carpal tunnel','ultrasound guided carpal tunnel'],
+ 'trigger-finger':['trigger finger','trigger finger release','trigger thumb','A1 pulley','stenosing tenosynovitis'],
+ 'trigger-finger-percutaneous':['trigger finger','trigger finger release','trigger thumb','A1 pulley','percutaneous trigger finger','ultrasound guided trigger finger'],
+ 'si-joint-fusion':['SI fusion','SI joint fusion','SIJ fusion','SIJ','sacroiliac','sacroiliac joint fusion','iFuse'],
+ 'acl-reconstruction':['ACL','ACLR','ACL repair','anterior cruciate ligament','ligament reconstruction'],
+ 'bear-acl':['ACL','BEAR','ACL implant','anterior cruciate ligament'],
+ 'meniscus-repair':['meniscus','meniscal repair','torn meniscus','knee arthroscopy'],
+ 'knee-meniscectomy':['meniscus','meniscectomy','partial meniscectomy','APM','knee scope','knee arthroscopy'],
+ 'meniscus-root':['meniscus','meniscal root','root repair'],
+ 'cartiheal':['Agili-C','CartiHeal','osteochondral implant','cartilage implant'],
+ 'osteochondral-allograft':['OCA','osteochondral allograft','cartilage transplant'],
+ 'knee-osteotomy':['HTO','DFO','osteotomy','high tibial osteotomy','distal femoral osteotomy'],
+ 'pns-knee':['PNS','peripheral nerve stimulation','nerve stimulator'],
+ 'iovera':['iovera','cryoneurolysis','cryo','cryoablation'],
+ 'genicular-rfa':['RFA','genicular nerve ablation','radiofrequency ablation','nerve ablation'],
+ 'prp':['PRP','platelet rich plasma'],
+ 'bmac':['BMAC','bone marrow aspirate','bone marrow concentrate'],
+ 'a2m':['A2M','alpha 2 macroglobulin'],
+ 'corticosteroid-injection':['cortisone','cortisone shot','steroid injection','joint injection'],
+ 'ultrasound-diagnostic':['ultrasound','diagnostic ultrasound','MSK ultrasound'],
+ 'mri-knee':['MRI','knee MRI','magnetic resonance'],
+ 'xray-knee':['x-ray','xray','radiograph'],
+ 'dexa':['DXA','DEXA','bone density','bone density scan'],
+ 'dme-brace':['brace','knee brace','DME','unloader brace'],
+ 'office-pt':['PT','physical therapy','rehab','rehabilitation'],
+ 'core-decompression':['core decompression','AVN','avascular necrosis'],
+ 'osseointegration':['osseointegration','amputation implant'],
+ 'evenity':['romosozumab','osteoporosis'],
+ 'prolia':denosumabTerms,'bildyos':denosumabTerms,'enoby':denosumabTerms,'stoboclo':denosumabTerms,'jubbonti':denosumabTerms,
+ 'zoledronic-acid':['Reclast','zoledronic','zoledronate','bisphosphonate','osteoporosis','infusion'],
+ 'alendronate':['Fosamax','bisphosphonate','osteoporosis'],
+ 'risedronate':['Actonel','bisphosphonate','osteoporosis'],
+ 'ibandronate':['Boniva','Boniva IV','J1740','bisphosphonate','osteoporosis'],
+ 'teriparatide':['Forteo','osteoporosis'],
+ 'tymlos':['abaloparatide','osteoporosis'],
+ 'calcitonin':['Miacalcin','osteoporosis']
+});
+const serviceCodes=x=>x.id==='knee-gel'?[...(x.codes||[]).map(c=>c.code),...orthoGelProducts.map(p=>p.code)]:
+ x.type==='medication'?[...(authTemplateForService(x.id)?.codes||[])]:(x.codes||[]).map(c=>c.code);
+// Drug-class labels (e.g. "Denosumab biosimilar") are searchable even though the staff category is "medication".
+const drugClass=new Map([...drugs,...EXTRA_DRUGS].map(d=>[d.id,d.category||'']));
+const SEARCH_INDEX=new Map(STAFF_SERVICES.map(x=>{
+ const phrases=[x.name,x.generic,x.brand,...(SERVICE_ALIASES[x.id]||[]),...serviceCodes(x)].filter(Boolean).map(searchNorm);
+ const words=[...new Set(searchNorm([...phrases,x.description,x.category,drugClass.get(x.id)].join(' ')).split(' '))];
+ return [x.id,{phrases,words,text:' '+words.join(' ')+' '}];
+}));
+// Every query token must start a word of the service (or, from 4 characters, appear inside one).
+const tokenHit=(t,ix)=>ix.words.some(w=>w.startsWith(t))||(t.length>=4&&ix.text.includes(t));
+const searchRank=(q,ix)=>ix.phrases.includes(q)?3:ix.phrases.some(p=>(' '+p+' ').includes(' '+q+' '))?2:1;
 export function staffServices({type='all',category='all',query=''}={}) {
- const q=String(query).toLowerCase().trim().slice(0,80);
- return STAFF_SERVICES.filter(x=>(type==='all'||x.type===type) &&
+ const q=searchNorm(String(query).slice(0,80)),tokens=q?q.split(' '):[];
+ const found=STAFF_SERVICES.filter(x=>(type==='all'||x.type===type) &&
    (category==='all'||x.category===category) &&
-   (!q||[x.name,x.generic||'',x.brand||'',x.description||'',x.category].join(' ').toLowerCase().includes(q)));
+   tokens.every(t=>tokenHit(t,SEARCH_INDEX.get(x.id))));
+ return q?found.map((x,i)=>({x,i,r:searchRank(q,SEARCH_INDEX.get(x.id))})).sort((a,b)=>b.r-a.r||a.i-b.i).map(o=>o.x):found;
+}
+// The orthoGelProducts id when the query names exactly one gel brand; null when it names none or two.
+// A brand whose phrase sits inside another named brand's phrase yields ("Synvisc One" is synvisc-one, not synvisc).
+export function gelProductForQuery(query=''){
+ const q=' '+searchNorm(String(query).slice(0,80))+' ';
+ const hits=orthoGelProducts.map(p=>({id:p.id,phrase:gelPhrases(p).filter(f=>q.includes(' '+f+' ')).sort((a,b)=>b.split(' ').length-a.split(' ').length)[0]})).filter(h=>h.phrase);
+ const named=hits.filter(h=>!hits.some(o=>o.id!==h.id&&o.phrase!==h.phrase&&(' '+o.phrase+' ').includes(' '+h.phrase+' ')));
+ return named.length===1?named[0].id:null;
 }
 function policyScope(plan,benefit) {
  const line=staffPlanProgramLine(plan);
@@ -161,6 +239,15 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
      supplementaryPA=candidates.filter(x=>x.kind==='authorization-list');
      formularyEntries=candidates.filter(x=>x.kind==='formulary');
      if(formularyEntries.length)restrictions.push('Reviewed extract from the published list '+scope.planCode+' is shown; whether this employer plan adopts that list is NOT verified.');
+     // An expired edition is never shown as current, but staff are told it lapsed instead of seeing nothing.
+     else{
+       const lapsed=policies.filter(p=>p.kind==='formulary'&&p.payer===scope.payer&&p.lines.includes(scope.line)&&p.benefit===benefit&&p.drugIds.includes(service.id)&&
+         (!p.planCode||p.planCode===scope.planCode)&&policyFreshness(p,asOf||dateToday())==='expired');
+       for(const p of lapsed.filter((p,i,a)=>a.findIndex(x=>x.planCode===p.planCode)===i)){
+         const list=formularyLists.find(l=>l.code===p.planCode&&l.payer===p.payer);
+         restrictions.push('The reviewed '+(list?p.payer+' '+list.label:p.title)+' list expired '+p.expires+'; no current edition is indexed. Verify on the payer\'s current list.');
+       }
+     }
      // A delegated administrator's published PA list for this carrier and line (for example the
      // MDX Hawaiʻi list for UHC Medicare Advantage) is shown as delegate context, never as the plan's own rule.
      const delegate=policies.filter(p=>p.kind==='authorization-list'&&p.carrier===plan.payer&&p.payer!==scope.payer&&p.lines.includes(scope.line)&&p.benefit===benefit&&p.drugIds.includes(service.id));
