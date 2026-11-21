@@ -96,6 +96,31 @@ test('malformed or failed official source must not be reported as verified formu
   }
 });
 
+test('the public fetch carries a timeout and failures are negatively cached for about a minute',async()=>{
+  let t=Date.parse('2026-11-07T12:00:00Z'),callCount=0,seenSignal=null;
+  const service=createPublishedFormularyService({fetcher:async(url,options)=>{callCount++;seenSignal=options.signal;return new Response('upstream down',{status:503});},now:()=>t});
+  await assert.rejects(()=>service(input('alendronate')));
+  assert.ok(seenSignal instanceof AbortSignal);
+  await assert.rejects(()=>service(input('alendronate')));
+  await assert.rejects(()=>service(input('evenity')));
+  assert.equal(callCount,1);
+  t+=61000;
+  await assert.rejects(()=>service(input('alendronate')));
+  assert.equal(callCount,2);
+  const api=createApi({fetcher:async()=>{throw new Error('timed out');}});
+  for(let i=0;i<2;i++){const r=await api(request(input('alendronate')));assert.equal(r.status,503);assert.match((await r.json()).error,/could not be verified/i);}
+});
+
+test('public formulary searches are rate limited per isolate',async()=>{
+  let called=0;
+  const handle=createApi({fetcher:async()=>{called++;return Response.json(rows);}});
+  for(let i=0;i<30;i++)assert.equal((await handle(request(input('alendronate')))).status,200);
+  const limited=await handle(request(input('alendronate')));
+  assert.equal(limited.status,429);
+  assert.match((await limited.json()).error,/Try again in a minute/);
+  assert.equal(called,1);
+});
+
 test('source review age is flagged without inventing a payer expiration date',async()=>{
   const service=createPublishedFormularyService({fetcher:async()=>Response.json(rows),now:()=>Date.parse('2027-02-05T12:00:00Z')});
   assert.equal((await service(input('alendronate'))).reviewOverdue,true);

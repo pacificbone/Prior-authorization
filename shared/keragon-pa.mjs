@@ -10,10 +10,28 @@ export const KERAGON_LINKS=Object.freeze({
  trizettoPa:'https://www.trizettoprovider.com/interoperability-solutions/trizetto-provider-electronic-prior-authorization',
  trizettoPaServices:'https://www.trizettoprovider.com/solutions/patient-engagement/prior-authorization',
  optum:'https://www.keragon.com/integrations/optum',
- october:'https://help.keragon.com/hc/en-us/articles/40377130429842-October-2026',
  httpClient:'https://help.keragon.com/hc/en-us/articles/19894107858578-How-to-use-the-HTTP-Client-action-to-make-custom-API-requests',
  webhook:'https://help.keragon.com/hc/en-us/articles/26592306434578-Using-the-HTTP-Webhook-Trigger',
  modmedEpa:'https://www.modmed.com/what-we-do/eprescribing/'
+});
+// Vendor-capability statements below (what Keragon's TriZetto connector publishes, what TriZetto
+// markets, what Optum offers) were read on this date. They are not fingerprinted like payer
+// policies and could not be re-read from the build environment on 2026-11-08.
+export const VENDOR_CLAIMS_AS_OF='2026-11-07';
+export const CONNECTIVITY_LABELS=Object.freeze({
+ modmedKeragon:'Keragon ↔ ModMed EMA',
+ trizettoClearinghouse:'TriZetto clearinghouse / billing',
+ trizettoKeragonEligibility:'Keragon → TriZetto eligibility action',
+ trizettoElectronicPriorAuthorization:'TriZetto electronic prior authorization (278 / FHIR PAS)',
+ optum:'Optum authorization connector',
+ coverageDeskLiveBridge:'Coverage Desk ↔ Keragon live bridge'
+});
+export const CONNECTIVITY_STATUS_LABELS=Object.freeze({
+ 'practice-reported-connected':'connected (practice-reported, not verified here)',
+ 'practice-reported-in-use':'in use (practice-reported, not verified here)',
+ 'not-verified':'not verified',
+ 'not-required-not-verified':'not required; not verified',
+ 'not-connected':'not connected'
 });
 export const PRACTICE_CONNECTIVITY=Object.freeze({
  modmedKeragon:'practice-reported-connected',
@@ -41,22 +59,31 @@ const payerFallback=step('payer-route','Use verified payer/delegate portal when 
  'Use actual plan and delegated PA instructions to verify code, benefits, medical necessity and physician-versus-facility request. Track staff ownership and confirmation.');
 const make=(lane,headline,description,steps,warning)=>Object.freeze({
  lane,headline,description,steps:Object.freeze(steps),warning,
- activated:false,connectionStatus:'ModMed ↔ Keragon connected (reported by PBJ); TriZetto used for billing/clearinghouse (reported). No Keragon-to-TriZetto eligibility/PA or payer submission verified in Coverage Desk.'
+ activated:false,connectionStatus:connectionStatusText()
 });
+// Derived from PRACTICE_CONNECTIVITY so the sentence can never drift from the recorded status values.
+export function connectionStatusText(){
+ const s=PRACTICE_CONNECTIVITY;
+ return CONNECTIVITY_LABELS.modmedKeragon+': '+CONNECTIVITY_STATUS_LABELS[s.modmedKeragon]+'; '+CONNECTIVITY_LABELS.trizettoClearinghouse+': '+CONNECTIVITY_STATUS_LABELS[s.trizettoClearinghouse]+'. '+
+  'Keragon-to-TriZetto eligibility, TriZetto electronic PA and any payer submission from Coverage Desk: '+CONNECTIVITY_STATUS_LABELS[s.trizettoKeragonEligibility]+' (vendor claims as published on '+VENDOR_CLAIMS_AS_OF+').';
+}
 export function keragonPaRoute(ctx,{benefit='Medical',requestType='Initial'}={}){
  if(!ctx?.plan||!ctx?.service)return null;
  if(!['Medical','Pharmacy'].includes(benefit))throw Error('Choose Medical or Pharmacy benefit.');
  const {plan,service}=ctx;
  const pharmacy=service.type==='medication'&&benefit==='Pharmacy';
- const invalid=(plan.program==='part-d'&&!pharmacy)||
+ // VA, TRICARE and workers' compensation are program-administered even though the workers-comp
+ // plan row is filed under the delegated program, so they are routed before the delegated hold.
+ const programSpecific=plan.program==='veterans'||plan.program==='military'||plan.payer==='Workers compensation';
+ const invalid=!programSpecific&&((plan.program==='part-d'&&!pharmacy)||
    (plan.program==='original-medicare'&&benefit==='Pharmacy')||
-   plan.payer==='Medigap'||plan.program==='delegated';
+   plan.payer==='Medigap'||plan.program==='delegated');
  if(invalid)return make('verify-benefit','Stop: identify the actual benefit and payer first',
    'Neither existing ModMed/Keragon access nor TriZetto billing establishes the primary payer or correct authorization delegate.',
    [step('resolve','Identify the underlying carrier, plan and benefit','HOLD — no submission',
      'For delegated/secondary plans identify the true authorizer; Original Medicare does not supply a retail Part D formulary, and a Part D plan does not authorize surgery.')],
    'Do not infer authorization requirements or substitute another insurer.');
- if(plan.program==='veterans'||plan.program==='military'||plan.payer==='Workers compensation')
+ if(programSpecific)
    return make('program-specific','Use the actual referral or claim administrator',
      'Keragon may organize review and follow-up; do not assume TriZetto or Optum has access to the program.',
      [modmedContext,planScope,step('program','Confirm program-specific submission','Staff-controlled referral or claim authorization',
@@ -76,7 +103,7 @@ export function keragonPaRoute(ctx,{benefit='Medical',requestType='Initial'}={})
      'Require actual confirmation, denial reason or approval ID and follow-up dates; do not derive approval from a successful automation run.')],
    requestType==='Reconsideration / appeal'?'Appeal deadlines and denial reasoning must come from the actual PBM response.':'Do not use a medical authorization gateway as a substitute for retail ePA.');
  if(service.type==='medication'||service.id==='knee-gel')
-   return make('medical-drug','Start with TriZetto authorization capability and payer requirements',
+   return make('medical-drug','Check whether PBJ’s TriZetto agreement includes medical-benefit electronic PA for this payer and product; verify the payer’s drug policy first',
      'For physician-administered drugs and gel, first determine whether your existing TriZetto service has medical-benefit PA for the actual payer and product.',
      [modmedContext,eligibility,planScope,
       step('medical-policy','Verify medical drug benefit, J-code, units and criteria',
@@ -87,7 +114,7 @@ export function keragonPaRoute(ctx,{benefit='Medical',requestType='Initial'}={})
        'Explicit human approval before any actual submission',
        'Attach chart documentation only in approved systems; record confirmation, missing information, true payer decision and expiry.')],
      'TriZetto PA is a separate product from Keragon’s documented TriZetto eligibility action. Product license and payer connectivity have not been verified.');
- return make('procedure','Use existing TriZetto first for surgical/imaging PA feasibility',
+ return make('procedure','Check whether PBJ’s TriZetto agreement includes electronic PA for this payer and procedure; otherwise use the payer or delegate portal',
    'For total joint replacement, MACI, carpal tunnel, peripheral procedures and imaging, TriZetto’s separate electronic PA offering is the first integration to check; otherwise use exact payer portals.',
    [modmedContext,eligibility,planScope,
     step('procedure-policy','Verify procedure code and surgical setting',
@@ -109,7 +136,9 @@ export function keragonBuildPrompt(ctx,{benefit='Medical',requestType='Initial'}
  'Existing systems (practice-reported): Keragon is ALREADY connected to ModMed. TriZetto is ALREADY used for clearinghouse/billing. Reuse current ModMed authentication: do not reconnect or ask for credentials. Check allowed FHIR resource scopes, rather than assuming all clinical data or writeback is available.',
  'TriZetto-in-Keragon currently publicly documents an eligibility action only. The EXISTING TriZetto clearinghouse relationship does not confirm Keragon eligibility access or the separate TriZetto electronic prior-authorization service. Confirm enrollment and supported payer/codes before connecting anything.',
  'Optum is not mandatory. Do NOT add an Optum step to this draft; it is an optional alternative only if independently chosen later.',
- 'Synthetic public selection: '+plan.payer+' | '+plan.name+' | '+service.name+' | '+benefit+' benefit | '+requestType+'. This is NOT a real patient or an eligibility record.',
+ (benefit==='Medical'||service.type==='procedure'
+   ?'Synthetic public selection: '+plan.payer+' | '+(ctx.planLine||'program line not identified')+' program | '+service.name+' | Medical benefit | '+requestType+'. The selected plan record shown in Coverage Desk ('+plan.name+') is a pharmacy formulary or plan-directory identifier; confirm the member’s medical plan/product separately. This is NOT a real patient or an eligibility record.'
+   :'Synthetic public selection: '+plan.payer+' | '+plan.name+' | '+service.name+' | '+benefit+' benefit | '+requestType+'. This is NOT a real patient or an eligibility record.'),
  'Required lane: '+route.lane+'. '+route.headline+'.',
  'Use the current Keragon ModMed trigger if supported for approved Coverage or ServiceRequest events, or use a manually initiated task. Validate duplicate-event behavior. Do not treat a MedicationStatement as an e-prescription.',
  'Confirm exact plan/payer, coverage program, delegate, pharmacy or medical benefit, code and setting before any authorization workflow. If unknown, stop and assign staff verification.',

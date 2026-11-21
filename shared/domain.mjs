@@ -10,7 +10,6 @@ export function policyFreshness(policy, today=dateToday()) {
   if(!validDate(policy.effective)) return 'invalid';
   if(policy.effective>today) return 'future';
   if(policy.expires && policy.expires<today) return 'expired';
-  if(policy.reviewed>today) return 'invalid';
   return (Date.parse(today)-Date.parse(policy.reviewed))/86400000>90 ? 'stale' : 'current';
 }
 export function matchingPolicies(scope, drugId, custom=[], today=dateToday()) {

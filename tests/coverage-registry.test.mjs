@@ -50,12 +50,27 @@ test('only imported published feeds advertise local drug-level lookup',()=>{
  assert.equal(original.status,'no-single-formulary');
  assert.equal(hawaiiCoverageSources.find(x=>x.id==='medigap').status,'no-single-formulary');
  assert.equal(hawaiiCoverageSources.find(x=>x.id==='hmaa-employer').status,'partial-verified-entries');
+ // medicare.gov Plan Compare is a CMS finder, not a payer-maintained drug list.
+ for(const id of ['humana-ma','humana-pdp','devoted-ma','other-ma','original-d'])assert.equal(hawaiiCoverageSources.find(x=>x.id===id).status,'cms-plan-finder',id);
+ assert.equal(hawaiiCoverageSources.some(x=>x.status==='payer-search'&&x.sourceUrl.includes('medicare.gov')),false);
+ // Community Care Services is a statewide Med-QUEST contract published by ʻOhana, not an AlohaCare product.
+ assert.equal(hawaiiCoverageSources.some(x=>x.id==='aloha-ccs'),false);
+ assert.equal(hawaiiCoverageSources.find(x=>x.id==='ohana-ccs').payer,'ʻOhana / Wellcare');
+ // Federal Plan 87 and the BCBS FEP Service Benefit Plan are different products.
+ assert.match(hawaiiCoverageSources.find(x=>x.id==='hmsa-fep').name,/Federal Plan 87/);assert.doesNotMatch(hawaiiCoverageSources.find(x=>x.id==='hmsa-fep').name,/FEP/);
+ assert.match(hawaiiCoverageSources.find(x=>x.id==='bcbs-fep').sourceUrl,/fepblue\.org/);
+ // Kaiser Medicare rows no longer point only at the 2027 list while offered for 2026.
+ for(const id of ['kaiser-ma','kaiser-ma-dual'])assert.doesNotMatch(hawaiiCoverageSources.find(x=>x.id===id).sourceUrl,/2027/);
+ for(const row of hawaiiCoverageSources){assert.ok(row.availableYears.every(y=>[2026,2027].includes(y)),row.id);if(/-(2026|2027)$/.test(row.id))assert.deepEqual([...row.availableYears],[Number(row.id.slice(-4))],row.id);}
+ assert.deepEqual([...hawaiiCoverageSources.find(x=>x.id==='ohana-quest').availableYears],[2026]);
  assert.notEqual(hawaiiCoverageSources.find(x=>x.id==='hmsa-ma-individual').status,'live-drug-search');
 });
 test('refuse invalid directory paths or contradictory live-source flags',()=>{
  assert.throws(()=>validateHawaiiCoverageSources([hawaiiCoverageSources[0],hawaiiCoverageSources[0]]));
  assert.throws(()=>validateHawaiiCoverageSources([{...hawaiiCoverageSources[0],sourceUrl:'http://insecure.example/'}]));
  assert.throws(()=>validateHawaiiCoverageSources([{...hawaiiCoverageSources[0],status:'live-drug-search'}]));
+ assert.throws(()=>validateHawaiiCoverageSources([{...hawaiiCoverageSources[0],availableYears:[2025]}]));
+ assert.throws(()=>validateHawaiiCoverageSources([{...hawaiiCoverageSources[0],availableYears:[]}]));
 });
 test('UHC pharmacy file isolates plan UCSHIQ1 and never imports embedded PART D or wrong year',()=>{
  const source=getPublishedFormulary('uhc-quest-2026-10');

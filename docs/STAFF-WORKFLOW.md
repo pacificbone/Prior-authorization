@@ -1,10 +1,24 @@
 # Staff workup — one payer, one plan, one service
 
-**Pacific Bone & Joint · November 7, 2026 · synthetic trial / no PHI clearance**
+**Pacific Bone & Joint · November 7, 2026, updated November 21, 2026 (HST) · synthetic trial / no PHI clearance**
 
 The default app homepage is now **Staff workup**. Prior modules remain available only under **Advanced reference tools**, not as competing navigation paths.
 
+## What changed on November 21, 2026
+
+- **Defaults.** The coverage year starts at the current Hawaiʻi year (or the latest supported year), and choosing a service fills the planned service date with today in Hawaiʻi. Both stay editable. A date you did not enter prints on the addendum and worksheet as "[DATE NOT SELECTED — policy context used <day>]"; a date you typed survives a service change. An amber note appears when the service date falls in a different year from the plan year.
+- **Search.** The service box shows the match count, and a code you type matches only services that carry that code (for example 64728 finds the balloon carpal tunnel release only). Typing a gel brand while knee gel is selected, or picking knee gel after searching a brand, preselects that brand; "Hymovis One" preselects nothing because it is a different product.
+- **At a glance (top of step 3).** For the selected insurer, plan line and product, it shows the published prior-authorization statement with its source documents, the preferred / non-preferred / typically excluded / criteria-based product lists, and a status pill or amber exception notice for the chosen product. If no statement was recorded it says "Prior authorization: not verified". Criteria language (InterQual, unproven, not reasonable and necessary) appears on a separate **Criteria** row, never as a PA answer. Knee gel with no brand asks you to choose the product. A reference that is overdue, or whose review window ends before the service date, puts an amber notice at the top and a flag on the PA and Criteria rows. Every statement is a published policy statement: the member's plan adoption, eligibility and authorization are not verified.
+- **Medigap.** A Medigap plan reads Original Medicare (Noridian JE) for the primary claim and says Medigap pays secondary.
+- **Step 6 references.** Each payer reference shows its review state: current, due soon, review window ends before the service date, or overdue (amber badge visible while collapsed). The verification worksheet follows the selected request type (Initial, Renewal, …).
+- **Printed addendum.** It now ends with "Payer-policy documentation prompts (public reference; plan adoption not verified)": each matching documentation branch with its source and blank answer lines, followed by the clinician signature line. Clinical findings print as "[COMPLETE IN APPROVED CLINICAL SYSTEM]". Nothing is prefilled.
+- **Sources due page.** Lists every payer reference and formulary file as Overdue, Due in the next 30 days, Current or Undated, with a sidebar badge counting overdue plus due-soon items.
+- **Security & connection page.** Shows whether Cloudflare Access is required and configured, whether the price bridge is configured, and the build version. The footer shows the build commit and the policy-data date.
+- **Hidden tools.** The note-paste letter builder, AI extractor and encrypted vault are not in deployed builds; #authorization opens the staff workup instead.
+
 ## Five steps for front-desk / authorization staff
+
+The screen numbers six steps; step 6 (blank clinical addendum and payer verification worksheet) is described under step 5 below.
 
 1. **Insurance first:** Choose the actual carrier (e.g., HMSA, UHC, Kaiser, UHA, Curative, AlohaCare, Aetna, Cigna, Anthem, VA, TRICARE, traditional Medicare, or an administrator). Choose the year. The next dropdown shows **only source pathways belonging to that insurer**, with no payer-crossing possibilities. Aetna, Cigna, and Anthem public plan pages are official links, not full imported plan formularies. Many choices are **plan families or public source directories**, not exact member products. These now receive a dedicated "Plan family / formulary resource only" warning. A source with a validated published HIOS/plan ID gets "Exact published pharmacy plan ID", but even that does **not** establish member enrollment. Do not treat family selection as a member-specific benefit or quote.
 2. **Select the service:** Search medication, generic, orthopedic operation, imaging or injection. The service catalog includes primary/revision THA/TKA, partial knee, MACI, office carpal and trigger releases, meniscus root/BEAR/ACL, SI fusion, peripheral nerve stimulation, cryoneurolysis/genicular RFA, gel injections, PRP/BMAC/A2M, joint preservation, osseointegration, osteotomy, PT, DME, and common bone-health and postoperative drugs. Codes are candidates only. Procedures with no validated coding display a warning, not an invented CPT.
@@ -14,7 +28,7 @@ The default app homepage is now **Staff workup**. Prior modules remain available
 
 ### Keragon automation handoff (synthetic blueprint)
 
-After official payer PA route links, step 3 shows **Keragon authorization workflow**. PBJ reports Keragon is **already attached to ModMed**, and TriZetto is the existing billing/clearinghouse service. The workflow guides staff through plan-specific criteria, optional TriZetto eligibility, separately licensed TriZetto prior-authorization capability when available, payer-portal fallback, evidence review and follow-up. **Optum is not required or automatically selected.** The **Copy workflow instructions for Keragon** button generates a non-PHI natural-language workflow draft for Keragon's builder; it does not connect the app to Keragon, submit a PA or enable any live triggers. See [Keragon workflow/activation guide](KERAGON-PRIOR-AUTH.md).
+After official payer PA route links, step 3 shows **Keragon authorization workflow**. PBJ reports Keragon is **already attached to ModMed**, and TriZetto is the existing billing/clearinghouse service. The workflow guides staff through plan-specific criteria, optional TriZetto eligibility, separately licensed TriZetto prior-authorization capability when available, payer-portal fallback, evidence review and follow-up. **Optum is not required or automatically selected.** The **Copy Keragon workflow instructions** button generates a non-PHI natural-language workflow draft for Keragon's builder; it does not connect the app to Keragon, submit a PA or enable any live triggers. See [Keragon workflow/activation guide](KERAGON-PRIOR-AUTH.md).
 
 The staff page automatically starts a **public drug lookup** when a selected drug and pharmacy benefit match an exact indexed plan, with no member identifiers sent. Next to policy references it also displays **payer-matched official PA check and submission-instruction links** (HMSA medical vs Caremark pharmacy/Novologix specialty, UHA medical vs pharmacy, AlohaCare QUEST CPT code lookup/provider forms, and other scoped resources). This does **not** submit a prior authorization or prove one is required.
 
@@ -31,12 +45,13 @@ The staff page automatically starts a **public drug lookup** when a selected dru
 ## What is connected today
 
 - Official source directory across payer programs, including public-source links for Hawaiʻi carriers.
-- Four plan-validated public pharmacy machine-readable files from 2026, subject to availability and schema checks at runtime.
-- Reviewed HMSA/UHC medication medical policies and selected payer procedure policy/code routing sources.
+- Twelve exact plan/year machine-readable pharmacy lookups across five public JSON files (HMSA QUEST, UHC QUEST, Kaiser QUEST, Kaiser Marketplace Platinum and four Kaiser Standard HIOS plans for 2026 and 2027), subject to availability and schema checks at runtime.
+- Reviewed HMSA/UHC medication medical policies and selected payer procedure policy/code routing sources, plus Noridian JE Medicare LCD references for arthroplasty and SI joint fusion.
+- A generated [coverage matrix](COVERAGE-MATRIX.md) that states, per payer, coverage line and priority service, whether a reviewed source, a partial reference, only a routing link, or nothing exists.
 - A clinician-review template with record-location checklists.
 - An itemized **staff-entered** cost scenario with a surgeon/facility distinction.
 
-**Not connected yet:** any live Coverage Desk–Keragon bridge, Keragon-to-TriZetto eligibility/PA activation and payer-submission workflow (despite PBJ's existing Keragon–ModMed and TriZetto clearinghouse use),  a complete 2026/2027 statewide multi-payer formulary, authenticated PBM and medical-benefit eligibility queries, per-member deductible/OOP accumulators, actual member-specific prices, real payer PA submission/response, ModMed clinical records, production PHI approvals, or all proprietary criteria (including InterQual). The Cuptomize practice reimbursement/medical facility price data exists separately in a private repository and **has not been copied or publicly exposed**. A secure, rate-scoped source adapter is required for using that data automatically.
+**Not connected yet:** any live Coverage Desk–Keragon bridge, Keragon-to-TriZetto eligibility/PA activation and payer-submission workflow (despite PBJ's existing Keragon–ModMed and TriZetto clearinghouse use),  a complete 2026/2027 statewide multi-payer formulary, authenticated PBM and medical-benefit eligibility queries, per-member deductible/OOP accumulators, actual member-specific prices, real payer PA submission/response, ModMed clinical records, production PHI approvals, or all proprietary criteria (including InterQual). The Cuptomize practice reimbursement/medical facility price data exists separately in a private repository and **has not been copied or publicly exposed**. A private Cuptomize evidence bridge (`server/pricing.mjs`) is implemented but **not activated**: it requires a Cloudflare Access application, a same-account service binding and a shared secret, returns public rate evidence only, and never autofills a patient price. See [PRIVATE-CUPTOMIZE-PRICING.md](PRIVATE-CUPTOMIZE-PRICING.md).
 
 ## Verification requirements for a future clinical release
 

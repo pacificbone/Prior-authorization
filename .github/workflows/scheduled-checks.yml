@@ -1,0 +1,76 @@
+name: Scheduled checks
+# Weekly health check for the synthetic-data trial: the usual tests, then the payer-source review dates
+# and document fingerprints. When anything needs a person, it opens (or comments on) ONE issue titled
+# "Scheduled checks need attention". See docs/SOURCE-MAINTENANCE.md.
+on:
+  schedule:
+    - cron: '0 17 * * 1' # Mondays 17:00 UTC = 7:00 a.m. Hawaiʻi time
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash # bash -eo pipefail, so "| tee" keeps the command's exit status
+    steps:
+      # The issues:write token is not left in .git/config while the scripts download untrusted documents.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: check
+        run: npm run check
+      - id: test
+        run: npm test
+      - id: clock
+        name: Tests must not depend on today's date (about +45, +120 and +400 days)
+        run: |
+          for days in 45 120 400; do
+            FAKE_NOW=$(date -u -d "+$days days" +%Y-%m-%dT12:00:00Z) node --import ./tests/support/shift-clock.mjs --test tests/*.test.mjs
+          done
+      - id: due
+        name: Source review dates (npm run sources:due)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: npm run --silent sources:due 2>&1 | tee sources-due.txt
+      - id: fingerprints
+        name: Source document fingerprints (npm run sources:check)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: npm run --silent sources:check 2>&1 | tee sources-check.txt
+      - name: Open or update the "Scheduled checks need attention" issue
+        if: ${{ !cancelled() && (failure() || steps.due.outcome == 'failure' || steps.fingerprints.outcome == 'failure') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          OUTCOMES: |
+            - npm run check: ${{ steps.check.outcome }}
+            - npm test: ${{ steps.test.outcome }}
+            - clock-shifted tests: ${{ steps.clock.outcome }}
+            - npm run sources:due: ${{ steps.due.outcome }}
+            - npm run sources:check: ${{ steps.fingerprints.outcome }}
+        run: |
+          title="Scheduled checks need attention"
+          show() { echo; echo "### $1"; echo; echo '```'; if [ -s "$2" ]; then head -c 25000 "$2"; else echo "(no output captured; see the run log)"; fi; echo '```'; }
+          {
+            echo "The weekly scheduled checks on $(date -u +%Y-%m-%d) found something for a person to look at."
+            echo "Run log: $RUN_URL"
+            echo
+            echo "Step results (failure = needs attention, skipped = an earlier step failed first):"
+            echo "$OUTCOMES"
+            echo "What each result means and what to do: docs/SOURCE-MAINTENANCE.md. Nothing was changed automatically."
+            show "npm run sources:due" sources-due.txt
+            show "npm run sources:check" sources-check.txt
+          } > issue-body.md
+          number=$(gh issue list --state open --limit 500 --json number,title --jq "map(select(.title == \"$title\")) | first | .number // empty")
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file issue-body.md
+          else
+            gh issue create --title "$title" --body-file issue-body.md
+          fi

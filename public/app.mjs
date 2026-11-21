@@ -1,17 +1,20 @@
+import {staffClinicalAddendum,staffVerificationWorksheet} from './clinical-addendum-panel.mjs';
 import {drugs,payers,lines,policies,sourceDirectory,defaultScope,coverageProfiles,formularyLists,carrierChoices} from '/shared/catalog.mjs';
 import {samples,blankCase} from '/shared/fixtures.mjs';
-import {matchingPolicies,resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,buildDocumentationChecklist,policyFreshness,compareMedications,validatePolicy,validateWorkspace,dateToday,MAX_NOTE,applyPolicyPathway} from '/shared/domain.mjs';
+import {resolvePolicy,formularyResult,checkEvidence,readiness,buildLetter,buildDocumentationChecklist,policyFreshness,compareMedications,validatePolicy,validateWorkspace,dateToday,MAX_NOTE,applyPolicyPathway} from '/shared/domain.mjs';
 import {sealWorkspace,openWorkspace} from '/shared/vault.mjs';
-import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverageDirectoryStats} from '/shared/hawaii-plan-sources.mjs';
+import {hawaiiCoverageSources,coveragePrograms,findHawaiiCoverageSources,coverageDirectoryStats,coverageStatusLabels} from '/shared/hawaii-plan-sources.mjs';
 import {PUBLISHED_FORMULARIES} from '/shared/live-formularies.mjs';
 import {defaultOrthoCase,orthoProcedures,getOrthoProcedure,validateOrthoCase,createOrthoWorksheet} from '/shared/orthopedic-procedures.mjs';
 import {renderOrthopedicPage} from './orthopedic-page.mjs';
-import {newCostCase,validateCostCase,costWorksheet,getCostService,COST_MEDICATIONS} from '/shared/patient-cost.mjs';
+import {newCostCase,validateCostCase,costWorksheet,getCostService,costContextForPlan,estimatePatientCost} from '/shared/patient-cost.mjs';
 import {renderCostPage} from './cost-page.mjs';
-import {staffContext,staffPlansForPayer,staffGetService,staffDefaultBenefit,staffServices,STAFF_CATEGORY_LABELS,staffAuthorizePacket,staffPatientScript} from '/shared/staff-workflow.mjs';
-import {renderStaffPage} from './staff-page.mjs';
+import {staffContext,staffPlansForPayer,staffGetService,staffDefaultBenefit,staffServices,staffAuthorizePacket,staffPatientScript,gelProductForQuery} from '/shared/staff-workflow.mjs';
+import {renderStaffPage,staffDefaultYear} from './staff-page.mjs';
+import {renderSourcesPage,sourcesNavBadge} from './sources-page.mjs';
+import {sourcesDueReport} from '/shared/sources-due.mjs';
+import {policyDay} from '/shared/plan-adoption.mjs';
 import {keragonBuildPrompt} from '/shared/keragon-pa.mjs';
-import {COST_PAYERS} from '/shared/patient-cost.mjs';
 
 const $=(s,root=document)=>root.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -40,10 +43,27 @@ const paths={
 const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.info}</svg>`;
 const sourceLink=(url,label='Open source')=>`<a class="source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ${icon('external')}</a>`;
 const options=(values,current)=>values.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join('');
-const nav=[['workup','Staff workup','file'],['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['costs','Patient costs','pill'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
-const state={page:'workup',staff:{payer:'',planId:'',year:2026,serviceId:'',benefit:'Medical',requestType:'Initial',setting:'Office',gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,lookup:{sourceId:null,term:'',busy:false,result:null,error:''}},costCategory:'arthroplasty',cost:newCostCase(),orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
+// Legacy tools (note-paste letter builder, AI extractor, encrypted vault) exist only when the server or build sets the meta to 'on'.
+const LEGACY=document.querySelector('meta[name="pbj-legacy-tools"]')?.content==='on';
+const LEGACY_PAGES=new Set(['authorization']);
+const LEGACY_ACTIONS=new Set(['sample','authorization','ai','save','save-browser','restore-file','restore-browser','delete-browser']);
+const nav=[['workup','Staff workup','file'],['sources','Sources due','clock'],['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['costs','Patient costs','pill'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
+const pageAllowed=page=>nav.some(n=>n[0]===page)&&(LEGACY||!LEGACY_PAGES.has(page));
+const ERROR_TOAST='Something went wrong. Reload the page; nothing was sent anywhere.';
+const newStaff=(over={})=>({payer:'',planId:'',year:staffDefaultYear(),serviceId:'',benefit:'Medical',requestType:'Initial',setting:'Office',gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,serviceDate:'',serviceDateSource:'',clinicalTemplateId:'',lookup:{sourceId:null,term:'',busy:false,result:null,error:''},...over});
+const state={page:'workup',staff:newStaff(),version:null,costCategory:'arthroplasty',cost:newCostCase(),orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
 let toastTimer,idleTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),6000);}
+// Every app fetch goes through here. Only the Worker's Access-gate replies (marked X-PBJ-Gate) are toasted; a route's
+// own 403/503 (for example an offline public formulary) is shown inline by its caller, never twice.
+const gateToasted=new WeakSet();
+async function appFetch(url,init){
+  const response=await fetch(url,init);
+  if((response.status===403||response.status===503)&&response.headers.get('X-PBJ-Gate')){try{const data=await response.clone().json();if(typeof data?.error==='string'&&data.error.trim()){toast(data.error.trim().slice(0,240));gateToasted.add(response);}}catch{}}
+  return response;
+}
+window.addEventListener('error',()=>toast(ERROR_TOAST));
+window.addEventListener('unhandledrejection',()=>toast(ERROR_TOAST));
 function log(action){state.events.unshift({action,time:new Date().toISOString()});state.events=state.events.slice(0,50);}
 function invalidate(){state.draft='';state.review={facts:false,scope:false};state.aiEpoch++;}
 const policyForCase=()=>applyPolicyPathway(resolvePolicy(state.case,state.case.drugId,state.custom).policy,state.case.pathwayId,state.case.drugId);
@@ -55,16 +75,24 @@ function scopeMarkup(){
   return `<section class="panel scope-panel" aria-label="Coverage scope"><div class="panel-kicker">${icon('filter')} Start with the right coverage context</div><div class="scope-grid"><label>Payer / administrator<select data-scope="payer" aria-label="Payer">${options(payers,state.scope.payer)}</select></label><label>Plan type<select data-scope="line" aria-label="Plan type">${options(lines,state.scope.line)}</select></label><label>Benefit<select data-scope="benefit" aria-label="Benefit">${options(['Medical','Pharmacy'],state.scope.benefit)}</select></label><label>Plan / formulary code<input data-scope="planCode" aria-label="Plan or formulary code" value="${esc(state.scope.planCode)}" placeholder="${profile?.requiresCarrier?'Exact employer/group plan':'Optional · not member ID'}" maxlength="100"></label></div>${profile?.requiresCarrier?`<div class="scope-extra"><label>Underlying carrier / employer plan<select data-scope="carrier" aria-label="Underlying carrier">${carrierChoices.map(c=>`<option value="${esc(c)}" ${state.scope.carrier===c?'selected':''}>${esc(c||'Select the actual health plan')}</option>`).join('')}</select></label></div>`:''}${lists.length?`<div class="scope-extra"><label>Published formulary to inspect · confirm plan adoption<select id="formulary-list"><option value="">No published list selected</option>${lists.map(f=>`<option value="${esc(f.code)}" ${state.scope.planCode===f.code?'selected':''}>${esc(f.label)}</option>`).join('')}</select></label></div>`:''}<p class="scope-hint">${icon('info')} A formulary/list match does not verify member eligibility. HMA and MDX require the underlying plan; medical and pharmacy benefits stay separate.</p>${profile?`<details class="routing-details"><summary>${esc(profile.name)} · coverage and authorization routing</summary><div class="routing-content"><div class="key-value"><div><dt>ORGANIZATION ROLE</dt><dd>${esc(profile.role)}</dd></div><div><dt>PHARMACY BENEFIT</dt><dd>${esc(profile.pbm)}</dd></div></div><p><strong>Medical:</strong> ${esc(profile.medical)}<br><strong>Pharmacy:</strong> ${esc(profile.pharmacy)}</p><p>${esc(profile.note)}</p><div class="routing-links">${profile.urls.map(([label,url])=>sourceLink(url,label)).join('')}</div></div></details>`:'<p class="scope-hint">No verified routing profile loaded yet. Use exact plan documents and add reviewed public sources.</p>'}</section>`;
 }
 function renderNav(){
-  $('#navigation').innerHTML=nav.filter(([id])=>id==='workup'||id==='security').map(([id,label,glyph])=>`<button class="nav-item ${state.page===id?'active':''}" data-page="${id}" ${state.page===id?'aria-current="page"':''}>${icon(glyph)}<span>${label}</span>${id==='policies'?`<span class="count">${policies.length+state.custom.length}</span>`:''}</button>`).join('');
+  const due=dueBadge();
+  $('#navigation').innerHTML=nav.filter(([id])=>['workup','sources','security'].includes(id)).map(([id,label,glyph])=>`<button class="nav-item ${state.page===id?'active':''}" data-page="${id}" ${state.page===id?'aria-current="page"':''}>${icon(glyph)}<span>${label}</span>${id==='policies'?`<span class="count">${policies.length+state.custom.length}</span>`:''}${id==='sources'&&due?`<span class="count alert" title="${due} overdue or due within 30 days" aria-label="${due} overdue or due soon">${due}</span>`:''}</button>`).join('');
   $('#breadcrumb').textContent=nav.find(n=>n[0]===state.page)?.[1]||'Workspace';
   $('#lock').innerHTML=icon('lock');$('#trial-icon').innerHTML=icon('shield');
 }
+// Nav badge: sources overdue or due within 30 days, recomputed once per Hawaiʻi policy day.
+let dueCache={day:'',n:0};
+function dueBadge(){const day=policyDay();if(dueCache.day!==day)dueCache={day,n:sourcesNavBadge(sourcesDueReport({asOf:day}))};return dueCache.n;}
 function render(){
+  if(!pageAllowed(state.page))state.page='workup';
   renderNav();
-  if(state.locked){$('#page').innerHTML=`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. Restore an encrypted file or start a new fictional case.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`;return;}
-  ({workup:renderStaff,formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,costs:renderCosts,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderStaff)();
+  if(state.locked){$('#page').innerHTML=LEGACY?`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>Working notes, draft text and the connection token have been cleared from the active workspace. The staff workup (insurer, plan, service, entered amounts and checkmarks) is never saved and cannot be restored; the encrypted workspace covers only the legacy authorization case and custom sources. Start a new session and re-enter the selections.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button><button class="button secondary" data-action="restore-file">${icon('download')} Restore file</button></div></div>`
+    :`<div class="panel lock-screen">${icon('lock')}<h2>Your session is locked.</h2><p>The staff workup (insurer, plan, service, dates, entered amounts and checkmarks) has been cleared from this browser tab. It is never saved and cannot be restored. Start a new session and re-enter the selections.</p><div class="local-buttons"><button class="button primary" data-action="new-session">Start new session</button></div></div>`;return;}
+  ({workup:renderStaff,sources:renderSources,formulary:renderExplorer,coverage:renderCoverage,procedures:renderOrthopedics,costs:renderCosts,authorization:renderAuthorization,policies:renderPolicies,security:renderSecurity}[state.page]||renderStaff)();
 }
-function setPage(page){if(!nav.some(n=>n[0]===page))return;state.page=page;history.replaceState(null,'',`#${page}`);render();window.scrollTo({top:0});}
+// A hidden or unknown page (for example #authorization with legacy tools off) falls back to the staff workup.
+function setPage(page){state.page=pageAllowed(page)?page:'workup';history.replaceState(null,'',`#${state.page}`);render();window.scrollTo({top:0});}
+function renderSources(){$('#page').innerHTML=renderSourcesPage(sourcesDueReport());}
 function drugStatus(drug){
   const f=formularyResult(state.scope,drug.id,state.custom);
   if(f.status!=='unknown')return `Formulary: ${f.status}`;
@@ -109,7 +137,7 @@ async function runPublicFormularyLookup(){
   const generation=state.aiEpoch;
   renderExplorer();
   try{
-    const response=await fetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:sourceId,drug:term}),credentials:'same-origin',cache:'no-store'});
+    const response=await appFetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:sourceId,drug:term}),credentials:'same-origin',cache:'no-store'});
     const data=await response.json();
     if(state.aiEpoch!==generation||state.locked)return;
     if(!response.ok)throw new Error(data.error||'Public formulary unavailable.');
@@ -120,13 +148,6 @@ async function runPublicFormularyLookup(){
   }
   if(state.page==='formulary')renderExplorer();
 }
-const coverageStatusLabels={
-  'live-drug-search':'Live published formulary lookup',
-  'partial-verified-entries':'Limited verified extracts',
-  'payer-search':'Official payer drug search / list',
-  'public-source':'Official published source',
-  'no-single-formulary':'Exact benefit / plan required'
-};
 
 function coverageCardsMarkup(){
   const records=findHawaiiCoverageSources({program:state.coverage.program,payer:state.coverage.payer,text:state.coverage.query});
@@ -142,7 +163,7 @@ function coverageCardsMarkup(){
 function renderCoverage(){
   const stats=coverageDirectoryStats();
   const insurers=[...new Set(hawaiiCoverageSources.map(p=>p.payer))].sort();
-  $('#page').innerHTML=heading('PLAN-SPECIFIC PHARMACY COVERAGE','Hawaiʻi coverage navigator','Find the correct official drug list across HMO, PPO, QUEST, Medicare, VA and employer coverage. A linked source is not proof that a medication is covered.',`<button class="button secondary" data-action="authorization">${icon('file')} Authorization letters</button>`)+
+  $('#page').innerHTML=heading('PLAN-SPECIFIC PHARMACY COVERAGE','Hawaiʻi coverage navigator','Find the correct official drug list across HMO, PPO, QUEST, Medicare, VA and employer coverage. A linked source is not proof that a medication is covered.',LEGACY?`<button class="button secondary" data-action="authorization">${icon('file')} Authorization letters</button>`:'')+
   `<div class="metrics"><div class="metric"><div><span class="metric-value">${stats.sources}</span><span class="metric-label">Distinct source pathways</span></div></div><div class="metric"><div><span class="metric-value">${stats.imported}</span><span class="metric-label">Live drug-search feeds</span></div></div><div class="metric"><div><span class="metric-value">${stats.partial}</span><span class="metric-label">Partial verified extracts</span></div></div></div>
   <section class="panel coverage-controls"><div class="panel-title-row"><h2 class="section-title">Find the actual plan and benefit</h2><span class="pill neutral">Public sources only</span></div><div class="panel-content"><div class="coverage-filter-grid">
   <label>Coverage program<select id="coverage-program"><option value="all">All coverage programs</option>${coveragePrograms.map(p=>`<option value="${esc(p.id)}" ${state.coverage.program===p.id?'selected':''}>${esc(p.label)}</option>`).join('')}</select></label>
@@ -154,39 +175,49 @@ function renderCoverage(){
   <div class="notice coverage-footer"><strong>Important distinctions:</strong> Original Medicare Part B is not a pharmacy formulary. Traditional Medicare outpatient prescriptions use the member's separate Part D plan. VA and TRICARE have their own formularies. Medicare Advantage, D-SNP and commercial HMO/PPO network labels do not uniquely identify the applicable pharmacy list.</div>`;
 }
 function renderOrthopedics(){$('#page').innerHTML=renderOrthopedicPage(state.ortho,state.orthoCategory);}
-function renderStaff(){$('#page').innerHTML=renderStaffPage(state.staff);}
-function resetStaffPrice(){
+function renderStaff(){$('#page').innerHTML=renderStaffPage(state.staff,{legacy:LEGACY});}
+function resetStaffPrice({keepClinical=false}={}){
   const st=state.staff;
+  $('#print-region').textContent='';
+  // The planned service date is set when a service is chosen (policy day by default) and survives plan changes.
+  if(!keepClinical)st.clinicalTemplateId='';
+  if(!st.serviceId){st.serviceDate='';st.serviceDateSource='';}
+  st.costUnavailable='';
   st.rateCode='';
   st.rateLookup={result:null,error:'',busy:false};
   const ctx=staffContext(st);
   st.docs={};
   st.lookup={sourceId:null,term:'',busy:false,result:null,error:''};
   if(!ctx.plan||!ctx.service){st.cost=null;return;}
-  const payer=COST_PAYERS.includes(ctx.plan.payer)?ctx.plan.payer:'Other';
-  const lines={'Commercial':'Commercial','Individual Exchange':'Individual Exchange',
-    'QUEST / Medicaid':'QUEST / Medicaid','Medicare Advantage':'Medicare Advantage',
-    'Traditional Medicare':'Traditional Medicare','Medicare Part D':'Traditional Medicare',
-    'VA / Community Care':'VA / Community Care','TRICARE':'TRICARE',
-    'Federal employee / postal':'Commercial','Delegated / claim-specific':'Commercial'};
-  const line=lines[ctx.planLine]||'Commercial';
+  // The shared hand-off keeps Medigap on Original Medicare (as an unmodeled secondary) and refuses
+  // payer/line pairs the estimator cannot model instead of downgrading them to "Other".
+  const handoff=costContextForPlan(ctx.plan.payer,ctx.planLine);
+  if(handoff.unavailable){st.cost=null;st.costUnavailable=handoff.unavailable;return;}
   const procedureId=ctx.service.type==='medication'?'drug-'+ctx.service.id:ctx.service.id;
   const benefit=ctx.service.type==='procedure'?'Medical':st.benefit;
-  st.cost=newCostCase({procedureId,payer,line,year:st.year,setting:st.setting,
+  const cost=newCostCase({procedureId,payer:handoff.payer,line:handoff.line,year:st.year,setting:st.setting,
     gelProductId:st.gelProductId,guidance:st.guidance,benefit});
-  st.cost.planLabel=ctx.plan.payer+' '+ctx.plan.id;
+  cost.secondary=handoff.secondary;
+  // Prefer the human plan name; fall back to the source id when the name cannot pass the
+  // plan-label validator (for example HIOS ids with long digit runs).
+  const label=(ctx.plan.payer+' - '+ctx.plan.name).replace(/[·—–]/g,'-').replace(/[^\p{L}\p{N} /&+().,'’ʻ_-]/gu,'').replace(/\s+/g,' ').trim().slice(0,80);
+  for(const candidate of [label,(ctx.plan.payer+' '+ctx.plan.id).slice(0,80)]){
+    try{validateCostCase({...cost,planLabel:candidate});st.cost={...cost,planLabel:candidate};return;}catch{}
+  }
+  st.cost=null;
+  st.costUnavailable='No cost scenario could be built for this plan and service; verify the plan line and benefit manually.';
 }
 function renderCosts(){$('#page').innerHTML=renderCostPage(state.cost,state.costCategory);}
 function renderExplorer(){
   const applicable=policies.concat(state.custom).filter(p=>p.payer===state.scope.payer&&p.lines.includes(state.scope.line)&&p.benefit===state.scope.benefit).length;
-  $('#page').innerHTML=heading('PRESCRIBE WITH CONTEXT','The right medication starts here.','Look up plan-specific coverage, understand policy requirements, and bring the supporting evidence into your note.',`<button class="button secondary" data-action="coverage">Hawaiʻi plans</button><button class="button secondary" data-action="sample">${icon('spark')} Try sample case</button><button class="button secondary" data-action="compare">${icon('grid')} ${state.compareVisible?'Hide comparison':'Compare medications'}</button><button class="button primary" data-action="authorization">New authorization ${icon('plus')}</button>`)+
+  $('#page').innerHTML=heading('PRESCRIBE WITH CONTEXT','The right medication starts here.','Look up plan-specific coverage, understand policy requirements, and bring the supporting evidence into your note.',`<button class="button secondary" data-action="coverage">Hawaiʻi plans</button>${LEGACY?`<button class="button secondary" data-action="sample">${icon('spark')} Try sample case</button>`:''}<button class="button secondary" data-action="compare">${icon('grid')} ${state.compareVisible?'Hide comparison':'Compare medications'}</button>${LEGACY?`<button class="button primary" data-action="authorization">New authorization ${icon('plus')}</button>`:''}`)+
   payerShortcuts()+`<div class="metrics"><div class="metric"><span class="metric-icon">${icon('pill')}</span><div><span class="metric-value">${drugs.length}</span><span class="metric-label">Bone health medications</span></div></div><div class="metric"><span class="metric-icon">${icon('book')}</span><div><span class="metric-value">${applicable}</span><span class="metric-label">Sources in selected scope</span></div><span class="metric-note">Public sources</span></div><div class="metric"><span class="metric-icon">${icon('shield')}</span><div><span class="metric-value">Unverified</span><span class="metric-label">Member-specific benefits</span></div></div></div>`+scopeMarkup()+
   `<div class="explorer-grid"><section class="panel"><div class="list-head"><h2 class="section-title">Medication explorer <small>Osteoporosis</small></h2><div class="search">${icon('search')}<input id="drug-search" type="search" aria-label="Search medications" placeholder="Search brand or generic name" value="${esc(state.search)}"></div><div class="list-meta"><span>MEDICATION</span><span>COVERAGE CONTEXT</span></div></div><div class="drug-list" id="drug-list">${drugListMarkup()}</div></section><section class="panel" id="drug-detail" aria-live="polite">${detailMarkup()}</section></div><div class="info-strip">${icon('info')}<span>Public medical policies and plan formularies answer different questions. No member eligibility, PBM, real-time benefit or ModMed connection is active in this trial.</span></div>${state.compareVisible?comparisonMarkup():''}${publicFormularyMarkup()}`;
 }
 function detailMarkup(){
   const drug=drugs.find(d=>d.id===state.drugId),resolved=resolvePolicy(state.scope,drug.id,state.custom),p=resolved.policy;
   const f=formularyResult(state.scope,drug.id,state.custom),paLists=resolved.matches.filter(p=>p.kind==='authorization-list');
-  return `<div class="detail-head"><div class="detail-top"><span class="category">${esc(drug.category)}</span><span class="pill ${p?'':'amber'}">${p?'Policy located':f.entry?'Formulary located':paLists.length?'PA list located':'Source needed'}</span></div><h2>${esc(drug.name)}</h2><p>${esc(drug.generic)}</p></div><div class="detail-body"><div class="status-card"><div class="status-top">${icon('info')} ${f.status==='unknown'?'Formulary status is not verified':`Plan formulary: ${esc(f.status)}`}</div><p>${esc(f.reason)} ${p?'A matching public medical policy is available below.':''}</p>${f.entry?`<p>${sourceLink(f.entry.url,'View formulary source')} · ${esc(f.entry.locator)}</p><p><strong>${esc(f.entry.summary)}</strong></p><p>${esc(f.entry.limitations||'')}</p>`:''}</div>${paLists.map(list=>`<div class="notice amber"><strong>Published authorization requirement</strong><br>${esc(list.summary)}<br>${esc(list.limitations)}<br>${sourceLink(list.url,'View PA list')}</div>`).join('')}${resolved.conflict?'<div class="notice red">Multiple medical-policy records match this scope. Resolve the conflicting records in the policy library before drafting.</div>':''}${p?`<h3 class="section-title">Medical policy at a glance</h3><p class="policy-summary">${esc(p.summary)}</p><dl class="key-value"><div><dt>PLAN TYPE</dt><dd>${esc(state.scope.line)}</dd></div><div><dt>BENEFIT</dt><dd>${esc(p.benefit)} benefit</dd></div><div><dt>EFFECTIVE</dt><dd>${esc(p.effective||'Not stated')}</dd></div><div><dt>SOURCE CHECKED</dt><dd>${esc(p.reviewed)} <span class="pill ${policyFreshness(p)==='current'?'':'amber'}">${esc(policyFreshness(p))}</span></dd></div></dl>${sourceLink(p.url,'Read original policy')}<p class="helper">${esc(p.policyNumber||p.id)} · ${esc(p.locator)}</p><div class="mini-label">DOCUMENT BEFORE REQUESTING</div><ul class="criteria-mini">${p.criteria.map(c=>`<li>${icon('check')}<span>${esc(c.label)}</span></li>`).join('')}</ul>${p.pathways?.length?`<div class="notice">${p.pathways.length} alternative clinical pathways are available. Select the documented pathway in the authorization workspace; requirements are not combined across alternatives.</div>`:''}${p.preferred?.length?`<div class="notice"><strong>Policy-listed preferred products</strong><br>${p.preferred.map(esc).join(' · ')}<br>Preference depends on the exact policy and plan. Verify applicability before choosing a product.</div>`:''}<div class="notice">${esc(p.limitations||'Read the complete source and verify exact plan applicability.')}</div>`:`<div class="empty">${icon('book')}<h3>No applicable authorization criteria loaded</h3><p>${esc(state.scope.payer)} · ${esc(state.scope.line)} · ${esc(state.scope.benefit)}<br>Add the current source for this scope to begin an evidence checklist.</p><button class="button secondary" data-action="add-source">${icon('plus')} Add coverage source</button></div>`}<div class="detail-actions"><span class="tiny">Clinical appropriateness and prescribing safety require clinician review.</span><button class="button primary" data-action="authorization">Build authorization ${icon('arrow')}</button></div></div>`;
+  return `<div class="detail-head"><div class="detail-top"><span class="category">${esc(drug.category)}</span><span class="pill ${p?'':'amber'}">${p?'Policy located':f.entry?'Formulary located':paLists.length?'PA list located':'Source needed'}</span></div><h2>${esc(drug.name)}</h2><p>${esc(drug.generic)}</p></div><div class="detail-body"><div class="status-card"><div class="status-top">${icon('info')} ${f.status==='unknown'?'Formulary status is not verified':`Plan formulary: ${esc(f.status)}`}</div><p>${esc(f.reason)} ${p?'A matching public medical policy is available below.':''}</p>${f.entry?`<p>${sourceLink(f.entry.url,'View formulary source')} · ${esc(f.entry.locator)}</p><p><strong>${esc(f.entry.summary)}</strong></p><p>${esc(f.entry.limitations||'')}</p>`:''}</div>${paLists.map(list=>`<div class="notice amber"><strong>Published authorization requirement</strong><br>${esc(list.summary)}<br>${esc(list.limitations)}<br>${sourceLink(list.url,'View PA list')}</div>`).join('')}${resolved.conflict?'<div class="notice red">Multiple medical-policy records match this scope. Resolve the conflicting records in the policy library before drafting.</div>':''}${p?`<h3 class="section-title">Medical policy at a glance</h3><p class="policy-summary">${esc(p.summary)}</p><dl class="key-value"><div><dt>PLAN TYPE</dt><dd>${esc(state.scope.line)}</dd></div><div><dt>BENEFIT</dt><dd>${esc(p.benefit)} benefit</dd></div><div><dt>EFFECTIVE</dt><dd>${esc(p.effective||'Not stated')}</dd></div><div><dt>SOURCE CHECKED</dt><dd>${esc(p.reviewed)} <span class="pill ${policyFreshness(p)==='current'?'':'amber'}">${esc(policyFreshness(p))}</span></dd></div></dl>${sourceLink(p.url,'Read original policy')}<p class="helper">${esc(p.policyNumber||p.id)} · ${esc(p.locator)}</p><div class="mini-label">DOCUMENT BEFORE REQUESTING</div><ul class="criteria-mini">${p.criteria.map(c=>`<li>${icon('check')}<span>${esc(c.label)}</span></li>`).join('')}</ul>${p.pathways?.length?`<div class="notice">${p.pathways.length} alternative clinical pathways are available. Select the documented pathway in the authorization workspace; requirements are not combined across alternatives.</div>`:''}${p.preferred?.length?`<div class="notice"><strong>Policy-listed preferred products</strong><br>${p.preferred.map(esc).join(' · ')}<br>Preference depends on the exact policy and plan. Verify applicability before choosing a product.</div>`:''}<div class="notice">${esc(p.limitations||'Read the complete source and verify exact plan applicability.')}</div>`:`<div class="empty">${icon('book')}<h3>No applicable authorization criteria loaded</h3><p>${esc(state.scope.payer)} · ${esc(state.scope.line)} · ${esc(state.scope.benefit)}<br>Add the current source for this scope to begin an evidence checklist.</p><button class="button secondary" data-action="add-source">${icon('plus')} Add coverage source</button></div>`}<div class="detail-actions"><span class="tiny">Clinical appropriateness and prescribing safety require clinician review.</span>${LEGACY?`<button class="button primary" data-action="authorization">Build authorization ${icon('arrow')}</button>`:''}</div></div>`;
 }
 function renderAuthorization(){
   const p=policyForCase(),r=readiness(state.case,p,state.custom);
@@ -208,12 +239,21 @@ function coverageTableMarkup(){return `<section class="panel coverage-map"><div 
 function renderPolicies(){
   const all=[...policies,...state.custom];
   $('#page').innerHTML=heading('KEEP THE SOURCE CLOSE','A policy library you can inspect.','Every coverage claim needs a scoped, dated source. Add a public policy or an exact-plan formulary entry after reviewing the original.',`<button class="button secondary" data-action="import-policy">${icon('download')} Import JSON</button><button class="button primary" data-action="add-source">${icon('plus')} Add source</button>`)+
-  coverageTableMarkup()+`<div class="policy-grid">${all.map(p=>`<article class="panel policy-card"><div class="detail-top"><span class="pill ${policyFreshness(p)==='current'?'':'amber'}">${esc(policyFreshness(p))}</span><span class="category">${p.kind==='formulary'?'Plan formulary':p.kind==='authorization-list'?'PA requirement list':'Medical policy'}</span></div><h3>${esc(p.title)}</h3><p>${esc(p.payer)}${p.carrier?' / '+esc(p.carrier):''} · ${p.lines.map(esc).join(' / ')} · ${esc(p.benefit)}<br>${p.planCode?`Plan code: ${esc(p.planCode)}<br>`:''}${esc(p.summary)}</p><dl class="key-value"><div><dt>EFFECTIVE</dt><dd>${esc(p.effective||'Not stated')}</dd></div><div><dt>CHECKED</dt><dd>${esc(p.reviewed)}</dd></div></dl>${sourceLink(p.url)}<p class="helper">${esc(p.locator)}</p>${p.id.startsWith('custom-')?`<div class="local-buttons"><button class="button small secondary" data-remove-policy="${esc(p.id)}">Remove source</button></div>`:''}</article>`).join('')}</div><div class="panel source-list"><div class="panel-title-row"><h2 class="section-title">Payer source directory</h2><span class="pill neutral">Links do not establish coverage</span></div>${sourceDirectory.map(s=>`<div class="source-row"><div><strong>${esc(s.name)}</strong><p>${esc(s.note)}</p></div>${sourceLink(s.url)}</div>`).join('')}</div><div class="panel import-panel"><h3 class="section-title">Portable sources, explicit scope</h3><p>Imported entries stay in this session until you save an encrypted workspace. Add separate records for medical criteria and pharmacy formulary status. Conflicting matching records block policy selection. Sources older than 90 days are flagged for review.</p><div class="import-actions"><button class="button secondary" data-action="export-policies">${icon('download')} Export source records</button><button class="button secondary" data-action="policy-template">Download JSON template</button></div><p class="helper">No automatic payer feed is connected. A source record is a staff-reviewed extract, not a live benefit check.</p></div>`;
+  coverageTableMarkup()+`<div class="policy-grid">${all.map(p=>`<article class="panel policy-card"><div class="detail-top"><span class="pill ${policyFreshness(p)==='current'?'':'amber'}">${esc(policyFreshness(p))}</span><span class="category">${p.kind==='formulary'?'Plan formulary':p.kind==='authorization-list'?'PA requirement list':'Medical policy'}</span></div><h3>${esc(p.title)}</h3><p>${esc(p.payer)}${p.carrier?' / '+esc(p.carrier):''} · ${p.lines.map(esc).join(' / ')} · ${esc(p.benefit)}<br>${p.planCode?`Plan code: ${esc(p.planCode)}<br>`:''}${esc(p.summary)}</p><dl class="key-value"><div><dt>EFFECTIVE</dt><dd>${esc(p.effective||'Not stated')}</dd></div><div><dt>CHECKED</dt><dd>${esc(p.reviewed)}</dd></div></dl>${sourceLink(p.url)}<p class="helper">${esc(p.locator)}</p>${p.id.startsWith('custom-')?`<div class="local-buttons"><button class="button small secondary" data-remove-policy="${esc(p.id)}">Remove source</button></div>`:''}</article>`).join('')}</div><div class="panel source-list"><div class="panel-title-row"><h2 class="section-title">Payer source directory</h2><span class="pill neutral">Links do not establish coverage</span></div>${sourceDirectory.map(s=>`<div class="source-row"><div><strong>${esc(s.name)}</strong><p>${esc(s.note)}</p></div>${sourceLink(s.url)}</div>`).join('')}</div><div class="panel import-panel"><h3 class="section-title">Portable sources, explicit scope</h3><p>${LEGACY?'Imported entries stay in this session until you save an encrypted workspace.':'Imported entries stay in this browser tab only and are cleared on lock; nothing is saved.'} Add separate records for medical criteria and pharmacy formulary status. Conflicting matching records block policy selection. Sources older than 90 days are flagged for review.</p><div class="import-actions"><button class="button secondary" data-action="export-policies">${icon('download')} Export source records</button><button class="button secondary" data-action="policy-template">Download JSON template</button></div><p class="helper">No automatic payer feed is connected. A source record is a staff-reviewed extract, not a live benefit check.</p></div>`;
+}
+const yesNo=v=>v===true?'Yes':v===false?'No':'Unknown';
+function versionText(v=state.version){return v?`Build ${v.commit} · policy data as of ${v.policyAsOf}`:'Build version unavailable';}
+// Read-only server flags from /api/status and the build stamp from /version.json; configuration booleans only, never secrets.
+function deploymentPanel(){
+  const c=state.connection||{},known=c.staticPreview!==true&&typeof c.accessRequired==='boolean';
+  const row=(label,value)=>`<div><dt>${label}</dt><dd>${esc(value)}</dd></div>`;
+  return `<section class="panel" id="deployment-status"><div class="panel-title-row"><h2 class="section-title">Deployment status</h2><span class="pill ${known?'neutral':'amber'}">${known?'From the server':'Status unavailable'}</span></div><div class="panel-content"><dl class="key-value deploy-status">${row('ACCESS REQUIRED',known?yesNo(c.accessRequired):'Unknown')}${row('ACCESS CONFIGURED',known?yesNo(c.accessConfigured):'Unknown')}${row('PRICE BRIDGE CONFIGURED',known?yesNo(c.pricingBridgeConfigured):'Unknown')}${row('BUILD VERSION',versionText())}</dl><p class="helper">Mode: ${esc(c.mode||'synthetic-only')} · PHI release: ${esc(c.phiRelease||'blocked')}. These are configuration flags only; no keys, tokens or secrets are shown. A configured flag does not verify payer, plan or member data.</p><div class="local-buttons"><button class="button secondary" data-action="check-connection">Refresh status</button></div></div></section>`;
 }
 function readyRow(title,text,done){return `<div class="readiness-row ${done?'':'pending'}">${icon(done?'check':'clock')}<div><strong>${title}</strong><p>${text}</p></div></div>`;}
 function renderSecurity(){
   $('#page').innerHTML=heading('BUILT FOR A CAREFUL START','Local today. Portable for tomorrow.','A working synthetic-data trial with an explicit production boundary. Compliance depends on the deployed services, agreements and practice operations.')+
-  `<div class="status-large">${icon('lock')}<div><strong>Patient-data release is locked</strong><p>This build is not approved for PHI. There is no setting that enables real patient data.</p></div></div><div class="security-grid"><section class="panel"><div class="panel-title-row"><h2 class="section-title">Safeguards & release requirements</h2><span class="pill amber">Trial</span></div><div class="panel-content">${readyRow('Notes stay in browser memory','No note upload, analytics, session replay or automatic plaintext browser storage. Explicit local saves use AES-256-GCM encryption.',true)}${readyRow('AI receives bundled fictional records only','The server accepts known sample IDs. It rejects arbitrary notes, custom source content and uploaded case files.',true)}${readyRow('Source grounding & human review','Exact note quotes, explicit gaps, policy-date checks and review gates support safer drafts. No automatic patient submission.',true)}${readyRow('Vendor agreements & eligible services','Execute and verify the relevant hosting/AI BAAs and feature-specific retention requirements before implementing a PHI workflow.',false)}${readyRow('Production identity, auditing & retention','Implement unique staff accounts, MFA, role-based access, durable tamper-resistant audit trails, key management, retention, backup recovery and incident procedures.',false)}${readyRow('Practice risk assessment & release review','Verify device safeguards, data flows, workforce training, vulnerability review and a documented approval for real clinical use.',false)}</div></section><div class="form-stack"><section class="panel"><div class="panel-title-row"><h2 class="section-title">AI connection</h2><span class="pill ${state.connection.configured?'':'amber'}">${state.connection.configured?'Provider configured':'Not connected'}</span></div><div class="panel-content"><p class="helper">Server adapters support OpenAI Responses and Amazon Bedrock Converse. A configured model is required. External AI only extracts supporting passages from the fixed fictional example.</p><div class="connection-status">Provider: <strong>${esc(state.connection.provider)}</strong> · Mode: <strong>Synthetic only</strong></div><label>Trial access token<input id="trial-token" type="password" autocomplete="off" value="${esc(state.token)}" placeholder="Server-configured trial token" maxlength="1000"></label><p class="helper">Kept in this session’s memory and cleared on lock. Never enter an AI provider key here.</p><div class="local-buttons"><button class="button secondary" data-action="check-connection">Check connection</button><button class="button soft" data-action="sample">${icon('spark')} Open sample</button></div><div class="notice">${state.connection.staticPreview?'This private review URL has no AI backend. Use the repository setup guide to connect AI in your local or Cloudflare deployment.':'Use the repository setup guide to configure the server-side provider. AI remains disabled until credentials, a model and trial authorization are configured.'}</div></div></section><section class="panel"><div class="panel-title-row"><h2 class="section-title">Your local workspace</h2><span class="pill neutral">Explicit save only</span></div><div class="panel-content"><p class="helper">Save an encrypted file to your computer, or keep an encrypted copy in this browser. Passphrases and keys are not stored. The active session clears after 10 minutes without interaction. Exported letters are plaintext and require appropriate handling.</p><div class="local-buttons"><button class="button primary" data-action="save">${icon('download')} Encrypted file</button><button class="button secondary" data-action="save-browser">${icon('lock')} Save in browser</button><button class="button secondary" data-action="restore-file">Restore file</button><button class="button secondary" data-action="restore-browser">Unlock browser copy</button><button class="button danger" data-action="delete-browser">Delete browser copy</button></div></div></section></div><section class="panel full-span"><div class="panel-title-row"><h2 class="section-title">Session activity</h2><span class="pill neutral">Not a production audit trail</span></div><div class="panel-content">${state.events.length?state.events.map(e=>`<div class="event-row"><span>${esc(e.action)}</span><time datetime="${esc(e.time)}">${new Date(e.time).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'2-digit',minute:'2-digit'})} HST</time></div>`).join(''):'<p class="no-events">Actions in this session will appear here. Clinical text is excluded.</p>'}</div></section></div>`;
+  `<div class="status-large">${icon('lock')}<div><strong>Patient-data release is locked</strong><p>This build is not approved for PHI. There is no setting that enables real patient data.</p></div></div><div class="security-grid"><section class="panel"><div class="panel-title-row"><h2 class="section-title">Safeguards & release requirements</h2><span class="pill amber">Trial</span></div><div class="panel-content">${LEGACY?readyRow('Notes stay in browser memory','No note upload, analytics, session replay or automatic plaintext browser storage. Explicit local saves use AES-256-GCM encryption.',true)+readyRow('AI receives bundled fictional records only','The server accepts known sample IDs. It rejects arbitrary notes, custom source content and uploaded case files.',true)
+  :readyRow('Selections stay in browser memory','No upload, analytics, session replay or browser storage of the staff workup. The note-paste letter builder and encrypted local vault are not part of this build.',true)+readyRow('AI evidence extraction is off','The legacy AI extractor is not served in this build; its endpoint answers 404. It returns only in an explicit legacy-tools build, restricted to bundled fictional samples.',true)}${readyRow('Source grounding & human review','Exact note quotes, explicit gaps, policy-date checks and review gates support safer drafts. No automatic patient submission.',true)}${readyRow('Vendor agreements & eligible services','Execute and verify the relevant hosting/AI BAAs and feature-specific retention requirements before implementing a PHI workflow.',false)}${readyRow('Production identity, auditing & retention','Implement unique staff accounts, MFA, role-based access, durable tamper-resistant audit trails, key management, retention, backup recovery and incident procedures.',false)}${readyRow('Practice risk assessment & release review','Verify device safeguards, data flows, workforce training, vulnerability review and a documented approval for real clinical use.',false)}</div></section><div class="form-stack">${deploymentPanel()}${LEGACY?`<section class="panel"><div class="panel-title-row"><h2 class="section-title">AI connection</h2><span class="pill ${state.connection.configured?'':'amber'}">${state.connection.configured?'Provider configured':'Not connected'}</span></div><div class="panel-content"><p class="helper">Server adapters support OpenAI Responses and Amazon Bedrock Converse. A configured model is required. External AI only extracts supporting passages from the fixed fictional example.</p><div class="connection-status">Provider: <strong>${esc(state.connection.provider)}</strong> · Mode: <strong>Synthetic only</strong></div><div class="connection-status">Staff Access verification: <strong>${state.connection.accessConfigured===true?'configured':'not configured'}</strong> · Cuptomize price bridge: <strong>${state.connection.pricingBridgeConfigured===true?'configured':'not configured'}</strong></div><label>Trial access token<input id="trial-token" type="password" autocomplete="off" value="${esc(state.token)}" placeholder="Server-configured trial token" maxlength="1000"></label><p class="helper">Kept in this session’s memory and cleared on lock. Never enter an AI provider key here.</p><div class="local-buttons"><button class="button secondary" data-action="check-connection">Check connection</button><button class="button soft" data-action="sample">${icon('spark')} Open sample</button></div><div class="notice">${state.connection.staticPreview?'This private review URL has no AI backend. Use the repository setup guide to connect AI in your local or Cloudflare deployment.':'Use the repository setup guide to configure the server-side provider. AI remains disabled until credentials, a model and trial authorization are configured.'}</div></div></section><section class="panel"><div class="panel-title-row"><h2 class="section-title">Your local workspace</h2><span class="pill neutral">Explicit save only</span></div><div class="panel-content"><p class="helper">Save an encrypted file to your computer, or keep an encrypted copy in this browser. Passphrases and keys are not stored. The active session clears after 10 minutes without interaction. Exported letters are plaintext and require appropriate handling.</p><div class="local-buttons"><button class="button primary" data-action="save">${icon('download')} Encrypted file</button><button class="button secondary" data-action="save-browser">${icon('lock')} Save in browser</button><button class="button secondary" data-action="restore-file">Restore file</button><button class="button secondary" data-action="restore-browser">Unlock browser copy</button><button class="button danger" data-action="delete-browser">Delete browser copy</button></div></div></section>`:''}</div><section class="panel full-span"><div class="panel-title-row"><h2 class="section-title">Session activity</h2><span class="pill neutral">Not a production audit trail</span></div><div class="panel-content">${state.events.length?state.events.map(e=>`<div class="event-row"><span>${esc(e.action)}</span><time datetime="${esc(e.time)}">${new Date(e.time).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'2-digit',minute:'2-digit'})} HST</time></div>`).join(''):'<p class="no-events">Actions in this session will appear here. Clinical text is excluded.</p>'}</div></section></div>`;
 }
 function download(name,text,type='text/plain;charset=utf-8'){
   const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -227,8 +267,10 @@ async function checkConnection(showToast=true){
     if(showToast)toast('This private review preview has no AI backend. Configure AI in your local or Cloudflare deployment.');
     if(state.page==='security'&&!state.locked)renderSecurity();return;
   }
-  try{const response=await fetch('/api/status',{cache:'no-store'});if(!response.ok)throw new Error();state.connection=await response.json();if(showToast)toast(state.connection.configured?'Provider configured for the synthetic trial.':'AI is not connected. Local drafting is available.');}
-  catch{state.connection={provider:'none',configured:false};if(showToast)toast('Server connection unavailable. Local drafting still works.');}
+  let gated=false;
+  try{const response=await appFetch('/api/status',{cache:'no-store'});gated=gateToasted.has(response);if(!response.ok)throw new Error();state.connection=await response.json();if(showToast)toast(!LEGACY?'Deployment status refreshed.':state.connection.configured?'Provider configured for the synthetic trial.':'AI is not connected. Local drafting is available.');}
+  // The Access gate's own message stays on screen; it is never replaced by the generic one.
+  catch{state.connection={provider:'none',configured:false};if(showToast&&!gated)toast(LEGACY?'Server connection unavailable. Local drafting still works.':'Server status unavailable.');}
   if(state.page==='security'&&!state.locked)renderSecurity();
 }
 async function runAi(){
@@ -238,7 +280,7 @@ async function runAi(){
   if(!sample||state.case.id!==sample.id||state.case.note!==sample.note||state.case.drugId!==sample.drugId||state.case.payer!==sample.payer||state.case.line!==sample.line||state.case.benefit!==sample.benefit||p?.id!==sample.policyId||state.case.pathwayId!==sample.pathwayId){toast('AI trial accepts the unchanged bundled fictional case only. Load the sample to continue.');return;}
   state.aiBusy=true;const epoch=state.aiEpoch;renderAuthorization();
   try{
-    const response=await fetch('/api/ai/extract',{method:'POST',headers:{'Content-Type':'application/json','X-Trial-Token':state.token},body:JSON.stringify({sampleId:sample.id,policyId:p.id}),signal:AbortSignal.timeout(50000)});
+    const response=await appFetch('/api/ai/extract',{method:'POST',headers:{'Content-Type':'application/json','X-Trial-Token':state.token},body:JSON.stringify({sampleId:sample.id,policyId:p.id}),signal:AbortSignal.timeout(50000)});
     const data=await response.json();if(!response.ok)throw new Error(data.error||'AI request failed.');
     if(epoch!==state.aiEpoch||state.locked){toast('The case changed while AI was running. Results were discarded.');return;}
     // The server already validates quotes; recheck client-side before applying suggestions.
@@ -249,7 +291,7 @@ async function runAi(){
   finally{state.aiBusy=false;if(state.page==='authorization'&&!state.locked)renderAuthorization();}
 }
 function lockSession(){
-  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.staff={payer:'',planId:'',year:2026,serviceId:'',benefit:'Medical',requestType:'Initial',setting:'Office',gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,lookup:{sourceId:null,term:'',busy:false,result:null,error:''}};state.costCategory='arthroplasty';state.cost=newCostCase();state.orthoCategory='injections';state.ortho=defaultOrthoCase();state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
+  state.aiEpoch++;state.case=blankCase();state.scope={...defaultScope};state.drugId='evenity';state.custom=[];state.draft='';state.token='';state.events=[];state.review={facts:false,scope:false};state.search='';state.staff=newStaff();state.costCategory='arthroplasty';state.cost=newCostCase();state.orthoCategory='injections';state.ortho=defaultOrthoCase();state.coverage={program:'all',payer:'all',query:'',drug:''};state.publicLookup={sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''};state.locked=true;state.vaultEnvelope=null;
   $('#vault-passphrase').value='';$('#vault-confirm').value='';$('#vault-dialog').close();$('#source-dialog')?.close();$('#source-form')?.reset();$('#print-region').textContent='';render();
 }
 function resetIdle(){clearTimeout(idleTimer);if(!state.locked)idleTimer=setTimeout(()=>{lockSession();toast('Session locked after 10 minutes without interaction.');},10*60*1000);}
@@ -260,7 +302,7 @@ function openVault(mode,envelope=null){
   $('#vault-confirm-label').hidden=unlocking;$('#vault-confirm').required=!unlocking;$('#vault-passphrase').autocomplete=unlocking?'current-password':'new-password';$('#vault-submit').textContent=unlocking?'Unlock workspace':'Save encrypted';$('#vault-dialog').showModal();
 }
 $('#vault-form').addEventListener('submit',async event=>{
-  event.preventDefault();const button=$('#vault-submit');button.disabled=true;$('#vault-error').textContent='';
+  event.preventDefault();if(!LEGACY){$('#vault-dialog').close();return;}const button=$('#vault-submit');button.disabled=true;$('#vault-error').textContent='';
   try{
     const passphrase=$('#vault-passphrase').value;
     if(state.vaultMode==='unlock'){
@@ -280,7 +322,7 @@ $('#vault-form').addEventListener('submit',async event=>{
 });
 $('#vault-dialog').addEventListener('close',()=>{$('#vault-passphrase').value='';$('#vault-confirm').value='';state.vaultEnvelope=null;});
 $('#vault-file').addEventListener('change',async event=>{
-  const file=event.target.files?.[0];event.target.value='';if(!file)return;
+  const file=event.target.files?.[0];event.target.value='';if(!file||!LEGACY)return;
   if(file.size>2000000){toast('Encrypted file is too large.');return;}
   try{openVault('unlock',JSON.parse(await file.text()));}catch{toast('This is not a valid encrypted workspace file.');}
 });
@@ -289,7 +331,7 @@ function addPolicy(value){
   const policy=validatePolicy(value);
   if(state.custom.some(p=>p.id===policy.id)||policies.some(p=>p.id===policy.id))throw new Error('A source with this ID already exists. Remove the old custom record before replacing it.');
   if(state.custom.length>=100)throw new Error('Trial limit: 100 custom sources.');
-  state.custom.push(policy);invalidate();log('Public coverage source added after staff review');render();toast('Source added for this session. Save an encrypted workspace to keep it.');
+  state.custom.push(policy);invalidate();log('Public coverage source added after staff review');render();toast(LEGACY?'Source added for this session. Save an encrypted workspace to keep it.':'Source added for this browser tab only; it is cleared on lock.');
 }
 $('#policy-file').addEventListener('change',async event=>{
   const file=event.target.files?.[0];event.target.value='';if(!file)return;if(file.size>250000){toast('Source file must be under 250 KB.');return;}
@@ -328,10 +370,11 @@ async function runStaffFormularyLookup({automatic=false}={}){
   state.staff.lookup={sourceId:source.id,term,busy:true,result:null,error:''};
   renderStaff();
   try{
-    const response=await fetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},
+    const response=await appFetch('/api/formulary/search',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({source:source.id,drug:term}),credentials:'same-origin',cache:'no-store'});
     const data=await response.json();
-    if(epoch!==state.aiEpoch||state.locked||state.page!=='workup')return;
+    // A newer lookup or a lock owns the state; merely being on another page must not strand busy:true.
+    if(epoch!==state.aiEpoch||state.locked)return;
     const current=staffContext(state.staff);
     if(current.liveSource?.id!==source.id||current.service?.id!==serviceId||
        current.plan?.id!==planId||state.staff.year!==year||state.staff.benefit!==benefit)return;
@@ -352,6 +395,22 @@ document.addEventListener('click',async event=>{
   const remove=event.target.closest('[data-remove-policy]');if(remove){state.custom=state.custom.filter(p=>p.id!==remove.dataset.removePolicy);invalidate();log('Custom public source removed');render();return;}
   const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
   const action=button.dataset.action;
+  // Legacy actions do nothing (or return to the staff workup) unless the legacy-tools meta is 'on'.
+  if(!LEGACY&&LEGACY_ACTIONS.has(action)){if(action==='sample'||action==='authorization')setPage('workup');return;}
+  if(action==='staff-print-verification'){
+    if(state.locked)return;
+    $('#print-region').textContent=staffVerificationWorksheet(state.staff);window.print();log('Blank synthetic payer verification worksheet exported');return;
+  }
+  if(action==='staff-print-addendum'||action==='staff-download-addendum'){
+    if(state.locked)return;
+    try{
+      const note=staffClinicalAddendum(state.staff);
+      if(action==='staff-print-addendum'){$('#print-region').textContent=note;window.print();}
+      else{download('pbj-synthetic-clinical-addendum-'+dateToday()+'.txt',note);toast('Blank clinical addendum downloaded. Complete it only in the approved clinical system.');}
+      log('Blank synthetic clinical addendum exported');
+    }catch(error){toast(error.message);}
+    return;
+  }
   if(action==='coverage'){setPage('coverage');return;}
   if(action==='staff-load-rates'){
     const st=state.staff;
@@ -363,12 +422,12 @@ document.addEventListener('click',async event=>{
     renderStaff();
     try{
       if(!code||!st.cost)throw Error('Choose a valid procedure and facility first.');
-      const response=await fetch('/api/staff/rates',{
+      const response=await appFetch('/api/staff/rates',{
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify(payload),credentials:'same-origin',cache:'no-store'
       });
       const result=await response.json();
-      if(epoch!==state.aiEpoch||state.page!=='workup'||state.locked)return;
+      if(epoch!==state.aiEpoch||state.locked)return;
       if(st.payer!==payload.payer||st.planId!==payload.planId||st.serviceId!==payload.serviceId||
          st.cost?.facilityId!==payload.facilityId||st.setting!==payload.setting)return;
       if(!response.ok)throw Error(result.error||'Protected price-evidence service is unavailable.');
@@ -376,10 +435,10 @@ document.addEventListener('click',async event=>{
         throw Error('Server returned an invalid rate-evidence state.');
       st.rateLookup={result,error:'',busy:false};
     }catch(error){
-      if(epoch!==state.aiEpoch||state.page!=='workup'||state.locked)return;
+      if(epoch!==state.aiEpoch||state.locked)return;
       st.rateLookup={result:null,error:error.message||'Could not verify source rates.',busy:false};
     }
-    renderStaff();
+    if(state.page==='workup')renderStaff();
     return;
   }
   if(action==='staff-check-formulary'){await runStaffFormularyLookup();return;}
@@ -454,7 +513,8 @@ document.addEventListener('click',async event=>{
   if(action==='coverage-to-lookup'){state.publicLookup={sourceId:button.dataset.sourceId||PUBLISHED_FORMULARIES[0].id,term:state.coverage.drug,busy:false,result:null,error:''};setPage('formulary');if(state.publicLookup.term.trim().length>=2)await runPublicFormularyLookup();return;}
   if(action==='sample'){loadSample();return;}
   if(action==='authorization'){setPage('authorization');return;}
-  if(action==='new-session'){state.locked=false;resetIdle();setPage('formulary');return;}
+  if(action==='new-session'){state.locked=false;resetIdle();setPage('workup');return;}
+  if(action==='staff-sample'){loadStaffSample();return;}
   if(action==='add-source'){openSourceDialog();return;}
   if(action==='save'||action==='save-browser'){openVault(action==='save-browser'?'browser':'save');return;}
   if(action==='restore-file'){$('#vault-file').click();return;}
@@ -483,13 +543,17 @@ document.addEventListener('input',event=>{
   const target=event.target;
   if(target.id==='drug-search'){state.search=target.value;$('#drug-list').innerHTML=drugListMarkup();return;}
   if(target.id==='staff-service-query'){
-    state.staff.search=target.value;
+    const st=state.staff;st.search=target.value;
+    // With knee gel already selected, naming one gel brand in the search presets that brand (and rebuilds the cost case).
+    const gel=st.serviceId==='knee-gel'?gelProductForQuery(st.search):null;
+    if(gel&&gel!==st.gelProductId){st.gelProductId=gel;state.aiEpoch++;resetStaffPrice({keepClinical:true});}
     renderStaff();
     const field=$('#staff-service-query');
     field?.focus();
     field?.setSelectionRange(target.selectionStart??state.staff.search.length,target.selectionStart??state.staff.search.length);
     return;
   }
+  if(target.id==='staff-drug-lookup'){state.staff.lookup={...state.staff.lookup,term:target.value};return;}
   if(target.id==='ortho-plan-label'){state.ortho.planLabel=target.value;return;}
   if(target.id==='cost-plan'){state.cost.planLabel=target.value;return;}
   if(target.id==='coverage-query'){state.coverage.query=target.value;const result=$('#coverage-results');if(result)result.innerHTML=coverageCardsMarkup();return;}
@@ -502,6 +566,8 @@ document.addEventListener('input',event=>{
 });
 document.addEventListener('change',event=>{
   const target=event.target;
+  if(target.id==='staff-clinical-template'){state.staff.clinicalTemplateId=target.value;$('#print-region').textContent='';renderStaff();return;}
+  if(target.id==='staff-service-date'){state.staff.serviceDate=target.value;state.staff.serviceDateSource=target.value?'entered':'';$('#print-region').textContent='';renderStaff();return;}
   if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
   if(target.id==='staff-rate-code'){
     state.aiEpoch++;
@@ -521,7 +587,13 @@ document.addEventListener('change',event=>{
     if(id==='staff-payer'){st.payer=target.value;st.planId='';}
     else if(id==='staff-year'){st.year=Number(target.value);st.planId='';}
     else if(id==='staff-plan-select'){st.planId=target.value;}
-    else if(id==='staff-service-select'){st.serviceId=target.value;st.search='';st.gelProductId='';st.benefit=staffDefaultBenefit(staffGetService(target.value));}
+    else if(id==='staff-service-select'){
+      // A gel brand named in the search box presets the brand. The planned service date defaults to the Hawaiʻi policy
+      // day (policy context only, never printed as the planned date); a date staff typed survives a service change.
+      const gel=target.value==='knee-gel'?gelProductForQuery(st.search):null;
+      st.serviceId=target.value;st.search='';st.gelProductId=gel||'';st.benefit=staffDefaultBenefit(staffGetService(target.value));
+      if(!st.serviceId){st.serviceDate='';st.serviceDateSource='';}
+      else if(st.serviceDateSource!=='entered'||!st.serviceDate){st.serviceDate=policyDay();st.serviceDateSource='default';}}
     else if(id==='staff-benefit'){st.benefit=target.value;}
     else if(id==='staff-request-type'){st.requestType=target.value;}
     else if(id==='staff-setting'){st.setting=target.value;}
@@ -530,7 +602,9 @@ document.addEventListener('change',event=>{
     if(id==='staff-plan-select'&&st.planId&&!staffPlansForPayer(st.payer,st.year).some(x=>x.id===st.planId)){
       st.planId='';toast('Plan does not belong to that insurer.');}
     state.aiEpoch++;
-    resetStaffPrice();renderStaff();
+    // Request type, care setting, gel brand and guidance do not change the plan or service, so the
+    // clinical template and planned service date survive; everything plan- or service-dependent resets.
+    resetStaffPrice({keepClinical:['staff-request-type','staff-setting','staff-gel','staff-guidance'].includes(id)});renderStaff();
     // Public plan ID and drug name only. No patient information is sent.
     if(['staff-payer','staff-year','staff-plan-select','staff-service-select','staff-benefit'].includes(id))
       void runStaffFormularyLookup({automatic:true});
@@ -558,6 +632,7 @@ document.addEventListener('change',event=>{
         candidate.items=candidate.items.map(line=>({...line,allowed:null,source:'unverified'}));
         candidate.coverage='unverified';
         candidate.deductibleRemaining=null;candidate.oopRemaining=null;
+        toast('Facility or network changed: entered allowed amounts, coverage status and benefit figures were cleared and must be reverified.');
       }
     }
     try{validateCostCase(candidate);state.staff.cost=candidate;}
@@ -639,12 +714,13 @@ document.addEventListener('change',event=>{
   if(target.dataset.evidenceQuote){refreshEvidence();return;}
   if(target.id==='review-facts'||target.id==='review-scope'){state.review[target.id==='review-facts'?'facts':'scope']=target.checked;$('#packet-content').innerHTML=packetMarkup();}
 });
-document.addEventListener('keydown',event=>{if(event.target.id==='public-drug-query'&&event.key==='Enter'){event.preventDefault();runPublicFormularyLookup();}});
+document.addEventListener('keydown',event=>{
+  if(event.target.id==='public-drug-query'&&event.key==='Enter'){event.preventDefault();runPublicFormularyLookup();}
+  if(event.target.id==='staff-drug-lookup'&&event.key==='Enter'){event.preventDefault();void runStaffFormularyLookup();}
+});
 function loadStaffSample(){
-  state.staff={payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'alendronate',
-    benefit:'Pharmacy',requestType:'Initial',setting:'Office',
-    gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,
-    lookup:{sourceId:null,term:'',busy:false,result:null,error:''}};
+  const year=staffDefaultYear();
+  state.staff=newStaff({payer:'HMSA',planId:staffPlansForPayer('HMSA',year).some(x=>x.id==='hmsa-quest')?'hmsa-quest':'',year,serviceId:'alendronate',benefit:'Pharmacy',serviceDate:policyDay(),serviceDateSource:'default'});
   resetStaffPrice();
   setPage('workup');
   void runStaffFormularyLookup({automatic:true});
@@ -654,5 +730,16 @@ for(const event of ['pointerdown','keydown','input','scroll'])document.addEventL
 window.addEventListener('afterprint',()=>{$('#print-region').textContent='';});
 window.addEventListener('pageshow',event=>{if(event.persisted)lockSession();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)state.token='';});
-const initial=location.hash.slice(1);if(nav.some(n=>n[0]===initial))state.page=initial;
-render();resetIdle();checkConnection(false);
+// Footer build stamp from /version.json; anything unexpected (or a 403/503 behind the Access gate) reads "unavailable".
+async function loadVersion(){
+  try{const response=await appFetch('/version.json',{cache:'no-store'});if(!response.ok)throw new Error();const v=await response.json();
+    if(typeof v?.commit!=='string'||!/^[0-9a-z]{4,40}$/i.test(v.commit)||typeof v.policyAsOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v.policyAsOf))throw new Error();
+    state.version={commit:v.commit.slice(0,7),policyAsOf:v.policyAsOf};}
+  catch{state.version=null;}
+  $('#build-version').textContent=versionText();
+  if(state.page==='security'&&!state.locked)renderSecurity();
+}
+// Only page hashes are routed; in-page anchors such as the #main skip link are left alone.
+window.addEventListener('hashchange',()=>{const page=location.hash.slice(1);if(nav.some(n=>n[0]===page)&&page!==state.page)setPage(page);});
+const initial=location.hash.slice(1);state.page=pageAllowed(initial)?initial:'workup';if(nav.some(n=>n[0]===initial)&&initial!==state.page)history.replaceState(null,'','#workup');
+render();resetIdle();checkConnection(false);loadVersion();

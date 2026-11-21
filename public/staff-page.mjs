@@ -1,19 +1,104 @@
+import {renderClinicalAddendumPanel,staffVerificationScope} from './clinical-addendum-panel.mjs';
 import {STAFF_PAYERS,STAFF_YEARS,STAFF_CATEGORY_LABELS,staffPlansForPayer,staffPlanProgramLine,staffContext,staffServices} from '../shared/staff-workflow.mjs';
+import {evidenceAtAGlance,PA_ANSWER_SIGNALS} from '../shared/product-preferences.mjs';
+import {policyDay,validPolicyDate} from '../shared/plan-adoption.mjs';
 import {COST_FACILITIES,COST_RATE_SOURCES,COST_METHODS,estimatePatientCost} from '../shared/patient-cost.mjs';
-import {orthoGelProducts} from '../shared/orthopedic-procedures.mjs';
+import {orthoGelProducts,orthoSourceKinds} from '../shared/orthopedic-procedures.mjs';
+import {coverageStatusLabels} from '../shared/hawaii-plan-sources.mjs';
+const SOURCE_STATUS_LABELS={...coverageStatusLabels,...orthoSourceKinds,'medical-policy-review':'Reviewed medical policy extract','authorization-list':'Published PA code list','formulary-extract':'Reviewed formulary extract (adoption unverified)'};
+const sourceStatusLabel=status=>SOURCE_STATUS_LABELS[status]||status;
 import {renderKeragonPaPanel} from './keragon-pa-panel.mjs';
 const h=function h(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));};
 const opts=function opts(items,current,empty='',getter=(x)=>({v:x,label:x})){
   return (empty?`<option value="">${h(empty)}</option>`:'')+items.map(x=>{const {v,label}=getter(x);return `<option value="${h(v)}" ${String(v)===String(current)?'selected':''}>${h(label)}</option>`}).join('');
 };
 const money=function money(amount){return amount===null||amount===undefined?'Not yet available':'$'+Number(amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+// Plan-year default: the Hawaiʻi policy-day year when the registry supports it, else the latest supported year.
+export function staffDefaultYear(day=policyDay()){const y=Number(String(day).slice(0,4));return STAFF_YEARS.includes(y)?y:STAFF_YEARS[STAFF_YEARS.length-1];}
+export const STAFF_SEARCH_NO_MATCH='No match - try a brand, procedure name or code (for example TKA, Synvisc, 27447).';
+export const STAFF_GLANCE_CAVEAT="Published policy statements - this member's plan adoption, eligibility and authorization are not verified.";
+export const STAFF_DATE_NEEDED='Enter a planned service date to see payer references.';
+export const STAFF_PRODUCT_NEEDED='Choose the gel product to see this insurer’s published references, product preferences and prior-authorization statements for that brand.';
+// Shown when no matched reference carries a prior-authorization statement. It describes what Coverage Desk recorded,
+// never what the document says: a reference with no transcribed PA statement is not a "no PA" answer.
+export const STAFF_NO_PA_STATEMENT='Prior authorization: not verified. Coverage Desk has no prior-authorization statement recorded from these references for this selection.';
+export const STAFF_NO_POLICY='No published payer reference is indexed for this plan, treatment and date. Use the authorization routes and official sources below.';
+// Plain-English headings for the published signals in shared/product-preferences.mjs. Each restates a document (or, where
+// the heading says so, a Coverage Desk note on the record); none is a determination. PA_ANSWER_SIGNALS answer the
+// prior-authorization question; the others are coverage-criteria statements and are shown under "Criteria".
+export const PA_SIGNAL_LABELS=Object.freeze({
+ 'precertification-required':'Published policy states prior authorization (precertification) is required',
+ 'pa-not-required-per-policy':'Published policy states prior authorization is not required for this product',
+ 'step-therapy':'Published step-therapy program lists this product as non-preferred',
+ 'interqual-criteria':'Published policy: medical necessity is reviewed against licensed InterQual criteria, not reproduced here',
+ 'lcd-no-prior-auth':'Coverage Desk note on the LCD record (not LCD text): Original Medicare has no prior-authorization program for this procedure; the LCD governs claim and record review',
+ 'unproven':'Published policy lists this service or device as unproven / not medically necessary',
+ 'unproven-other-devices':'Published policy lists other devices or indications as unproven / not medically necessary',
+ 'not-reasonable-and-necessary':'Published policy lists this service as not reasonable and necessary',
+ 'refers-to-commercial-policy':'Published Medicare Advantage policy refers to the UHC commercial policy where no LCD applies; confirm on the Medicare Coverage Database'
+});
+const PREF_LABELS=Object.freeze({preferred:'Preferred','non-preferred':'Non-preferred',excluded:'Excluded per policy','covered-on-criteria':'Criteria-based per policy'});
+const PREF_TEXT=Object.freeze({preferred:'listed as preferred','non-preferred':'listed as non-preferred',excluded:'listed as typically excluded','covered-on-criteria':'listed with coverage contingent on the policy’s diagnosis-specific criteria'});
+// A proposed (not in effect) LCD or a sourcing reference is indexed but is not a coverage or criteria policy.
+const isPolicyRef=r=>r.referenceType!=='sourcing'&&!r.proposed;
+export const glanceHasPolicy=glance=>!!glance?.references?.some(isPolicyRef);
+// Step 3 always reads the step-2 selection; a step-6 template override never changes this block.
+export function staffGlance(state,asOf=policyDay()){
+ const scope=staffVerificationScope({...state,clinicalTemplateId:''}),dated=validPolicyDate(state.serviceDate),secondaryPayer=scope.secondaryPayer||null;
+ // Knee gel references are brand-specific: with no brand chosen, ask for one when any brand has references here.
+ if(state.serviceId==='knee-gel'&&!state.gelProductId){
+  const day=dated?state.serviceDate:asOf;
+  const needsProduct=orthoGelProducts.some(p=>evidenceAtAGlance({...scope,productId:'gel-'+p.id,medication:true,serviceDate:day},asOf).hasEvidence);
+  return {needsDate:!dated&&needsProduct,needsProduct,glance:null,secondaryPayer};
+ }
+ if(dated)return {needsDate:false,needsProduct:false,glance:evidenceAtAGlance(scope,asOf),secondaryPayer};
+ // Evidence is empty only because no date is set when the same selection on the policy day has references.
+ return {needsDate:evidenceAtAGlance({...scope,serviceDate:asOf},asOf).hasEvidence,needsProduct:false,glance:null,secondaryPayer};
+}
+// One row per signal type; distinct texts from different documents are all kept (a longer text that already
+// contains a shorter one replaces it), so a caveat in one document is never dropped by de-duplication.
+export function glanceSignals(glance){
+ const titles=new Map(glance.references.map(r=>[r.id,r.title])),out=new Map();
+ for(const s of glance.paSignals){
+  const row=out.get(s.signal)||{signal:s.signal,label:PA_SIGNAL_LABELS[s.signal]||s.signal,texts:[],sources:[]};
+  if(!row.texts.some(t=>t.includes(s.text)))row.texts=[...row.texts.filter(t=>!s.text.includes(t)),s.text];
+  const t=titles.get(s.evidenceId);if(t&&!row.sources.includes(t))row.sources.push(t);out.set(s.signal,row);
+ }
+ return [...out.values()].map(r=>({...r,text:r.texts.join(' ')}));
+}
+// Review-state notices for the matched references: overdue sources are unconfirmed until re-read.
+export function glanceReviewNotes(glance){
+ const refs=glance?.references||[],overdue=refs.filter(r=>r.reviewState==='overdue'),ends=refs.filter(r=>r.reviewState==='ends-before-service');
+ return {overdue,ends,flag:overdue.length?'Source review overdue: treat as unconfirmed until the source is re-read.':ends.length?'Source review window ends before the service date: re-check the source nearer the date.':''};
+}
+function renderGlance(glance,{secondaryPayer=null,hasRoute=false}={}){
+ const signals=glanceSignals(glance),pa=signals.filter(s=>PA_ANSWER_SIGNALS.includes(s.signal)),sel=glance.selected,titles=new Map(glance.references.map(r=>[r.id,r.title]));
+ const {overdue,ends}=glanceReviewNotes(glance);
+ const notices=`${secondaryPayer?`<p class="notice amber staff-glance-primary" role="note"><strong>Original Medicare primary claim (${h(secondaryPayer)} pays secondary).</strong> These are Original Medicare's published references; the supplement's own terms are not verified.</p>`:''}
+ ${overdue.length?`<p class="notice amber staff-glance-review" role="note"><strong>Source review overdue</strong> (${overdue.map(r=>`${h(r.title)}: review was due ${h(r.reviewDue)}`).join('; ')}). Treat these statements as unconfirmed and re-read the source before relying on them.</p>`:''}
+ ${ends.length?`<p class="notice amber staff-glance-review" role="note"><strong>Source review window ends before the service date</strong> (${ends.map(r=>`${h(r.title)}: ${h(r.reviewDue)}`).join('; ')}). Re-check the source nearer the date of service.</p>`:''}`;
+ const refs=`<p class="helper staff-glance-refs">References: ${glance.references.map(r=>`${h(r.title)} (${h(r.version)})${r.proposed?' — proposed, not in effect; not a current requirement':r.referenceType==='sourcing'?' — sourcing reference, not a coverage or criteria source':''}${r.reviewState==='overdue'?' — <strong class="warn-text">review overdue</strong>':r.reviewState==='ends-before-service'?' — review window ends before the service date':''}`).join(' · ')}. Full fingerprints and prompts are in step 6.</p>`;
+ if(!glance.references.some(isPolicyRef))return `${notices}<p class="helper">No coverage or criteria policy in effect is indexed for this plan, treatment and date. Use the authorization routes and official sources below.</p>${refs}`;
+ const lists=[['Preferred',glance.preferred],['Non-preferred',glance.nonPreferred],['Typically excluded',glance.excluded],['Coverage contingent on the policy’s diagnosis-specific criteria',glance.coveredOnCriteria]].filter(([,v])=>v.length);
+ const warn=sel&&(sel.status==='non-preferred'||sel.status==='excluded');
+ const caveat=sel?.caveat?` <span class="staff-glance-caveat-note">${h(sel.caveat)}</span>`:'';
+ return `${notices}
+ ${sel?(warn?`<p class="notice amber staff-glance-warn" role="note"><strong>${h(sel.displayName)} is ${h(PREF_TEXT[sel.status])}</strong> in ${h(titles.get(sel.evidenceId)||'the published policy')}.${sel.exception?` ${sel.status==='excluded'?'Policy summary':'Exception path stated'}: ${h(sel.exception)}`:''}${caveat}</p>`
+   :`<p class="staff-glance-selected"><span class="pill">${h(PREF_LABELS[sel.status])}</span> <strong>${h(sel.displayName)}</strong> — ${h(PREF_TEXT[sel.status])} in ${h(titles.get(sel.evidenceId)||'the published policy')} (published policy statement).${caveat}</p>`):''}
+ ${(glance.unlisted||[]).map(u=>`<p class="notice staff-glance-unlisted" role="note"><strong>${h(u.displayName)} is not listed</strong> in the product table of ${h(titles.get(u.evidenceId)||'the published policy')}. ${h(u.text)}</p>`).join('')}
+ ${signals.length?`<ul class="staff-glance-signals">${signals.map(s=>`<li><strong>${h(s.label)}</strong><span>${h(s.text)}</span><small>Source: ${h(s.sources.join(' · '))}</small></li>`).join('')}</ul>`:''}
+ ${pa.length?'':`<p class="helper staff-glance-no-pa">${h(STAFF_NO_PA_STATEMENT)} ${hasRoute?'Check with the payer’s authorization route below.':'Confirm with the payer.'}</p>`}
+ ${lists.length?`<div class="staff-glance-lists">${lists.map(([label,names])=>`<div><span>${h(label)}</span><p>${h(names.join(', '))}</p></div>`).join('')}</div>${glance.alsoNamed?.length?`<p class="helper staff-glance-also">Also named in the matched documents (not selectable here): ${h(glance.alsoNamed.join(', '))}.</p>`:''}<p class="helper">Selectable products, by their Coverage Desk names, as classified in the matched documents for this insurer and plan line only.</p>`:''}
+ ${refs}`;
+}
 function renderRateEvidence(st,ctx){
   const service=ctx.service;
   if(service?.type!=='procedure')return '';
   const choices=[...ctx.possibleCodes.map(x=>({id:x.code,label:x.code+' · '+(x.label||'Procedure')})),
     ...(st.setting==='Hospital inpatient'&&service.category==='arthroplasty'
       ? ['DRG 469','DRG 470','DRG 461','DRG 462'].map(code=>({id:code,label:code+' · verify inpatient DRG assignment'})) : [])];
-  const chosen=choices.some(x=>x.id===st.rateCode)?st.rateCode:choices[0]?.id||'';
+  const preferred=st.setting==='Hospital inpatient'?choices.find(x=>x.id.startsWith('DRG'))||choices[0]:choices[0];
+ const chosen=choices.some(x=>x.id===st.rateCode)?st.rateCode:preferred?.id||'';
   const lookup=st.rateLookup||{};
   const result=lookup.result;
   const fs=result?.facility||[],ps=result?.professional||[];
@@ -30,8 +115,8 @@ function renderRateEvidence(st,ctx){
         <div><strong>Hospital facility evidence (${fs.length})</strong>
           ${fs.length?`<div class="table-scroll"><table><thead><tr><th>Published payer label</th><th>Price or benchmark</th><th>Source date</th></tr></thead><tbody>
           ${fs.map(x=>`<tr><td>${h(x.payerLabel)}<small>${h(x.description)}${x.billingClassVerified?'':' · class unverified'}</small></td>
-            <td>${x.amount!==null?moneyOrUnknown(x.amount):x.percent!==null?h(x.percent)+'% of charges':x.medianAllowed!==null?'Median '+moneyOrUnknown(x.medianAllowed):'No dollar rate'}<small>${h(x.methodology||'unspecified methodology')}</small></td>
-            <td>${h(x.sourceUpdated||'Unknown')}${x.sourceUrl?` <a href="${h(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source</a>`:''}</td></tr>`).join('')}
+            <td>${Number.isFinite(x.amount)?moneyOrUnknown(x.amount):Number.isFinite(x.percent)?h(x.percent)+'% of charges':Number.isFinite(x.medianAllowed)?'Median '+moneyOrUnknown(x.medianAllowed):'No dollar rate'}<small>${h(x.methodology||'unspecified methodology')}</small></td>
+            <td>${h(x.sourceUpdated||'Unknown')}${typeof x.sourceUrl==='string'&&/^https:\/\//.test(x.sourceUrl)?` <a href="${h(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source</a>`:''}</td></tr>`).join('')}
           </tbody></table></div>`:'<p class="helper">No exact code, setting, hospital and insurer-label match found.</p>'}</div>
         <div><strong>Professional market benchmark (${ps.length})</strong>
           ${ps.length?`<div class="table-scroll"><table><thead><tr><th>Published plan</th><th>Min / median / max</th><th>Observations</th></tr></thead><tbody>
@@ -43,14 +128,21 @@ function renderRateEvidence(st,ctx){
     <p class="helper">Requires verified Cloudflare Access and a configured private Cuptomize Worker connection. A missing result does not mean $0 or no coverage.</p>
   </section>`;
 }
-export function renderStaffPage(state){
- const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,search,docs}=state;
+// The planned service date input lives in step 3. Step 6 is rendered by clinical-addendum-panel.mjs, which
+// may still print its own copy: drop that label so id="staff-service-date" appears exactly once.
+const DATE_LABEL=/<label\b[^>]*>(?:(?!<\/label>)[\s\S])*?id="staff-service-date"(?:(?!<\/label>)[\s\S])*<\/label>\s*/;
+export function addendumPanel(state,asOf=policyDay()){return renderClinicalAddendumPanel(state,asOf).replace(DATE_LABEL,'');}
+// asOf is the Hawaiʻi policy day; tests pass it so nothing depends on today's date. List expiry is judged at the
+// planned service date when that is later, so a list that lapses before the service is never shown as current.
+export function renderStaffPage(state,{legacy=false,asOf=policyDay()}={}){
+ const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,search,docs,serviceDate}=state;
  const plans=staffPlansForPayer(payer,year);
- const ctx=staffContext({payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance});
+ const ctx=staffContext({payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance,asOf,serviceDate});
  const plan=ctx.plan,service=ctx.service;
  const cost=state.cost;
  const estimate=cost?estimatePatientCost(cost):null;
  const matches=staffServices({query:search});
+ const searchCount=String(search||'').trim()?(matches.length?matches.length+' match'+(matches.length===1?'':'es'):h(STAFF_SEARCH_NO_MATCH)):'';
  const visible=matches.some(x=>x.id===serviceId)?matches:(service?[service,...matches]:matches);
  const grouped=[...new Set(visible.map(x=>x.category))].map(cat=>({cat,items:visible.filter(x=>x.category===cat)}));
  const servicesMarkup=grouped.map(({cat,items})=>`<optgroup label="${h(STAFF_CATEGORY_LABELS[cat]||cat)}">${opts(items,serviceId,'',x=>({v:x.id,label:x.name}))}</optgroup>`).join('');
@@ -85,17 +177,27 @@ export function renderStaffPage(state){
    <small>${h(x.name)}</small></a>`).join('')}</div>
    <p class="helper">Opens the payer's site. Check the exact plan and CPT/NDC/HCPCS before using it. No member data is sent from this trial.</p>
   </div>`:'';
- const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(x.status)}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
- const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages].slice(0,9):[];
+ const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(sourceStatusLabel(x.status))}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
+ const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages]:[];
  const rateEvidence=renderRateEvidence(state,ctx);
+ const {needsDate,needsProduct,glance,secondaryPayer}=plan&&service?staffGlance(state,asOf):{needsDate:false,needsProduct:false,glance:null,secondaryPayer:null};
+ const hasPolicy=glanceHasPolicy(glance),signals=hasPolicy?glanceSignals(glance):[];
+ const paSignals=signals.filter(s=>PA_ANSWER_SIGNALS.includes(s.signal)),criteriaSignals=signals.filter(s=>!PA_ANSWER_SIGNALS.includes(s.signal));
+ const reviewFlag=hasPolicy?glanceReviewNotes(glance).flag:'';
+ const flagMarkup=reviewFlag?`<small class="warn-text staff-review-flag">${h(reviewFlag)}</small>`:'';
+ const dateField=`<label class="staff-date-field">Planned service date <small>Policy context only; defaults to today in Hawaiʻi</small><input type="date" id="staff-service-date" value="${h(serviceDate||'')}"></label>`;
+ const dateYear=validPolicyDate(serviceDate)?Number(serviceDate.slice(0,4)):null;
+ const yearNote=dateYear&&dateYear!==Number(year)?`<p class="notice amber staff-year-note">The planned service date is in ${dateYear}; this plan view is for ${h(year)}.</p>`:'';
  const pricesMarkup=`<section class="panel staff-stage" id="staff-cost"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">4</span> Patient cost estimate</h2></div><div class="panel-content">
-   ${!costShown?`<p class="helper">Choose the insurer, plan and treatment above to begin. No price will be invented.</p>`:`
-   <div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong>${(estimate?.totalRequired??null)===null?'Not yet available':money(estimate.totalRequired)}</strong><small>${(estimate?.totalRequired??null)===null?'Core allowed amounts or plan benefits are missing.': 'Conditional scenario only — not a verified patient quote.'}</small></div><div><strong>Separate billing estimates</strong>
-  <small>Surgeon: ${money(estimate?.components?.find(x=>x.id==='surgeon')?.patientShare)}</small>
-  <small>Facility: ${money(estimate?.components?.find(x=>x.id==='facility')?.patientShare)}</small>
-  <small>Anesthesia: ${money(estimate?.components?.find(x=>x.id==='anesthesia')?.patientShare)}</small>
-  <small>Implant / gel / cellular product: ${money(estimate?.components?.find(x=>['gel-product','maci-cell','drug-product'].includes(x.id))?.patientShare)}</small>
-  <small>Unknown is not $0; missing items remain unpriced.</small></div></div>
+   ${!costShown?`<p class="helper">${state.costUnavailable?h(state.costUnavailable):'Choose the insurer, plan and treatment above to begin. No price will be invented.'}</p>`:`
+   ${(()=>{const total=estimate?.totalRequired??null;const verified=estimate?.isScenario===true;
+     const value=total===null?'Not yet available':verified?money(total):'Assumption-only scenario: '+money(total);
+     const note=total===null?'Core allowed amounts or plan benefits are missing.':verified?'Conditional scenario — not a verified patient quote.':'Coverage, network, rate sources or secondary status are still unverified. Do not read this as the patient’s expected bill.';
+     const labels={surgeon:'Surgeon',facility:'Facility',anesthesia:'Anesthesia','gel-product':'Gel product','maci-cell':'MACI cell product','drug-product':'Medication product','implant-extra':'Separately billable implant','imaging-global':'Imaging','service':'Therapy / DME'};
+     const labelFor=id=>labels[id];
+     // Only components that exist for this case are listed; a drug workup no longer shows surgeon/facility/anesthesia rows.
+     const rows=cost.items.filter(x=>x.required||labels[x.id]||estimate?.components?.some(c=>c.id===x.id)).map(x=>{const c=estimate?.components?.find(c=>c.id===x.id);return `<small>${h(labelFor(x.id)||x.label)}: ${money(c?.patientShare)}${c?.oopCapped?' (OOP limit reached)':''}</small>`;}).join('');
+     return `<div class="staff-cost-hero"><div><span>Estimated patient responsibility</span><strong class="${verified||total===null?'':'staff-cost-assumption'}">${value}</strong><small>${note}</small></div><div><strong>Separate billing estimates</strong>${rows}<small>Unknown is not $0; missing items remain unpriced.</small></div></div>`;})()}
    <div class="staff-cost-setup">
      <label>Hospital / ASC<select id="staff-facility">${opts(COST_FACILITIES,cost.facilityId,'',x=>({v:x.id,label:x.name}))}</select></label>
      <label>Network<select id="staff-network">${opts([{v:'unknown',label:'Not confirmed'},{v:'in-network',label:'In network'},{v:'out-of-network',label:'Out of network'}],cost.network,'',x=>x)}</select></label>
@@ -107,23 +209,24 @@ export function renderStaffPage(state){
    ${rateEvidence}
    <p class="helper">Enter the confirmed insurer-allowed amount or dated written quote for each charge. Public Cuptomize market evidence is never used automatically as a patient price.</p>
    <div class="staff-price-lines">${rows}</div>
-   ${estimateWarnings.length?`<details class="staff-checks" ${(estimate?.totalRequired??null)===null?'open':''}><summary>Missing rates and benefit checks (${estimateWarnings.length})</summary><ul>${estimateWarnings.map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>`:''}
+   ${estimateWarnings.length?`<details class="staff-checks" ${estimate?.isScenario===true?'':'open'}><summary>Missing rates and benefit checks (${estimateWarnings.length})</summary><ul>${estimateWarnings.map(x=>`<li>${h(x)}</li>`).join('')}</ul></details>`:''}
    <p class="helper">Never substitute a hospital chargemaster amount for an insurer's negotiated facility charge. Original Medicare inpatient Part A facility estimates require a separate benefit-period calculation.</p>
    <div class="local-buttons"><button class="button secondary" data-action="staff-cost-export">Download conditional cost worksheet</button><button class="button secondary" data-action="staff-advanced-cost">Advanced cost details</button></div>
    `}
  </div></section>`;
  return `<div class="page-heading"><div><span class="eyebrow">PACIFIC BONE & JOINT · FRONT DESK / AUTHORIZATION TEAM</span><h1>Coverage, prior auth & patient costs</h1>
- <p class="subtitle">One workflow: insurer → exact plan → medication or procedure → requirements → costs → documentation.</p></div></div>
+ <p class="subtitle">One workflow: insurer → exact plan → medication or procedure → requirements → costs → documentation.</p></div><div class="heading-actions"><button class="button secondary" data-action="staff-sample">Try a sample workup</button></div></div>
  <div class="notice amber staff-banner"><strong>Synthetic trial — not cleared for patient records.</strong> Use only plan names and fictional figures. Medical necessity, patient eligibility, PA approvals, member-specific quotes and completed submissions require approved clinical systems.</div>
  <section class="panel staff-stage" id="staff-plan"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">1</span> Insurance and plan identity</h2><span class="pill neutral">No cross-insurer plans</span></div><div class="panel-content">
  <div class="staff-main-grid"><label>Insurance company<select id="staff-payer">${opts(STAFF_PAYERS,payer,'Choose insurance company',x=>({v:x.name,label:x.name}))}</select></label>
  <label>Coverage year<select id="staff-year">${opts(STAFF_YEARS.map(String),String(year))}</select></label>
  <label>Plan / product or official source<select id="staff-plan-select" ${!payer?'disabled':''}>${opts(plans,planId,payer?'Choose this insurer’s plan':'Select insurer first',x=>({v:x.id,label:x.name}))}</select></label></div>
  ${payer&&plans.length===0?'<p class="notice amber">No verified plan sources for this insurer and year. Do not substitute another insurer’s formulary; confirm the plan with the payer.</p>':''}
- ${plan?`<p class="staff-plan-identified"><strong>${h(plan.payer)} · ${h(plan.name)}</strong> <span>${h(plan.network)} · ${h(staffPlanProgramLine(plan))}</span><br><small>${h(ctx.planPrecision.label)} · ${h(planStatus)}. Actual group and eligibility must still be verified.</small></p>`:''}
+ ${plan?`<p class="staff-plan-identified"><strong>${h(plan.payer)} · ${h(plan.name)}</strong> <span>${h(plan.network)} · ${h(staffPlanProgramLine(plan))}</span><br><small>${h(ctx.planPrecision.label)}${service&&(service.type==='procedure'||benefit==='Medical')&&ctx.planPrecision.level==='published-plan-id'?' (pharmacy file identity — not relevant to the medical benefit)':''} · ${h(planStatus)}. Actual group and eligibility must still be verified.</small></p>`:''}
  </div></section>
  <section class="panel staff-stage" id="staff-service"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">2</span> Medication or procedure</h2></div><div class="panel-content">
- <div class="staff-main-grid"><label>Search by drug, generic, condition or procedure<input id="staff-service-query" type="search" maxlength="80" placeholder="e.g., Prolia, TKA, MACI, gel, carpal tunnel" value="${h(search||'')}" autocomplete="off"></label>
+ <div class="staff-main-grid"><label>Search by drug, generic, condition or procedure<input id="staff-service-query" type="search" maxlength="80" placeholder="e.g., Prolia, TKA, MACI, gel, carpal tunnel" value="${h(search||'')}" autocomplete="off" aria-describedby="staff-search-count">
+ <small class="staff-search-count ${search&&!matches.length?'none':''}" id="staff-search-count" aria-live="polite">${searchCount}</small></label>
  <label>Requested service<select id="staff-service-select"><option value="">Choose a treatment</option>${servicesMarkup}</select></label>
  <label>Benefit channel<select id="staff-benefit" ${service?.type==='procedure'?'disabled':''}>${opts(['Medical','Pharmacy'],benefit)}</select></label>
  </div>
@@ -134,18 +237,24 @@ export function renderStaffPage(state){
  </div>
  ${service?`<p class="helper"><strong>${h(service.name)}</strong>${service.description?` — ${h(service.description)}`:''}${ctx.possibleCodes.length?`<br>Candidate codes: ${ctx.possibleCodes.map(c=>h(c.code)).join(' · ')} (verify coding)`:(service.type==='procedure'?'<br>Billing code not verified — confirm technique and payer coding before submission.':'')}</p>`:''}
  </div></section>
- <section class="panel staff-stage" id="staff-coverage"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">3</span> Formulary, coverage and PA requirements</h2></div><div class="panel-content">
- ${needPlan||needService?'<p class="helper">Choose an insurer-owned plan and a requested treatment first. No cross-insurer policy will be shown.</p>':`
- <div class="staff-answer"><strong>Formulary / coverage</strong><span>${med?(benefit==='Medical'?'Medical-benefit drug — pharmacy formulary alone is not coverage':(live?'Exact-plan public pharmacy search available':'Drug formulary for this plan is not imported; not verified')):'Procedure medical benefit — confirm current plan coverage and any exclusions'}</span></div>
- <div class="staff-answer"><strong>Prior authorization</strong><span>${ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
+ <section class="panel staff-stage" id="staff-requirements"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">3</span> Formulary, coverage and PA requirements</h2></div><div class="panel-content">
+ ${needPlan||needService?`<div class="staff-date-row">${dateField}</div>${yearNote}<p class="helper">Choose an insurer-owned plan and a requested treatment first. No cross-insurer policy will be shown.</p>`:`
+ <section class="staff-glance" id="staff-glance" aria-labelledby="staff-glance-title"><div class="staff-glance-head"><div><h3 id="staff-glance-title">At a glance</h3>${hasPolicy?`<p class="staff-glance-caveat">${h(STAFF_GLANCE_CAVEAT)}</p>`:''}</div>${dateField}</div>${yearNote}
+ ${needsProduct?`<p class="staff-glance-empty staff-glance-product">${h(STAFF_PRODUCT_NEEDED)}</p>`:''}${needsDate?`<p class="staff-glance-empty">${h(STAFF_DATE_NEEDED)}</p>`:needsProduct?'':glance?.hasEvidence?renderGlance(glance,{secondaryPayer,hasRoute:(ctx.authorizationResources||[]).length>0}):`<p class="helper">${h(STAFF_NO_POLICY)}</p>`}</section>
+ <div class="staff-answer"><strong>Formulary / coverage</strong><span>${med?(benefit==='Medical'?'Medical-benefit drug — pharmacy formulary alone is not coverage':(live?'Exact-plan public pharmacy search available':ctx.formularyEntries?.length?'Reviewed extract from a published list is shown below; plan adoption is not verified':'Drug formulary for this plan is not imported; not verified')):'Procedure medical benefit — confirm current plan coverage and any exclusions'}</span></div>
+ <div class="staff-answer"><strong>Prior authorization</strong><span>${paSignals.length?`${paSignals.map(x=>h(x.label)).join('; ')}.${flagMarkup}<small>Member-level authorization: not verified.</small>`
+  :needsProduct?'Not verified — choose the gel product to see the published statements for that brand'
+  :ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
+ ${criteriaSignals.length?`<div class="staff-answer staff-criteria-answer"><strong>Criteria</strong><span>${criteriaSignals.map(x=>h(x.label)).join('; ')}.${flagMarkup}<small>Read the source for the exact conditions; not a determination for this member.</small></span></div>`:''}
  ${ctx.policyConflict?'<p class="notice amber">Conflicting medical policies were found; no automatic authorization conclusion can be made.</p>':''}
+ ${ctx.formularyEntries?.length?`<p class="staff-note"><strong>Reviewed extract (adoption unverified):</strong> ${ctx.formularyEntries.map(e=>h(e.title)+' — listed as '+h(e.formularyStatus)+(e.summary?'; '+h(e.summary):'')).join(' · ')}</p>`:''}
  ${paRouteMarkup}
- ${renderKeragonPaPanel(ctx,{benefit,requestType})}
  ${med&&benefit==='Pharmacy'&&live?`
  <div class="staff-lookup"><h3>Search this insurer’s published formulary</h3><p class="helper">${h(live.label)} · exact plan ID ${h(live.planId)} · ${h(live.year)}. Look up each strength and route. A row is not an eligibility approval.</p><div class="staff-lookup-search"><input id="staff-drug-lookup" value="${h(drugLookup.term||service.name)}" maxlength="70" autocomplete="off" placeholder="Brand / generic / RxNorm"><button class="button primary" data-action="staff-check-formulary" ${querying?'disabled':''}>${querying?'Checking…':'Check published drug list'}</button></div>
  ${drugLookup.error?`<p class="notice amber">${h(drugLookup.error)}</p>`:''}
- ${result&&drugLookup.sourceId===live.id?`<p class="helper">Published entries: ${result.totalMatches}. ${result.totalMatches===0?'No match does not mean excluded.':''}</p><div class="table-scroll"><table><thead><tr><th>Drug formulation</th><th>Tier</th><th>PA / restrictions</th></tr></thead><tbody>${result.matches.slice(0,15).map(x=>`<tr><td>${h(x.name)}</td><td>${h(x.tier)}</td><td>${x.priorAuthorization===true?'PA indicated':x.priorAuthorization===false?'No PA flag listed':'PA unknown'}${x.stepTherapy===true?' · ST':''}${x.quantityLimit===true?' · QL':''}</td></tr>`).join('')}</tbody></table></div>`:''}
+ ${result&&drugLookup.sourceId===live.id?`<p class="helper">Published entries: ${result.totalMatches}. ${result.totalMatches===0?'No match does not mean excluded.':result.truncated?'Showing the first '+result.matches.length+'; narrow the search by strength or form.':'All matching rows are shown.'}</p><div class="table-scroll"><table><thead><tr><th>Drug formulation</th><th>Tier</th><th>PA / restrictions</th></tr></thead><tbody>${result.matches.map(x=>`<tr><td>${h(x.name)}</td><td>${h(x.tier)}</td><td>${x.priorAuthorization===true?'PA indicated':x.priorAuthorization===false?'No PA flag listed':'PA unknown'}${x.stepTherapy===true?' · ST':''}${x.quantityLimit===true?' · QL':''}</td></tr>`).join('')}</tbody></table></div>`:''}
  </div>`:''}
+ <details class="staff-sources"><summary>Keragon authorization workflow (existing PBJ systems)</summary>${renderKeragonPaPanel(ctx,{benefit,requestType})}</details>
  ${ctx.preferredProducts.length?`<p class="staff-note"><strong>Policy-listed product preference:</strong> ${h(ctx.preferredProducts.join(', '))}. This does NOT establish the selected plan’s pharmacy formulary or exception eligibility.</p>`:''}
  ${ctx.restrictions.length?`<ul class="staff-unresolved">${ctx.restrictions.map(x=>`<li>${h(x)}</li>`).join('')}</ul>`:''}
  <details class="staff-sources"><summary>Official sources relevant to this plan and request (${linked.length})</summary>${sourceRows||'<p class="helper">No reviewed exact-policy URL available; check insurer provider resources.</p>'}</details>
@@ -160,11 +269,12 @@ export function renderStaffPage(state){
  <div class="local-buttons"><button class="button primary" data-action="staff-export-packet">Download authorization checklist / letter template</button><button class="button secondary" data-action="staff-patient-script">Copy patient explanation</button></div>
  <p class="helper">Packet includes a blank authorization cover sheet, candidate codes, source-specific criteria and labeled placeholders. It is not a completed patient letter and cannot be submitted with patient data in this trial.</p>`}
  </div></section>
+ ${addendumPanel(state,asOf)}
  <details class="staff-advanced"><summary>Advanced reference tools (staff administrators only)</summary><div class="local-buttons">
  <button class="button secondary" data-page="formulary">Legacy formulary explorer</button>
  <button class="button secondary" data-page="coverage">Hawaiʻi plan source directory</button>
  <button class="button secondary" data-page="procedures">Procedure criteria library</button>
  <button class="button secondary" data-page="costs">Detailed cost calculator</button>
- <button class="button secondary" data-page="authorization">Existing letter builder</button>
+ ${legacy?'<button class="button secondary" data-page="authorization">Existing letter builder</button>':''}
  <button class="button secondary" data-page="policies">Policy source library</button></div><p class="helper">Advanced modules are kept for reference; the new workflow above is the primary staff-facing process.</p></details>`;
 }

@@ -12,4 +12,39 @@ jobs:
           node-version: '22'
       - run: npm run check
       - run: npm test
+      - name: Tests must not depend on today's date (about +45, +120 and +400 days)
+        run: |
+          for days in 45 120 400; do
+            FAKE_NOW=$(date -u -d "+$days days" +%Y-%m-%dT12:00:00Z) node --import ./tests/support/shift-clock.mjs --test tests/*.test.mjs
+          done
+      - run: npm run matrix:check
       - run: npm run build
+      - name: Confirm PHI build remains blocked
+        run: |
+          if PATIENT_DATA_ENABLED=true npm run build; then
+            exit 1
+          fi
+      # Lint tooling is installed last, so the steps above prove check, tests and build need no dependencies.
+      - name: Install lint tooling (devDependencies only)
+        run: npm ci
+      - run: npm run lint
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test tooling
+        run: npm install --no-save --package-lock=false playwright@1.62.1
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Start local synthetic server
+        run: |
+          node server/local.mjs --port 3088 > /tmp/pbj-browser-test.log 2>&1 &
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://localhost:3088/api/status
+      - run: npm run test:browser
+      - name: Browser suite must not depend on today's date (page clock fixed about +45 and +400 days)
+        run: |
+          for days in 45 400; do
+            PBJ_FAKE_NOW=$(date -u -d "+$days days" +%Y-%m-%dT12:00:00Z) npm run test:browser
+          done

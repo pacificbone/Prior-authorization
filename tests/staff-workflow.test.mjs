@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
- STAFF_PAYERS,STAFF_SERVICES,STAFF_CATEGORY_LABELS,staffPlansForPayer,
+ STAFF_SERVICES,STAFF_CATEGORY_LABELS,staffPlansForPayer,
  staffGetPlan,staffGetService,staffServices,staffContext,
- staffAuthorizePacket,staffPatientScript,validateStaffRegistry
+ staffAuthorizePacket,staffPatientScript,validateStaffRegistry,gelProductForQuery
 } from '../shared/staff-workflow.mjs';
 import {newCostCase,estimatePatientCost,getCostService} from '../shared/patient-cost.mjs';
 
@@ -25,6 +25,49 @@ test('directory owner invariant: no unrelated insurer plans in payer dropdown',(
  assert.deepEqual(staffPlansForPayer('Unknown',2026),[]);
 });
 
+test('plan availability is separate from the reviewed source edition, so 2027 keeps plans visible with an edition warning',()=>{
+ const hmsa27=staffPlansForPayer('HMSA',2027).map(x=>x.id);
+ for(const id of ['hmsa-select-choice','hmsa-essential','hmsa-metallic','hmsa-quest','hmsa-ma-individual','hmsa-fep','bcbs-fep'])assert.ok(hmsa27.includes(id),id);
+ assert.ok(staffPlansForPayer('UHA',2027).some(x=>x.id==='uha-employer'));
+ assert.ok(staffPlansForPayer('UnitedHealthcare',2027).some(x=>x.id==='uhc-quest'));
+ // ʻOhana QUEST Integration membership ends 12/31/2026; its separate CCS contract stays selectable.
+ assert.equal(staffPlansForPayer('ʻOhana / Wellcare',2027).some(x=>x.id==='ohana-quest'),false);
+ assert.ok(staffPlansForPayer('ʻOhana / Wellcare',2026).some(x=>x.id==='ohana-quest'));
+ const q27=staffContext({payer:'HMSA',planId:'hmsa-quest',year:2027,serviceId:'alendronate',benefit:'Pharmacy'});
+ assert.equal(q27.liveSource,null);
+ assert.ok(q27.restrictions.some(x=>/2026 edition/.test(x)));
+ assert.ok(q27.restrictions.some(x=>/no 2027 edition is indexed/.test(x)));
+ assert.equal(staffContext({payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'alendronate',benefit:'Pharmacy'}).restrictions.some(x=>/edition/.test(x)),false);
+});
+test('delegated administrator lists, partial published-list extracts and benefit-line mismatches are surfaced with explicit caveats',()=>{
+ const uhcMa=staffContext({payer:'UnitedHealthcare',planId:'uhc-ma',year:2026,serviceId:'prolia',benefit:'Medical'});
+ assert.deepEqual(uhcMa.supplementaryPA.map(p=>p.id),['mdx-uhc-ma-drug-list-2026']);
+ assert.ok(uhcMa.restrictions.some(x=>/delegated administrator/.test(x)&&/verify delegation/.test(x)));
+ assert.equal(staffContext({payer:'UnitedHealthcare',planId:'uhc-commercial',year:2026,serviceId:'prolia',benefit:'Medical'}).supplementaryPA.length,0);
+ const mdx=staffContext({payer:'MDX Hawaiʻi',planId:'mdx',year:2026,serviceId:'evenity',benefit:'Medical'});
+ assert.deepEqual(mdx.supplementaryPA.map(p=>p.id),['mdx-uhc-ma-drug-list-2026']);
+ assert.equal(mdx.primaryPolicy,null);
+ assert.ok(mdx.restrictions.some(x=>/UnitedHealthcare \(Medicare Advantage\)/.test(x)));
+ // The HMAA extract is the July–December 2026 edition and expires 2026-12-31, so the as-of day is pinned.
+ const hmaa=staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2026-11-08'});
+ const lapsed=staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2027-01-02'});
+ assert.equal(lapsed.formularyEntries.length,0); // expired editions are never shown as current
+ // ...but staff are told the reviewed edition lapsed instead of silently seeing nothing.
+ assert.ok(lapsed.restrictions.includes('The reviewed HMAA OptumRx Premium · Jul–Dec 2026 list expired 2026-12-31; no current edition is indexed. Verify on the payer\'s current list.'));
+ assert.equal(lapsed.restrictions.filter(x=>/expired/.test(x)).length,1);
+ assert.equal(hmaa.restrictions.some(x=>/expired/.test(x)),false);
+ assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'celecoxib',benefit:'Pharmacy',asOf:'2027-01-02'}).restrictions.some(x=>/expired/.test(x)),false); // no extract for this drug
+ assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'alendronate',benefit:'Medical',asOf:'2027-01-02'}).restrictions.some(x=>/expired/.test(x)),false); // pharmacy list, medical benefit
+ assert.equal(staffContext({payer:'HMSA',planId:'hmsa-select-choice',year:2026,serviceId:'alendronate',benefit:'Pharmacy',asOf:'2027-01-02'}).restrictions.some(x=>/expired/.test(x)),false); // another payer's list never applies
+ assert.deepEqual(hmaa.formularyEntries.map(p=>p.id),['hmaa-premium-2026-h2-alendronate']);
+ assert.ok(hmaa.restrictions.some(x=>/NOT verified/.test(x)&&/HMAA-OPTUMRX-PREMIUM-2026-H2/.test(x)));
+ assert.ok(hmaa.sourceLinks.some(x=>x.status==='formulary-extract'));
+ assert.equal(staffContext({payer:'HMAA',planId:'hmaa-employer',year:2026,serviceId:'celecoxib',benefit:'Pharmacy'}).formularyEntries.length,0);
+ assert.equal(hmaa.assurance.formulary,'not determined');
+ assert.ok(staffContext({payer:'Humana',planId:'humana-pdp',year:2026,serviceId:'prolia',benefit:'Medical'}).restrictions.some(x=>/no medical benefit/.test(x)));
+ assert.ok(staffContext({payer:'HMSA',planId:'hmsa-metallic',year:2026,serviceId:'prolia',benefit:'Medical'}).restrictions.some(x=>/Metallic/.test(x)));
+ assert.equal(staffContext({payer:'HMSA',planId:'hmsa-select-choice',year:2026,serviceId:'prolia',benefit:'Medical'}).restrictions.some(x=>/Metallic/.test(x)),false);
+});
 test('staff plan precision distinguishes exact pharmacy ID from plan-family source or administrator',()=>{
  const hmsa=staffGetPlan('HMSA','hmsa-select-choice',2026);
  const quest=staffGetPlan('HMSA','hmsa-quest',2026);
@@ -35,6 +78,9 @@ test('staff plan precision distinguishes exact pharmacy ID from plan-family sour
  const b=staffContext({payer:'HMSA',planId:quest.id,year:2026,serviceId:'evenity',benefit:'Pharmacy'});
  assert.equal(b.planPrecision.level,'published-plan-id');
  assert.equal(b.planPrecision.planId,'22780AA1111111');
+ assert.equal(b.planPrecision.fileKey,true);assert.match(b.planPrecision.label,/file plan key/);assert.doesNotMatch(b.planPrecision.label,/Exact/);
+ const kaiser=staffContext({payer:'Kaiser Permanente',planId:'kaiser-individual',year:2026,serviceId:'alendronate',benefit:'Pharmacy'});
+ assert.equal(kaiser.planPrecision.fileKey,false);assert.match(kaiser.planPrecision.label,/Exact published pharmacy plan ID/);
  const c=staffContext({payer:'MDX Hawaiʻi',planId:mdx.id,year:2026,serviceId:'evenity'});
  assert.equal(c.planPrecision.level,'administrator');
  const d=staffAuthorizePacket({payer:'HMSA',planId:hmsa.id,year:2026,serviceId:'total-knee',benefit:'Medical',checks:{}});
@@ -115,8 +161,60 @@ test('service catalog includes common and peripheral work and drug families, eac
   assert.ok(getCostService('drug-'+id),id+' needs cost routing');
  }
  assert.ok(staffServices({query:'MACI'}).some(x=>x.id==='maci-implant'));
+ assert.ok(staffServices({query:'MACI'}).some(x=>x.id==='maci-cell-product'));
+ assert.ok(staffServices({query:'Celebrex'}).some(x=>x.id==='celecoxib'));
+ assert.equal(staffGetService('romosozumab'),null);
+ assert.equal(getCostService('drug-romosozumab'),null);
+ // Trigger finger and SI joint fusion are orthopedic catalog procedures with payer-source routing, not loose extras.
+ const sij=staffContext({payer:'Traditional Medicare',planId:'original-b',year:2026,serviceId:'si-joint-fusion',benefit:'Medical'});
+ assert.ok(sij.sourceLinks.some(x=>/L39810/.test(x.name)));
+ assert.ok(sij.criteria.some(c=>c.id==='diagnosticBlock'));
+ const tf=staffContext({payer:'HMSA',planId:'hmsa-select-choice',year:2026,serviceId:'trigger-finger-percutaneous',benefit:'Medical'});
+ assert.deepEqual(tf.possibleCodes,[]);
+ assert.ok(tf.criteria.some(c=>c.id==='conservativeHand'));
+ const fep=staffContext({payer:'HMSA',planId:'hmsa-fep',year:2026,serviceId:'total-knee',benefit:'Medical'});
+ assert.ok(fep.sourceLinks.some(x=>/Federal Plan 87/.test(x.name)));
+ const noSource=staffContext({payer:'Curative',planId:'curative-commercial',year:2026,serviceId:'si-joint-fusion',benefit:'Medical'});
+ assert.ok(noSource.restrictions.some(x=>/No payer-specific procedure policy or code-list source is cataloged/.test(x))||noSource.sourceLinks.some(x=>x.status==='plan-check'));
  assert.ok(staffServices({query:'carpal'}).some(x=>x.id==='carpal-open'));
  assert.ok(Object.hasOwn(STAFF_CATEGORY_LABELS,'imaging'));
+});
+test('service search matches staff abbreviations, brand names and codes token by token',()=>{
+ const ids=q=>staffServices({query:q}).map(x=>x.id);
+ assert.equal(ids('TKA')[0],'total-knee');assert.ok(ids('tka').includes('revision-knee'));
+ assert.deepEqual(ids('synvisc'),['knee-gel']);assert.equal(gelProductForQuery('synvisc'),'synvisc');
+ assert.deepEqual(ids('Synvisc-One'),['knee-gel']);
+ for(const q of ['Synvisc-One','synvisc one','SYNVISC ONE','synviscone','Synvisc One injection'])assert.equal(gelProductForQuery(q),'synvisc-one',q);
+ assert.deepEqual(ids('27447'),['total-knee']);
+ assert.deepEqual(ids('J0897'),['prolia']);
+ assert.equal(ids('hip replacement')[0],'total-hip');assert.ok(ids('hip replacement').includes('revision-hip'));
+ assert.deepEqual(ids('Euflexxa'),['knee-gel']);assert.equal(gelProductForQuery('Euflexxa'),'euflexxa');
+ // Every query token must match somewhere; punctuation and case are ignored.
+ assert.equal(ids('total knee replacement')[0],'total-knee');assert.equal(ids('Total-Knee  REPLACEMENT!')[0],'total-knee');
+ assert.deepEqual(ids('hip unicorn'),[]);
+ assert.deepEqual(ids('Q5136'),['jubbonti']);assert.deepEqual(ids('q5162'),['bildyos']);assert.deepEqual(ids('J3489'),['zoledronic-acid']);
+ assert.ok(ids('Reclast').includes('zoledronic-acid'));assert.ok(ids('zoledronic').includes('zoledronic-acid'));
+ for(const id of ['bildyos','enoby','stoboclo','jubbonti'])assert.ok(ids('denosumab biosimilar').includes(id),id);
+ // Prolia is the reference product: "biosimilar" never finds it, "denosumab" does.
+ assert.ok(!ids('biosimilar').includes('prolia'));assert.ok(ids('denosumab').includes('prolia'));
+ // A code-shaped token matches only a service's own codes, never description text that names a code to rule it out.
+ assert.deepEqual(ids('64728'),['carpal-balloon']);assert.deepEqual(ids('76942'),[]);assert.deepEqual(ids('26055'),['trigger-finger']);
+ assert.deepEqual(ids('J7330'),['maci-cell-product']);assert.deepEqual(ids('J1740'),['ibandronate']);assert.deepEqual(ids('2744'),['total-knee','partial-knee']);
+ for(const [q,id] of [['UKA','partial-knee'],['partial knee','partial-knee'],['THA','total-hip'],['CTR','carpal-open'],['carpal tunnel','carpal-open'],['endoscopic carpal tunnel','carpal-endo'],['trigger finger','trigger-finger'],['SI fusion','si-joint-fusion'],['MACI','maci-harvest'],['autologous chondrocyte implantation','maci-implant'],['ACL','acl-reconstruction'],['viscosupplementation','knee-gel'],['hyaluronic acid','knee-gel'],['gel','knee-gel'],['J7325','knee-gel'],['20610','knee-gel'],['DEXA','dexa'],['Fosamax','alendronate']])
+  assert.equal(ids(q)[0],id,q);
+ for(const p of ['durolane','gel-one','gelsyn-3','genvisc','hyalgan','hymovis','monovisc','orthovisc','supartz','synvisc','synvisc-one','trivisc','synojoynt','triluron','visco-3'])assert.ok(ids(p.replace('-',' ')).includes('knee-gel'),p);
+ assert.equal(gelProductForQuery('Supartz FX'),'supartz');assert.equal(gelProductForQuery('Gel-One'),'gel-one');assert.equal(gelProductForQuery('GenVisc 850'),'genvisc');
+ assert.equal(gelProductForQuery('visco-3'),'visco-3');assert.equal(gelProductForQuery('gelsyn'),'gelsyn-3');
+ // No brand, or two different brands, preselects nothing.
+ for(const q of ['','knee gel','TKA','synvisc euflexxa','hyaluronic acid'])assert.equal(gelProductForQuery(q),null,q);
+ // A brand the policies name but Coverage Desk cannot select presets nothing (Hymovis One is not Hymovis).
+ for(const q of ['Hymovis One','hymovis one injection','hymovis-one','HYMOVIS ONE knee'])assert.equal(gelProductForQuery(q),null,q);
+ assert.equal(gelProductForQuery('Hymovis'),'hymovis');assert.deepEqual(ids('Hymovis One'),['knee-gel']);
+ // Filters still apply, and an empty query keeps catalog order.
+ assert.deepEqual(staffServices({type:'medication',query:'J0897'}).map(x=>x.id),['prolia']);
+ assert.deepEqual(staffServices({type:'procedure',query:'J0897'}),[]);
+ assert.deepEqual(staffServices().map(x=>x.id),STAFF_SERVICES.map(x=>x.id));
+ assert.deepEqual(staffServices({category:'hand'}).map(x=>x.id),STAFF_SERVICES.filter(x=>x.category==='hand').map(x=>x.id));
 });
 
 test('documentation template contains placeholders and uncovered clinical gaps rather than invented findings',()=>{
@@ -135,6 +233,10 @@ test('documentation template contains placeholders and uncovered clinical gaps r
  assert.doesNotMatch(packet,/Authorization approved|Patient has failed therapy|meets all criteria/i);
  assert.throws(()=>staffAuthorizePacket({...query,patientName:'Joe'}),/|/); // blocked by no patient output even if supplied, schema validation follows app UI
  assert.throws(()=>staffAuthorizePacket({...query,checks:{patientName:true}}),/Only the prepared/);
+ // Original Medicare has no authorization department: the packet is a claim documentation worksheet there.
+ const om=staffAuthorizePacket({payer:'Traditional Medicare',planId:'original-b',year:2026,serviceId:'si-joint-fusion',benefit:'Medical',requestType:'Initial',setting:'ASC',checks:{}});
+ assert.match(om,/SUBJECT: Claim documentation worksheet for /);assert.match(om,/TO: Original Medicare \(Noridian JE\) for the primary claim/);
+ assert.doesNotMatch(om,/Request for authorization of|exact authorization department must be verified/);
 });
 test('patient explanation never guarantees covered service or price',()=>{
  const script=staffPatientScript({payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'knee-gel',benefit:'Medical'});

@@ -9,12 +9,13 @@ This is a development handoff, **not a HIPAA certification, legal opinion or pro
 | Public policy summaries | Static reviewed extracts; custom entries in browser memory | No automated claim that a source applies to a member |
 | Fictional notes and drafts | Browser memory | No upload endpoint accepts them |
 | Saved workspace | Explicit AES-GCM encrypted file or browser ciphertext | Password-derived key; no recovery service or shared record storage |
-| External AI | Server-owned fixed fictional sample only | Extra request fields and custom notes rejected before any provider call |
+| External AI | Server-owned fixed fictional sample only; the route answers 404 in builds without `--legacy-tools` | Extra request fields and custom notes rejected before any provider call |
+| Server logs | One metadata line per failure: fixed route name, status, error class | No message, query string, body, header, token or typed text; Workers observability disabled |
 | Exported text, clipboard, PDF | User-directed plaintext output | Outside vault protection; all exports marked synthetic |
 | Session activity | Action names and timestamps in memory, no note content | Not durable, tamper-resistant or adequate for production auditing |
 | Secrets | Server environment or deployment secret store | Browser receives no provider credentials |
 
-Normal local hosting binds to loopback and validates the Host header. APIs require same-origin requests and a trial token for billable AI operations. The app applies CSP, no-referrer, no-store, frame blocking and content-type protections. It does not contact external analytics, fonts or session replay services. The trial uses client encryption, not a production medical-record retention system.
+Normal local hosting (`npm start`) binds to loopback and validates the Host header. Preview mode (`npm run dev`, `--preview`) also binds 127.0.0.1 unless `--host` is given and keeps Host validation; the only relaxation is that it additionally accepts the bound host and any names passed with `--allow-host`, so an isolated preview proxy can reach it. Local hosting answers `/version.json` (commit, start time, policy date) and keeps the legacy note-paste letter builder, AI extractor and vault off unless started with `--legacy-tools`. The committed Worker configuration (`wrangler.jsonc`) sets `REQUIRE_ACCESS=true`; the Worker then verifies the Cloudflare Access JWT on every asset and API request, answering 403 without a valid staff session and 503 if the Access settings are missing; `/api/status` reports that as `accessRequired`. This perimeter control for the synthetic trial does not by itself establish workforce identity management, MFA or case-level authorization. APIs require same-origin requests and a trial token for billable AI operations. The app applies CSP, no-referrer, no-store, frame blocking and content-type protections. It does not contact external analytics, fonts or session replay services. The trial uses client encryption, not a production medical-record retention system.
 
 ## Required production work
 
@@ -39,3 +40,11 @@ The current patient-data lock is deliberate. Releasing PHI requires implementing
 - [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data): endpoint/features, account approval and retention settings matter under a BAA. Verify the current contract and the eligible account configuration. This implementation does not establish those prerequisites.
 
 No vendor contracts or BAA status were verified in the user’s actual accounts during this build.
+
+## November 7 follow-up safeguards
+
+The private pricing bridge's Access validation now enforces a signed subject, strict token dates and coherent time windows, rejects unsupported critical headers, bounds key material and rejects ambiguous keys. Key retrieval has a timeout and refuses redirects. These checks authenticate only the existing rate bridge; they do not implement workforce MFA, clinical case authorization or practice isolation.
+
+`shared/release-boundary.mjs` explicitly reports production controls as blocked. The status API cannot be used to enable PHI; changing environment flags does not grant release. The build rejects attempts to enable patient-data flags or a production/clinical deployment mode, and CI verifies that rejection. The ordinary synthetic build remains available. No patient ingestion, protected clinical store or durable audit service was added.
+
+The outstanding production requirements above still apply. The evidence needed to resolve them is detailed in [the payer verification follow-up](PAYER-VERIFICATION-FOLLOWUP-2026-11-07.md).

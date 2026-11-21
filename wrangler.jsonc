@@ -1,19 +1,34 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "pbj-prior-authorization-trial",
+  "name": "prior-authorization",
   "main": "server/worker.mjs",
   "compatibility_date": "2026-11-06",
+  "preview_urls": false,
+  // Every deploy, however it is started, runs the checks, tests and build first. Under Cloudflare
+  // Workers Builds the build also requires SYNTHETIC_ONLY_ACK=true, set as a build variable.
+  "build": {
+    "command": "npm run check && npm test && npm run build"
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  // Owner decision: observability stays off. If it were enabled, the Worker would surface only the
+  // metadata lines from logFailure ({event, route, status, error class}); it never logs bodies,
+  // query strings, headers, tokens or anything typed.
   "observability": {
     "enabled": false
   },
   "vars": {
     "AI_PROVIDER": "none",
-    "AI_TRIAL_ENABLED": "false"
+    "AI_TRIAL_ENABLED": "false",
+    // The Worker verifies the Cloudflare Access JWT on every request (assets and /api/*) itself.
+    // The owner MUST set the ACCESS_TEAM_DOMAIN and ACCESS_AUD secrets (wrangler secret put), or
+    // every request answers 503 and nothing is served. Requests without a valid Access JWT get 403.
+    "REQUIRE_ACCESS": "true",
+    // The legacy AI evidence extractor route answers 404 unless this is "on"; deployed builds keep it off.
+    "LEGACY_TOOLS": "off"
   },
   "services": [
     {

@@ -1,6 +1,6 @@
 # AWS migration design
 
-The current trial has no server-side case database and no Cloudflare-specific domain logic. Migration does not require rewriting the evidence or letter engine.
+The current trial has no server-side case database. The evidence and letter engine is platform-neutral, but two server modules are Cloudflare-specific and need adapters: `server/access.mjs` (Cloudflare Access JWT verification from the `Cf-Access-Jwt-Assertion` header) and `server/pricing.mjs` (Worker-to-Worker service binding to the private Cuptomize evidence Worker). `server/lambda.mjs` passes `process.env`, which cannot carry a service binding.
 
 | Layer | Trial | Intended AWS production implementation |
 | --- | --- | --- |
@@ -12,6 +12,7 @@ The current trial has no server-side case database and no Cloudflare-specific do
 | Documents | No uploads | Private S3 objects using KMS, short-lived authorized access, upload validation and malware processing where applicable |
 | Keys and secrets | Local environment / Worker secrets | KMS and Secrets Manager; IAM roles instead of long-lived AWS access keys |
 | Audit / security telemetry | Nonpersistent action-only session list | Protected audit storage, CloudTrail and appropriate application/security logs with PHI redaction |
+| Staff pricing bridge | Cloudflare Access JWT plus a same-account service binding to the private `cup-optimize` Worker | Cognito/OIDC-verified staff JWT plus an IAM-authenticated HTTP call (or a VPC Lambda) to the private pricing service; same allowlisted response schema |
 | Recovery | User-owned encrypted export | Encrypted backups with retention, access isolation and tested restoration |
 
 Verify the exact service features against the current AWS HIPAA service list, execute the required BAA and configure each service appropriately. This design is not an assertion that infrastructure is provisioned or approved.
