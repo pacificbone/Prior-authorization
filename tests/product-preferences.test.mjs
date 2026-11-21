@@ -38,8 +38,17 @@ test('HMSA Commercial prefers Synvisc-One; HMSA Medicare Advantage makes it non-
  assert.equal(ma.selected.status,'non-preferred');assert.equal(ma.selected.evidenceId,'hmsa-gel-ma-preference-2026');
  assert.match(ma.selected.exception,/past 365 days/);assert.match(ma.selected.exception,/Durolane, Euflexxa, Gelsyn-3 and Supartz FX/);
  assert.deepEqual([...ma.preferred],['Durolane','Euflexxa','Gelsyn-3','Supartz FX']);
- // Synojoynt is in neither HMSA table, so no status is invented for it.
- assert.equal(glance('HMSA','Commercial','gel-synojoynt').selected,null);assert.equal(glance('HMSA','Medicare Advantage','gel-synojoynt').selected,null);
+ // Synojoynt is in neither HMSA table, so no status is invented for it; the document's own words for an unlisted product
+ // are returned instead, and the exceptions documents (which cover only their own tables) are not cited for its PA signal.
+ for(const line of ['Commercial','QUEST / Medicaid','Medicare Advantage']){
+  const g=glance('HMSA',line,'gel-synojoynt');
+  assert.equal(g.selected,null,line);assert.equal(g.unlisted.length,1,line);assert.equal(g.unlisted[0].displayName,'Synojoynt');
+  assert.ok(g.paSignals.some(s=>s.signal==='precertification-required'),line);
+  assert.ok(!g.paSignals.some(s=>/preference/.test(s.evidenceId)),line);
+ }
+ assert.match(glance('HMSA','Commercial','gel-synojoynt').unlisted[0].text,/new-to-market products will be considered non-preferred until they are added/);
+ assert.match(glance('HMSA','Medicare Advantage','gel-synojoynt').unlisted[0].text,/do not apply to any new or existing FDA-approved product that is not listed/);
+ assert.equal(cq.unlisted.length,0);assert.ok(cq.paSignals.some(s=>s.evidenceId==='hmsa-gel-preference-2026'));
 });
 test('UHC: commercial Jubbonti excluded, QUEST Prolia non-preferred, Medicare Advantage Evenity non-preferred under step therapy',()=>{
  const jub=glance('UnitedHealthcare','Commercial','bone-jubbonti');
@@ -61,6 +70,26 @@ test('UHC: commercial Jubbonti excluded, QUEST Prolia non-preferred, Medicare Ad
  assert.equal(glance('UnitedHealthcare','Commercial','gel-synvisc').paSignals.some(s=>s.signal==='pa-not-required-per-policy'),false);
  assert.equal(glance('UnitedHealthcare','Commercial','gel-synvisc').selected.status,'excluded');
 });
+test('scope caveats and unselectable brands come from the preference documents themselves',()=>{
+ assert.match(glance('UnitedHealthcare','Medicare Advantage','gel-euflexxa').selected.caveat,/Dual Complete H6824-002 and all Employer Group HMO plans/);
+ assert.match(glance('UnitedHealthcare','Medicare Advantage','gel-durolane').selected.caveat,/H6824-002/);
+ const jubCaveat=glance('UnitedHealthcare','Individual Exchange','bone-jubbonti').selected.caveat;
+ assert.match(jubCaveat,/medical necessity plans/);assert.match(jubCaveat,/titled for Commercial only/);
+ assert.match(glance('UnitedHealthcare','Commercial','gel-synvisc').selected.caveat,/for Commercial only/);
+ assert.equal(glance('HMSA','Commercial','gel-durolane').selected.caveat,null);
+ // A caveat is shown only for the status it is about: the Commercial-only exclusion note never sits on a criteria-based brand.
+ assert.equal(glance('UnitedHealthcare','Commercial','gel-durolane').selected.caveat,null);
+ assert.match(glance('UnitedHealthcare','Commercial','bone-prolia').selected.caveat,/medical necessity plans/);
+ assert.doesNotMatch(glance('UnitedHealthcare','Commercial','bone-prolia').selected.caveat,/Excluded Drugs/);
+ // The Jubbonti row separates the exclusion from the medical-necessity-plan preferred product criteria.
+ const jub=glance('UnitedHealthcare','Commercial','bone-jubbonti').selected.exception;
+ assert.doesNotMatch(jub,/and then require/);assert.match(jub,/Separately, on medical necessity plans/);
+ // Exception wording is attributed to the policy, never "covered" in the app's voice.
+ for(const r of PRODUCT_PREFERENCES.filter(r=>r.exception))assert.doesNotMatch(r.exception,/: covered when/,r.evidenceId);
+ assert.deepEqual([...glance('UnitedHealthcare','Commercial','gel-durolane').alsoNamed],['Hymovis One']);
+ assert.deepEqual([...glance('UnitedHealthcare','Medicare Advantage','bone-prolia').alsoNamed],['Conexxence','Ospomyv']);
+ assert.deepEqual([...glance('HMSA','Commercial','gel-durolane').alsoNamed],[]);
+});
 test('nothing leaks to another payer, line or benefit',()=>{
  for(const [payer,line,productId,extra] of [['AlohaCare','QUEST / Medicaid','gel-synvisc-one'],['HMSA','Individual Exchange','gel-synvisc-one'],['HMSA','Commercial','gel-synvisc-one',{benefit:'Pharmacy'}],
   ['UnitedHealthcare','Commercial','bone-jubbonti',{benefit:'Pharmacy'}],['Kaiser Permanente','Medicare Advantage','bone-evenity'],['HMSA','QUEST / Medicaid','gel-synvisc-one',{serviceDate:'bad'}]]){
@@ -80,10 +109,23 @@ test('nothing leaks to another payer, line or benefit',()=>{
  const tm=glance('Traditional Medicare','Traditional Medicare','bone-prolia');
  assert.equal(tm.hasEvidence,true);assert.equal(tm.selected,null);assert.equal(tm.preferred.length+tm.nonPreferred.length+tm.excluded.length,0);
  const knee=glance('UnitedHealthcare','Medicare Advantage','procedure-acl-reconstruction',{medication:false});
- assert.equal(knee.selected,null);assert.equal(knee.preferred.length,0);assert.ok(knee.paSignals.some(s=>s.signal==='interqual-criteria'));
+ // The MA joint policy only refers on to the commercial knee policy; it does not itself name InterQual for the knee.
+ assert.equal(knee.selected,null);assert.equal(knee.preferred.length,0);assert.deepEqual(knee.paSignals.map(s=>s.signal),['refers-to-commercial-policy']);
+ assert.doesNotMatch(knee.paSignals[0].text,/which uses InterQual/);
  assert.equal(glance('UnitedHealthcare','Medicare Advantage','procedure-total-knee',{medication:false}).paSignals.length,0);
  const tka=glance('Traditional Medicare','Traditional Medicare','procedure-total-knee',{medication:false});
  assert.deepEqual(tka.paSignals.map(s=>s.signal),['lcd-no-prior-auth']);
+ // The same Original Medicare note applies to every LCD-governed procedure, SI joint fusion included.
+ assert.deepEqual(glance('Traditional Medicare','Traditional Medicare','procedure-si-joint-fusion',{medication:false}).paSignals.map(s=>s.signal),['lcd-no-prior-auth']);
+ // UHC commercial SI fusion: the unproven statement is about other devices and indications, never the selected service.
+ assert.deepEqual(glance('UnitedHealthcare','Commercial','procedure-si-joint-fusion',{medication:false}).paSignals.map(s=>s.signal),['interqual-criteria','unproven-other-devices']);
+ // UHC MA CPT 64728 (balloon dilation): the non-balloon technique is out of the row's scope.
+ assert.deepEqual(glance('UnitedHealthcare','Medicare Advantage','procedure-carpal-balloon',{medication:false}).paSignals.map(s=>s.signal),['not-reasonable-and-necessary']);
+ assert.deepEqual(glance('UnitedHealthcare','Medicare Advantage','procedure-carpal-ultrasound-other',{medication:false}).paSignals,[]);
+ // A proposed LCD and a sourcing reference are marked so the page never calls them a coverage policy.
+ const tmGel=glance('Traditional Medicare','Traditional Medicare','gel-synvisc');
+ assert.deepEqual(tmGel.references.map(r=>[r.id,r.proposed,r.referenceType]),[['medicare-noridian-ha-proposed-dl40456',true,'policy']]);
+ assert.ok(glance('UnitedHealthcare','Commercial','bone-prolia').references.some(r=>r.referenceType==='sourcing'));
  // Results are immutable and never claim plan adoption.
  const g=glance('HMSA','Commercial','gel-synvisc-one');
  assert.ok(Object.isFrozen(g)&&Object.isFrozen(g.preferred)&&Object.isFrozen(g.selected)&&Object.isFrozen(g.references));assert.equal(g.planAdoptionVerified,false);

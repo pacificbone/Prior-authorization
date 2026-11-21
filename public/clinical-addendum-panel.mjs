@@ -1,4 +1,4 @@
-import {staffGetPlan,staffPlanProgramLine,staffContext} from '../shared/staff-workflow.mjs';
+import {staffGetPlan,staffPlanProgramLine,staffPrimaryClaimPayer,staffContext} from '../shared/staff-workflow.mjs';
 import {evidenceDigestStatus,payerEvidenceFor,payerVerificationWorksheet} from '../shared/payer-policy-evidence.mjs';
 import {policyDay} from '../shared/plan-adoption.mjs';
 import {AUTH_TEMPLATE_CATALOG,authTemplateForService,findAuthTemplate,renderAuthTemplateNote} from '../shared/authorization-template-catalog.mjs';
@@ -11,11 +11,17 @@ const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 export function selectedClinicalTemplate(state){
  return state.clinicalTemplateId?findAuthTemplate(state.clinicalTemplateId):authTemplateForService(state.serviceId,state.gelProductId);
 }
+// A Medigap supplement is read through Original Medicare, which decides the primary claim. A date the page
+// filled in (serviceDateSource 'default') is policy context only and is never printed as the planned date.
 export function staffVerificationScope(state){
- const template=selectedClinicalTemplate(state);
- return {payer:state.payer,planId:state.planId,line:staffPlanProgramLine(staffGetPlan(state.payer,state.planId,state.year||2026)),benefit:state.benefit,
-  productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,medication:!!template&&['viscosupplementation','bone-health'].includes(template.category),
-  requestType:state.requestType||'Initial'};
+ const template=selectedClinicalTemplate(state),plan=staffGetPlan(state.payer,state.planId,state.year||2026);
+ const primary=plan?staffPrimaryClaimPayer(plan):state.payer;
+ return {payer:primary,...(primary!==state.payer?{secondaryPayer:state.payer}:{}),planId:state.planId,line:staffPlanProgramLine(plan),benefit:state.benefit,
+  productId:template?.id,setting:state.setting||'Office',state:'HI',serviceDate:state.serviceDate,serviceDateDefaulted:state.serviceDateSource==='default'&&!!state.serviceDate,
+  medication:!!template&&['viscosupplementation','bone-health'].includes(template.category),requestType:state.requestType||'Initial'};
+}
+export function plannedDateLabel(state){
+ return !state.serviceDate?'[DATE NOT SELECTED]':state.serviceDateSource==='default'?'[DATE NOT SELECTED — policy context used '+state.serviceDate+']':state.serviceDate;
 }
 // Review-state wording for one payer evidence record (shared/payer-policy-evidence.mjs reviewState). '' when current.
 const inDays=n=>n===0?'today':n===1?'in 1 day':'in '+n+' days';
@@ -35,14 +41,15 @@ function reviewHelper(s){
  return `${s.reviewState==='ends-before-service'?kind+'.':`${kind} ${s.directoryOnly?'checked':'reviewed'} ${h(s.retrievedAt)}.`} <strong class="review-flag">${h(text)}</strong>. Plan applicability unverified.`;
 }
 export const ADDENDUM_PROMPTS_HEADING='Payer-policy documentation prompts (public reference; plan adoption not verified)';
-const ANSWER_LINE='  ______________________________________________________________';
-// Matching documentation branches for the printed addendum. Each prompt is followed by an empty answer line:
-// the addendum stays blank by design and is completed only in an approved clinical system.
+const primaryClaimNote=scope=>scope.secondaryPayer?`Original Medicare primary claim (${scope.secondaryPayer} pays secondary): these are Original Medicare's references; the supplement's own terms are not verified.`:'';
+const ANSWER_LINE='  [COMPLETE IN APPROVED CLINICAL SYSTEM]';
+// Matching documentation branches for the printed addendum. Each prompt is followed by a placeholder, never a
+// handwriting line: the addendum stays blank by design and is completed only in an approved clinical system.
 export function addendumDocumentationPrompts(state,asOf=policyDay()){
  const scope=staffVerificationScope(state),refs=payerEvidenceFor(scope,asOf);
  const branches=refs.length?documentationBranchesFor(refs.map(r=>r.id),scope.requestType,scope.productId||''):[];
  const source=new Map(refs.map(r=>[r.id,r.title+' ('+r.version+')']));
- return {branches,lines:[ADDENDUM_PROMPTS_HEADING,'Request type: '+scope.requestType,
+ return {branches,lines:[ADDENDUM_PROMPTS_HEADING,'Request type: '+scope.requestType,...(scope.secondaryPayer?[primaryClaimNote(scope)]:[]),
   'Blank by design: complete each line only in the approved clinical system. These prompts restate published payer policy text; they do not establish coverage, authorization, eligibility or plan adoption.',
   ...(branches.length?branches.flatMap(b=>['',b.title,'Source: '+source.get(b.evidenceId),...b.fields.flatMap(f=>['- '+f.label,ANSWER_LINE]),...(b.notes?['Note: '+b.notes]:[])])
    :[refs.length?'No documentation branch matches this request type and product; review the source policy manually.'
@@ -73,7 +80,7 @@ export function staffClinicalAddendum(state,asOf=policyDay()){
  const template=selectedClinicalTemplate(state);
  if(!template)throw new Error('Choose a clinical template first');
  // Blank export by design: clinical findings must be entered in an approved system.
- const lines=renderAuthTemplateNote(template.id,{}, {plan:state.payer&&state.planId?state.payer+' / '+state.planId+' (member product not verified)':'[NOT VERIFIED]',date:state.serviceDate||'[DATE NOT SELECTED]'}).split('\n');
+ const lines=renderAuthTemplateNote(template.id,{}, {plan:state.payer&&state.planId?state.payer+' / '+state.planId+' (member product not verified)':'[NOT VERIFIED]',date:plannedDateLabel(state)}).split('\n');
  const at=lines.findIndex(l=>l.startsWith('Clinician review/signature'));
  lines.splice(at<0?lines.length:at,0,'',...addendumDocumentationPrompts(state,asOf).lines,'');
  return lines.join('\n');
@@ -121,6 +128,7 @@ export function renderClinicalAddendumPanel(state,asOf=policyDay()){
  <p class="helper">Public routing information only. Exact member product, delegated administrator, code-level PA and buy-and-bill or pharmacy sourcing remain unverified.</p></section>
  <section id="staff-policy-evidence"><h3>Source verification and exact-plan adoption${flagged?` <span class="pill amber review-badge">${flagged} ${flagged===1?'reference needs':'references need'} review</span>`:''}</h3>
  <p><strong>Exact-plan adoption: NOT VERIFIED.</strong> Public document retrieval does not confirm the member's plan, benefits or supply permissions.</p>
+ ${scope.secondaryPayer?`<p class="notice amber">${h(primaryClaimNote(scope))}</p>`:''}
  ${refs.length?refs.map(s=>`<details class="payer-evidence-entry"><summary>${h(s.title)} · ${h(s.version)}${reviewBadgeText(s)?` <span class="pill amber review-badge" data-review-state="${h(s.reviewState)}">${h(reviewBadgeText(s))}</span>`:''}</summary><p>${h(s.summary)}</p><p>${h(s.limitations)}</p><p class="helper">${h(s.locator)}. ${reviewHelper(s)} ${s.versionConfirmationRequired?'Current guideline version requires confirmation.':''}${s.referenceType==='sourcing'?' Sourcing reference only — not a coverage or criteria source.':''}</p><p class="helper policy-fingerprint">Document fingerprint: ${h(s.sourceSha256||(evidenceDigestStatus(s)==='unbound-pending-reverification'?'register digest '+s.registerSha256+' pending re-verification (not bound)':'none — directory entry or web document'))}</p><a class="source-link" href="${h(s.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open authoritative source / directory</a></details>`).join(''):'<p class="helper">Select a valid service date, plan and treatment. If no reference matches, obtain the exact payer policy.</p>'}
  ${extracts.length?`<details class="staff-sources" open><summary>Reviewed criteria extracts from the medication catalog (${extracts.length}) — no PDF fingerprint</summary>${extracts.map(p=>`<section class="payer-evidence-entry"><strong>${h(p.title)}</strong><p class="helper">${h(p.policyNumber||'')}; effective ${h(p.effective||'n/a')}; reviewed ${h(p.reviewed)}; ${h(p.locator||'')}</p><p>${h(p.summary)}</p><p class="helper">${h(p.limitations)}</p><a href="${h(p.url)}" target="_blank" rel="noopener noreferrer">Open policy directory</a></section>`).join('')}</details>`:''}
  <details class="staff-sources"><summary>Source-linked documentation prompts (${branches.length})</summary>

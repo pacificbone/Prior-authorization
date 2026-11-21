@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {renderStaffPage,staffDefaultYear,staffGlance,glanceSignals,addendumPanel,STAFF_SEARCH_NO_MATCH,STAFF_GLANCE_CAVEAT,STAFF_DATE_NEEDED,PA_SIGNAL_LABELS} from '../public/staff-page.mjs';
+import {renderStaffPage as renderStaffPageAt,staffDefaultYear,staffGlance,glanceSignals,addendumPanel,STAFF_SEARCH_NO_MATCH,STAFF_GLANCE_CAVEAT,STAFF_DATE_NEEDED,STAFF_PRODUCT_NEEDED,STAFF_NO_PA_STATEMENT,PA_SIGNAL_LABELS} from '../public/staff-page.mjs';
+import {PA_SIGNAL_TYPES} from '../shared/product-preferences.mjs';
+// The page is rendered as of a fixed Hawaiʻi policy day so no assertion depends on today's date.
+const POLICY_DAY='2026-11-21';
+const renderStaffPage=(st,options={})=>renderStaffPageAt(st,{asOf:POLICY_DAY,...options});
 import {newCostCase} from '../shared/patient-cost.mjs';
 import {staffContext,staffPlansForPayer,staffGetService,STAFF_YEARS} from '../shared/staff-workflow.mjs';
 const h=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -182,9 +186,14 @@ test('non-preferred and excluded selections get an amber notice with the excepti
  const uhc=glanceOf(renderStaffPage(dated('UnitedHealthcare','uhc-commercial','knee-gel','synvisc')));
  assert.match(uhc,/staff-glance-warn[\s\S]*Synvisc is listed as typically excluded/);
  assert.match(uhc,/Typically excluded<\/span>/);
- assert.match(uhc,/Listed as covered on policy criteria<\/span><p>Durolane, Euflexxa, Gelsyn-3<\/p>/);
- // UHC states no PA rule for an excluded brand: the headline says so instead of "Not verified".
- assert.match(renderStaffPage(dated('UnitedHealthcare','uhc-commercial','knee-gel','synvisc')),/Published policy reference on file; it states no prior-authorization rule[\s\S]*Member-level authorization: not verified/);
+ assert.match(uhc,/Coverage contingent on the policy’s diagnosis-specific criteria<\/span><p>Durolane, Euflexxa, Gelsyn-3<\/p>/);
+ assert.match(uhc,/Policy summary: Typically excluded/);assert.match(uhc,/Also named in the matched documents \(not selectable here\): Hymovis One\./);
+ assert.match(uhc,/Selectable products, by their Coverage Desk names, as classified in the matched documents/);assert.doesNotMatch(uhc,/as printed in the matched documents/);
+ // No PA statement is recorded for an excluded brand: the glance says Coverage Desk has none, and the headline keeps "Not verified".
+ const excluded=renderStaffPage(dated('UnitedHealthcare','uhc-commercial','knee-gel','synvisc'));
+ assert.ok(glanceOf(excluded).includes(h(STAFF_NO_PA_STATEMENT)));
+ assert.match(excluded,/Prior authorization<\/strong><span>Not verified for this particular plan and service/);
+ assert.doesNotMatch(excluded,/states no prior-authorization rule|Published policy reference on file/);
 });
 test('an empty date asks for one only when a date would show references; no evidence keeps the old headline',()=>{
  const noDate=renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','synvisc-one',''));
@@ -210,4 +219,90 @@ test('a step-6 template override never changes the step-3 glance; legacy letter 
  assert.doesNotMatch(renderStaffPage(state()),/data-page="authorization"/);
  assert.match(renderStaffPage(state(),{legacy:true}),/data-page="authorization"/);
  for(const key of Object.keys(PA_SIGNAL_LABELS))assert.match(PA_SIGNAL_LABELS[key],/\S/);
+ assert.deepEqual(Object.keys(PA_SIGNAL_LABELS).sort(),[...PA_SIGNAL_TYPES].sort());
+});
+
+test('the Prior authorization answer never reads a reference without a PA statement as "no PA"; criteria statements sit under Criteria',()=>{
+ const pa=html=>(html.match(/<strong>Prior authorization<\/strong><span>([\s\S]*?)<\/span><\/div>/)||[])[1]||'';
+ const crit=html=>(html.match(/<div class="staff-answer staff-criteria-answer"><strong>Criteria<\/strong><span>([\s\S]*?)<\/span><\/div>/)||[])[1]||'';
+ const cases=[['UnitedHealthcare','uhc-commercial','evenity'],['UnitedHealthcare','uhc-commercial','prolia'],['UnitedHealthcare','uhc-ma','total-knee'],['UnitedHealthcare','uhc-commercial','alendronate'],
+  ['UnitedHealthcare','uhc-quest','prolia'],['UnitedHealthcare','uhc-dual','prolia'],['Traditional Medicare','original-b','prolia'],['UnitedHealthcare','uhc-commercial','jubbonti']];
+ for(const [payer,planId,serviceId] of cases){
+  const html=renderStaffPage(dated(payer,planId,serviceId,''));
+  assert.doesNotMatch(html,/states no prior-authorization rule|Published policy reference on file/,payer+planId+serviceId);
+  assert.match(pa(html),/^(Published medical policy may apply; review its exact plan scope and requirements|Published code PA-list record; verify exact plan and year|Not verified for this particular plan and service)$/,payer+planId+serviceId);
+ }
+ // A medical policy on file keeps the earlier "may apply" wording rather than describing the document.
+ assert.equal(pa(renderStaffPage(dated('UnitedHealthcare','uhc-commercial','evenity',''))),'Published medical policy may apply; review its exact plan scope and requirements');
+ // A sourcing reference alone, or a proposed LCD alone, is never introduced as a published policy statement.
+ const sourcing=renderStaffPage(dated('UnitedHealthcare','uhc-commercial','alendronate',''));
+ assert.doesNotMatch(glanceOf(sourcing),new RegExp(STAFF_GLANCE_CAVEAT.slice(0,25)));assert.match(glanceOf(sourcing),/sourcing reference, not a coverage or criteria source/);
+ const proposed=renderStaffPage(dated('Traditional Medicare','original-b','knee-gel','synvisc-one'));
+ assert.doesNotMatch(glanceOf(proposed),/Published policy statements -/);
+ assert.match(glanceOf(proposed),/No coverage or criteria policy in effect is indexed[\s\S]*proposed, not in effect; not a current requirement/);
+ assert.equal(pa(proposed),'Not verified for this particular plan and service');
+ // InterQual, "unproven" and MA-refers-on statements answer criteria, not PA.
+ const tka=renderStaffPage(dated('UnitedHealthcare','uhc-commercial','total-knee',''));
+ assert.doesNotMatch(pa(tka),/InterQual/);assert.match(crit(tka),/licensed InterQual criteria/);
+ const acl=renderStaffPage(dated('UnitedHealthcare','uhc-ma','acl-reconstruction',''));
+ assert.doesNotMatch(pa(acl),/InterQual|refers/);assert.match(crit(acl),/^Published Medicare Advantage policy refers to the UHC commercial policy where no LCD applies/);
+ // SI joint fusion: the summary row names other devices or indications as unproven, never the selected service itself.
+ const sij=crit(renderStaffPage(dated('UnitedHealthcare','uhc-commercial','si-joint-fusion','')));
+ assert.match(sij,/lists other devices or indications as unproven/);assert.doesNotMatch(sij,/lists this service or device as unproven/);
+ // UHC Medicare Advantage CPT 64728: balloon only; the non-balloon technique is not called "not reasonable and necessary".
+ assert.match(crit(renderStaffPage(dated('UnitedHealthcare','uhc-ma','carpal-balloon',''))),/not reasonable and necessary/);
+ assert.doesNotMatch(renderStaffPage(dated('UnitedHealthcare','uhc-ma','carpal-ultrasound-other','')),/lists this service as not reasonable and necessary/);
+ // Original Medicare: the no-PA statement is labelled as a Coverage Desk note, the same for every LCD-governed procedure.
+ for(const serviceId of ['total-knee','total-hip','si-joint-fusion'])
+  assert.match(pa(renderStaffPage(dated('Traditional Medicare','original-b',serviceId,''))),/^Coverage Desk note on the LCD record \(not LCD text\)/,serviceId);
+});
+test('knee gel without a brand asks for the brand instead of saying no reference is indexed',()=>{
+ for(const [payer,planId] of [['HMSA','hmsa-select-choice'],['HMSA','hmsa-ma-individual'],['UnitedHealthcare','uhc-commercial'],['UnitedHealthcare','uhc-ma'],['Traditional Medicare','original-b']]){
+  const html=renderStaffPage(dated(payer,planId,'knee-gel',''));
+  assert.ok(glanceOf(html).includes(h(STAFF_PRODUCT_NEEDED)),payer+planId);
+  assert.doesNotMatch(html,/No published payer reference is indexed/,payer+planId);
+  assert.match(html,/Prior authorization<\/strong><span>Not verified — choose the gel product/,payer+planId);
+  assert.equal(staffGlance(dated(payer,planId,'knee-gel',''),POLICY_DAY).needsProduct,true);
+ }
+ // A line with no gel reference for any brand keeps the plain message.
+ assert.match(renderStaffPage(dated('AlohaCare','aloha-quest','knee-gel','')),/No published payer reference is indexed/);
+ // Choosing a brand shows that brand's references.
+ assert.match(glanceOf(renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','synvisc'))),/Preferred<\/span> <strong>Synvisc<\/strong>/);
+});
+test('overdue or soon-lapsing sources are flagged at the top of the glance and on the step-3 answers',()=>{
+ const st={...dated('UnitedHealthcare','uhc-commercial','knee-gel','durolane','2027-03-21'),year:2027};
+ const html=renderStaffPage(st,{asOf:'2027-03-21'}),glance=glanceOf(html);
+ const notice=glance.indexOf('Source review overdue');
+ assert.ok(notice>0&&notice<glance.indexOf('staff-glance-selected')&&notice<glance.indexOf('staff-glance-signals'),'notice first');
+ assert.match(glance,/review was due 2027-02-13[\s\S]*Treat these statements as unconfirmed/);
+ assert.match(html,/Prior authorization<\/strong><span>Published policy states prior authorization is not required for this product\.<small class="warn-text staff-review-flag">Source review overdue: treat as unconfirmed/);
+ // The same selection on a day inside the review window carries no flag.
+ const fresh=renderStaffPage(dated('UnitedHealthcare','uhc-commercial','knee-gel','durolane'));
+ assert.doesNotMatch(fresh,/Source review overdue|staff-review-flag/);
+ // A service date after the review window gets the re-check notice instead.
+ const later=renderStaffPage(dated('HMSA','hmsa-select-choice','knee-gel','synvisc','2027-03-01'));
+ assert.match(glanceOf(later),/Source review window ends before the service date/);assert.match(later,/staff-review-flag">Source review window ends before the service date/);
+});
+test('glance: unlisted brand, scope caveats, merged signal texts, Medigap primary claim and list expiry at the service date',()=>{
+ // HMSA Synojoynt: no status is invented; the policy's own words for an unlisted product are shown, and the
+ // exceptions criteria (which list only their own products) are not cited for the PA signal.
+ for(const planId of ['hmsa-select-choice','hmsa-quest','hmsa-ma-individual']){
+  const glance=glanceOf(renderStaffPage(dated('HMSA',planId,'knee-gel','synojoynt')));
+  assert.match(glance,/staff-glance-unlisted[\s\S]*Synojoynt is not listed<\/strong> in the product table/,planId);
+  assert.doesNotMatch(glance,/staff-glance-selected|staff-glance-warn/,planId);
+  assert.doesNotMatch(glance,/Source: [^<]*Exceptions Criteria/,planId);
+ }
+ // HMSA MA Durolane: the preferred-product review caveat survives de-duplication of the precertification signal.
+ assert.match(glanceOf(renderStaffPage(dated('HMSA','hmsa-ma-individual','knee-gel','durolane'))),/may still require a clinical prior authorization review/);
+ // UHC Dual Complete: the step-therapy status carries the policy's excluded-plan caveat, for preferred and non-preferred brands.
+ for(const gel of ['euflexxa','durolane'])assert.match(glanceOf(renderStaffPage(dated('UnitedHealthcare','uhc-dual','knee-gel',gel))),/Dual Complete H6824-002/,gel);
+ // Medigap: Original Medicare's LCD and route govern the primary claim.
+ const medigap=renderStaffPage({...state(),payer:'Medigap',planId:'medigap',serviceId:'total-hip',serviceDate:POLICY_DAY});
+ assert.match(glanceOf(medigap),/Original Medicare primary claim \(Medigap pays secondary\)[\s\S]*L34163/);
+ assert.doesNotMatch(medigap,/No published payer reference is indexed/);assert.match(medigap,/staff-pa-route[\s\S]*Medicare Coverage Database/);
+ // HMAA extract: a list that lapses before a later service date is not shown as the current reviewed extract.
+ const pharmacy=d=>renderStaffPage({...state(),payer:'HMAA',planId:'hmaa-employer',serviceId:'prolia',benefit:'Pharmacy',serviceDate:d});
+ assert.match(pharmacy('2026-12-01'),/Reviewed extract from the published list HMAA-OPTUMRX-PREMIUM-2026-H2 is shown/);
+ assert.match(pharmacy('2027-02-01'),/list ends 2026-12-31, before the planned service date/);
+ assert.doesNotMatch(pharmacy('2027-02-01'),/Reviewed extract from the published list HMAA/);
 });

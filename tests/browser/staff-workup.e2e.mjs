@@ -1,6 +1,7 @@
 // Staff workup flow against a local-only server started WITHOUT --legacy-tools: node server/local.mjs --port 3088.
 // Install Playwright separately or set PBJ_PLAYWRIGHT_MODULE to its module path. Dates are read from the page's
-// Hawaiʻi policy day, never hard-coded, so the suite passes on any calendar day.
+// Hawaiʻi policy day, never hard-coded, so the suite passes on any calendar day. PBJ_FAKE_NOW (ISO) fixes the
+// page's clock so CI can prove that.
 import assert from 'node:assert/strict';
 import {STAFF_YEARS} from '../../shared/staff-workflow.mjs';
 import {sourcesDueReport} from '../../shared/sources-due.mjs';
@@ -11,12 +12,14 @@ if(!chromium)throw new Error('Playwright module did not expose chromium; set PBJ
 const browser=await chromium.launch({headless:true,...(process.env.PBJ_CHROME_PATH?{executablePath:process.env.PBJ_CHROME_PATH}:{})});
 const NO_MATCH='No match - try a brand, procedure name or code (for example TKA, Synvisc, 27447).';
 const CAVEAT="Published policy statements - this member's plan adoption, eligibility and authorization are not verified.";
+const PRODUCT_NEEDED='Choose the gel product to see this insurer’s published references, product preferences and prior-authorization statements for that brand.';
 const ACCESS_ERROR='A verified Cloudflare Access staff session is required.';
 const GENERIC='Something went wrong. Reload the page; nothing was sent anywhere.';
 const toastIs=(page,re)=>page.waitForFunction(src=>new RegExp(src).test(document.querySelector('#toast')?.textContent||''),re.source,{timeout:5000});
 const noPageScroll=page=>page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth);
 try{
  const context=await browser.newContext({viewport:{width:1280,height:900},permissions:['clipboard-read','clipboard-write'],acceptDownloads:true});
+ if(process.env.PBJ_FAKE_NOW)await context.clock.setFixedTime(new Date(process.env.PBJ_FAKE_NOW));
  const errors=[],external=[],mutations=[];
  // Request guard (mirrors clinical-addendum.e2e.mjs): local origin only, and nothing but GET apart from the public formulary lookup.
  context.on('request',r=>{const url=new URL(r.url());if(url.origin!==origin)external.push(r.url());if(r.method()!=='GET'&&url.pathname!=='/api/formulary/search')mutations.push(r.url());});
@@ -57,6 +60,11 @@ try{
  const step3=await page.locator('#staff-requirements').textContent();
  assert.doesNotMatch(step3,/Not verified for this particular plan and service/);
  assert.match(step3,/Member-level authorization: not verified/);
+ // With no brand chosen the glance asks for one instead of saying nothing is indexed.
+ await page.selectOption('#staff-gel','');
+ assert.ok((await page.locator('#staff-glance').textContent()).includes(PRODUCT_NEEDED));
+ assert.doesNotMatch(await page.locator('#staff-glance').textContent(),/No published payer reference is indexed/);
+ await page.selectOption('#staff-gel','synvisc-one');
  // A non-preferred brand gets the amber notice with its exception text.
  await page.selectOption('#staff-gel','durolane');
  assert.match(await page.locator('#staff-glance .staff-glance-warn').textContent(),/Durolane is listed as non-preferred[\s\S]*Exception path stated/);
@@ -112,6 +120,10 @@ try{
  await page.click('#navigation [data-page="workup"]');
  assert.equal(await page.locator('#staff-glance').isVisible(),true);
  assert.equal(await noPageScroll(page),true,'workup @390');
+ // The three nav items wrap instead of pushing "Security & connection" off-screen.
+ assert.equal(await page.locator('#navigation').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'nav @390');
+ const navRight=await page.locator('#navigation [data-page="security"]').evaluate(el=>el.getBoundingClientRect().right);
+ assert.ok(navRight<=390,'security nav item fits @390');
  // Direct navigation to the hidden letter builder falls back to the staff workup.
  await page.goto('about:blank');
  await page.goto(origin+'/#authorization');
@@ -125,23 +137,31 @@ try{
  assert.equal(await page.locator('[data-action="restore-file"]').count(),0);
  assert.equal(await page.locator('[data-action="new-session"]').count(),1);
  assert.deepEqual(errors,[]);
- // Access gate: a 403 JSON {error} is shown verbatim in a toast and the footer reads "unavailable".
+ // Access gate: a 403 JSON {error} marked as a gate reply is shown verbatim in a toast and the footer reads "unavailable".
  const gated=await context.newPage();
  const gatedErrors=[];gated.on('pageerror',e=>gatedErrors.push(e.message));
- await gated.route('**/api/status',route=>route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({error:ACCESS_ERROR})}));
+ await gated.route('**/api/status',route=>route.fulfill({status:403,contentType:'application/json',headers:{'X-PBJ-Gate':'access'},body:JSON.stringify({error:ACCESS_ERROR})}));
  await gated.route('**/version.json',route=>route.fulfill({status:403,contentType:'text/html',body:'<!doctype html><title>Access</title>'}));
  await gated.goto(origin+'/');
  await toastIs(gated,new RegExp('^'+ACCESS_ERROR.replace(/\./g,'\\.')+'$'));
  await gated.waitForFunction(()=>document.querySelector('#build-version').textContent==='Build version unavailable');
+ // Refreshing the status keeps the gate's own message instead of replacing it with a generic one.
+ await gated.click('#navigation [data-page="security"]');
+ await gated.evaluate(()=>{document.querySelector('#toast').textContent='';});
+ await gated.click('[data-action="check-connection"]');
+ await toastIs(gated,new RegExp('^'+ACCESS_ERROR.replace(/\./g,'\\.')+'$'));
+ await gated.waitForTimeout(300);
+ assert.equal(await gated.locator('#toast').textContent(),ACCESS_ERROR);
  assert.deepEqual(gatedErrors,[]);
  // Uncaught errors show a generic toast without any error detail.
  const probe=await context.newPage();
  await probe.goto(origin+'/');await probe.locator('#staff-payer').waitFor();
- await probe.evaluate(()=>{setTimeout(()=>{throw new Error('synthetic-probe-detail');},0);});
+ // queueMicrotask, not setTimeout: a fixed page clock (PBJ_FAKE_NOW) wraps timers and would swallow the throw.
+ await probe.evaluate(()=>{queueMicrotask(()=>{throw new Error('synthetic-probe-detail');});});
  await toastIs(probe,new RegExp('^'+GENERIC.replace(/[.;]/g,'\\$&')+'$'));
  await probe.evaluate(()=>{document.querySelector('#toast').textContent='';Promise.reject(new Error('synthetic-rejection-detail'));});
  await toastIs(probe,new RegExp('^'+GENERIC.replace(/[.;]/g,'\\$&')+'$'));
  assert.doesNotMatch(await probe.locator('#toast').textContent(),/synthetic-/);
  assert.deepEqual(external,[]);assert.deepEqual(mutations,[]);
- console.log('PASS: staff workup flow; legacy tools hidden; plan-year, service-date and gel-brand defaults; at-a-glance published statements; search counts; patient explanation and exports; sources due page; deployment status; 390px layout; #authorization fallback; Access-gate and error toasts; no external requests or data writes.');
+ console.log('PASS: staff workup flow; legacy tools hidden; plan-year, service-date and gel-brand defaults; at-a-glance published statements and the choose-a-brand prompt; search counts; patient explanation and exports; sources due page; deployment status; 390px layout and nav; #authorization fallback; Access-gate toasts kept on refresh and error toasts; no external requests or data writes.');
 }finally{await browser.close();}

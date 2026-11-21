@@ -62,6 +62,10 @@ test('HTTP errors, network failures, oversize files and non-PDF answers are UNRE
  assert.deepEqual(out.results.map(x=>[x.status,x.reason]),[['UNREACHABLE','HTTP 404'],['UNREACHABLE','TypeError (ECONNRESET)'],['UNREACHABLE','TimeoutError (no answer within 60 s)'],['UNREACHABLE','larger than 20 MB'],['UNREACHABLE','response was not a PDF (text/html)']]);
  assert.equal(out.exitCode,2);
  assert.match(checkSourcesText(out),/Checked 5: 0 unchanged, 0 changed, 5 unreachable, 0 skipped\./);
+ // The server's Content-Type reaches the weekly issue body, so anything but a plain media type is replaced.
+ const hostile=fakeFetch({[urls(1)]:()=>new Response('<html></html>',{status:200,headers:{'content-type':'text/html``` @someone [x](https://evil.example)'}})});
+ const odd=await checkSources({fetcher:hostile.fetcher,records:[recs[0]]});
+ assert.equal(odd.results[0].reason,'response was not a PDF (unexpected type)');
 });
 test('a streamed body over 20 MB is cut off without a content-length header',async()=>{
  const chunk=new Uint8Array(1024*1024);

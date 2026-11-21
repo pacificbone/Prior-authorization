@@ -183,17 +183,20 @@ test('the verification worksheet prints the matching documentation branches as u
  const note=payerVerificationWorksheet(scope,'2026-11-07');
  const at=note.indexOf(block);assert.ok(at>note.lastIndexOf('PUBLIC REFERENCE:'),'block follows the evidence references');assert.ok(at<note.indexOf('Verification attachments'));
  assert.match(note,/Request type: Initial/);
- assert.match(note,/HMSA Commercial\/QUEST hyaluronate — initial\n- OA diagnosis, knee and laterality \[NOT DOCUMENTED\]/);
+ assert.match(note,/HMSA Commercial\/QUEST hyaluronate — initial \(osteoarthritis of the knee\)\n- Osteoarthritis of the knee, side treated \[NOT DOCUMENTED\]/);
  assert.match(note,/nonpreferred hyaluronate exception/); // Monovisc is nonpreferred
- assert.doesNotMatch(note,/hyaluronate — renewal/);
+ assert.doesNotMatch(note,/hyaluronate — continuation/);
  const renewal=payerVerificationWorksheet({...scope,requestType:'Repeat / continuation'},'2026-11-07');
- assert.match(renewal,/Request type: Repeat \/ continuation/);assert.match(renewal,/hyaluronate — renewal/);assert.doesNotMatch(renewal,/hyaluronate — initial/);
+ assert.match(renewal,/Request type: Repeat \/ continuation/);assert.match(renewal,/hyaluronate — continuation \/ reauthorization/);assert.doesNotMatch(renewal,/hyaluronate — initial/);
  assert.doesNotMatch(payerVerificationWorksheet({...scope,productId:'gel-euflexxa'},'2026-11-07'),/nonpreferred hyaluronate exception/);
  assert.match(payerVerificationWorksheet({...scope,requestType:'Reconsideration / appeal'},'2026-11-07'),/nonpreferred hyaluronate exception/);
  assert.doesNotMatch(payerVerificationWorksheet({...scope,payer:'Other'},'2026-11-07'),/PAYER-POLICY DOCUMENTATION PROMPTS/);
  const lines=payerVerificationWorksheet(scope,'2026-11-07').split('\n');
  const fieldLines=lines.slice(lines.indexOf(block)).filter(l=>l.startsWith('- '));
  assert.ok(fieldLines.length>0&&fieldLines.every(l=>l.endsWith(' [NOT DOCUMENTED]')));
+ // A date the page filled in is printed as policy context, never as the planned date; a Medigap scope names the primary claim.
+ assert.match(payerVerificationWorksheet({...scope,serviceDateDefaulted:true},'2026-11-07'),/\/ \[DATE NOT SELECTED — policy context used 2026-11-07\]\n/);
+ assert.match(payerVerificationWorksheet({...scope,payer:'Traditional Medicare',secondaryPayer:'Medigap',line:'Traditional Medicare'},'2026-11-07'),/Original Medicare primary claim \(Medigap pays secondary\)/);
  // A product without a matching branch says so instead of printing nothing.
  assert.match(payerVerificationWorksheet({payer:'UnitedHealthcare',line:'Commercial',benefit:'Medical',productId:'procedure-acl-reconstruction',serviceDate:'2026-11-15'},'2026-11-15'),/UnitedHealthcare Commercial \/ Exchange — knee surgery evidence review/);
  assert.match(payerVerificationWorksheet({payer:'UnitedHealthcare',line:'Commercial',benefit:'Medical',productId:'procedure-acl-reconstruction',serviceDate:'2026-11-15',requestType:'Reconsideration / appeal'},'2026-11-15'),/No documentation branch matches this request type and product/);

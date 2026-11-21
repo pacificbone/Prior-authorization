@@ -53,11 +53,13 @@ async function download(fetcher,url){
 }
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 const isPdf=bytes=>bytes.subarray(0,5).toString('latin1')==='%PDF-';
+// The server's Content-Type reaches the weekly issue body, so only a plain media type is ever echoed.
+const mediaType=type=>{const t=String(type||'').split(';')[0].trim().toLowerCase();return /^[\w.+-]+\/[\w.+-]+$/.test(t)?t:'unexpected type';};
 async function compare(fetcher,r,url){
  const got=await download(fetcher,url);
  if(!got.ok)return {status:'UNREACHABLE',url,reason:got.reason};
  // An HTML error or sign-in page answered with 200 is not a revision of the policy.
- if(!isPdf(got.bytes))return {status:'UNREACHABLE',url,reason:`response was not a PDF${got.type?' ('+got.type.split(';')[0]+')':''}`};
+ if(!isPdf(got.bytes))return {status:'UNREACHABLE',url,reason:`response was not a PDF${got.type?' ('+mediaType(got.type)+')':''}`};
  const actual=sha256(got.bytes);
  return actual===r.sourceSha256?{status:'UNCHANGED',url,actual}:{status:'CHANGED',url,actual,reason:'new SHA-256 '+actual};
 }

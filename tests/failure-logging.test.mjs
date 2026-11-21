@@ -38,9 +38,9 @@ test('logFailure writes only the event, a fixed route, the status and the error 
 test('the Worker catch logs metadata only and still answers the generic JSON 500',async()=>{
  let response;
  const records=await captured(async()=>{
-  const failingAssets={ASSETS:{fetch:async()=>{throw secretError('TypeError');}}};
+  const failingAssets={REQUIRE_ACCESS:'false',ASSETS:{fetch:async()=>{throw secretError('TypeError');}}};
   response=await createWorker().fetch(new Request('https://app.example/index.html?name='+SECRET),failingAssets);
-  await createWorker({api:async()=>{throw secretError('RangeError');}}).fetch(new Request('https://app.example/api/formulary/search?drug='+SECRET,{headers:{Authorization:'Bearer '+SECRET}}),{});
+  await createWorker({api:async()=>{throw secretError('RangeError');}}).fetch(new Request('https://app.example/api/formulary/search?drug='+SECRET,{headers:{Authorization:'Bearer '+SECRET}}),{REQUIRE_ACCESS:'false'});
  });
  assert.equal(response.status,500);assert.deepEqual(await response.json(),{error:'Request failed.'});
  assert.deepEqual(records,[{event:'request_failed',route:'/index.html',status:500,error:'TypeError'},{event:'request_failed',route:'/api/formulary/search',status:500,error:'RangeError'}]);

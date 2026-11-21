@@ -95,6 +95,8 @@ export function staffPlanProgramLine(plan) {
    veterans:'VA / Community Care',military:'TRICARE',delegated:'Delegated / claim-specific'
  })[plan.program]||null;
 }
+// The payer whose policies govern the primary claim: Original Medicare for a Medigap supplement on the Traditional Medicare line.
+export function staffPrimaryClaimPayer(plan){return plan?.payer==='Medigap'&&staffPlanProgramLine(plan)==='Traditional Medicare'?'Traditional Medicare':plan?.payer;}
 export function staffGetService(id) {return STAFF_SERVICES.find(x=>x.id===id)||null;}
 const OFFICE_ADMINISTERED_DRUGS=new Set(['evenity','prolia','bildyos','enoby','stoboclo','jubbonti','zoledronic-acid','exparel','lidocaine','bupivacaine','tranexamic-acid']);
 export function staffDefaultBenefit(service){
@@ -105,7 +107,8 @@ export function staffDefaultBenefit(service){
 const searchNorm=s=>String(s??'').normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const GEL_SPELLINGS=Object.freeze({'synvisc-one':['synvisc 1'],'gelsyn-3':['gelsyn']});
 const gelPhrases=p=>[...new Set([searchNorm(p.name),searchNorm(p.id),searchNorm(p.name).replace(/ /g,''),searchNorm(p.id).replace(/ /g,''),...(GEL_SPELLINGS[p.id]||[])])];
-const denosumabTerms=['denosumab','denosumab biosimilar','biosimilar','osteoporosis'];
+// Prolia is the reference product, so 'biosimilar' is a search term for the biosimilars only.
+const denosumabTerms=['denosumab','osteoporosis'],biosimilarTerms=[...denosumabTerms,'denosumab biosimilar','biosimilar'];
 // Common staff words and abbreviations for each service. Search terms only: never coverage or coding statements.
 const SERVICE_ALIASES=Object.freeze({
  'total-knee':['TKA','TKR','total knee replacement','knee replacement','total knee'],
@@ -148,7 +151,7 @@ const SERVICE_ALIASES=Object.freeze({
  'core-decompression':['core decompression','AVN','avascular necrosis'],
  'osseointegration':['osseointegration','amputation implant'],
  'evenity':['romosozumab','osteoporosis'],
- 'prolia':denosumabTerms,'bildyos':denosumabTerms,'enoby':denosumabTerms,'stoboclo':denosumabTerms,'jubbonti':denosumabTerms,
+ 'prolia':denosumabTerms,'bildyos':biosimilarTerms,'enoby':biosimilarTerms,'stoboclo':biosimilarTerms,'jubbonti':biosimilarTerms,
  'zoledronic-acid':['Reclast','zoledronic','zoledronate','bisphosphonate','osteoporosis','infusion'],
  'alendronate':['Fosamax','bisphosphonate','osteoporosis'],
  'risedronate':['Actonel','bisphosphonate','osteoporosis'],
@@ -161,13 +164,17 @@ const serviceCodes=x=>x.id==='knee-gel'?[...(x.codes||[]).map(c=>c.code),...orth
  x.type==='medication'?[...(authTemplateForService(x.id)?.codes||[])]:(x.codes||[]).map(c=>c.code);
 // Drug-class labels (e.g. "Denosumab biosimilar") are searchable even though the staff category is "medication".
 const drugClass=new Map([...drugs,...EXTRA_DRUGS].map(d=>[d.id,d.category||'']));
+// A billing-code-shaped token (27447, J0897, Q5136) matches only the service's own codes and code aliases, never
+// description text: descriptions name codes to rule them out ("do not add separate 76942").
+const CODE_TOKEN=/^[a-z]?\d{4,5}[a-z]?$/;
 const SEARCH_INDEX=new Map(STAFF_SERVICES.map(x=>{
  const phrases=[x.name,x.generic,x.brand,...(SERVICE_ALIASES[x.id]||[]),...serviceCodes(x)].filter(Boolean).map(searchNorm);
  const words=[...new Set(searchNorm([...phrases,x.description,x.category,drugClass.get(x.id)].join(' ')).split(' '))];
- return [x.id,{phrases,words,text:' '+words.join(' ')+' '}];
+ const codes=[...new Set(phrases.flatMap(p=>p.split(' ')).filter(w=>CODE_TOKEN.test(w)))];
+ return [x.id,{phrases,words,codes,text:' '+words.join(' ')+' '}];
 }));
-// Every query token must start a word of the service (or, from 4 characters, appear inside one).
-const tokenHit=(t,ix)=>ix.words.some(w=>w.startsWith(t))||(t.length>=4&&ix.text.includes(t));
+// Every query token must start a word of the service (or, from 4 characters, appear inside one); a code token must start one of its codes.
+const tokenHit=(t,ix)=>CODE_TOKEN.test(t)?ix.codes.some(c=>c.startsWith(t)):ix.words.some(w=>w.startsWith(t))||(t.length>=4&&ix.text.includes(t));
 const searchRank=(q,ix)=>ix.phrases.includes(q)?3:ix.phrases.some(p=>(' '+p+' ').includes(' '+q+' '))?2:1;
 export function staffServices({type='all',category='all',query=''}={}) {
  const q=searchNorm(String(query).slice(0,80)),tokens=q?q.split(' '):[];
@@ -178,8 +185,12 @@ export function staffServices({type='all',category='all',query=''}={}) {
 }
 // The orthoGelProducts id when the query names exactly one gel brand; null when it names none or two.
 // A brand whose phrase sits inside another named brand's phrase yields ("Synvisc One" is synvisc-one, not synvisc).
+// Brands named in the captured policies that are NOT selectable here: a query naming one presets nothing
+// ("Hymovis One" is a different product, course and status from Hymovis).
+const UNSELECTABLE_GEL_PHRASES=['hymovis one','hymovisone','hymovis 1'];
 export function gelProductForQuery(query=''){
  const q=' '+searchNorm(String(query).slice(0,80))+' ';
+ if(UNSELECTABLE_GEL_PHRASES.some(f=>q.includes(' '+f+' ')))return null;
  const hits=orthoGelProducts.map(p=>({id:p.id,phrase:gelPhrases(p).filter(f=>q.includes(' '+f+' ')).sort((a,b)=>b.split(' ').length-a.split(' ').length)[0]})).filter(h=>h.phrase);
  const named=hits.filter(h=>!hits.some(o=>o.id!==h.id&&o.phrase!==h.phrase&&(' '+o.phrase+' ').includes(' '+h.phrase+' ')));
  return named.length===1?named[0].id:null;
@@ -195,7 +206,7 @@ function policyScope(plan,benefit) {
  return {payer,line,benefit,planCode,carrier:'',plan:'',adoptionVerified:false,
    potentialFormularyCode:exactFormulary?.code||null};
 }
-export function staffContext({payer='',planId='',year=2026,serviceId='',benefit='Medical',requestType='Initial',gelProductId='',guidance='without-ultrasound',asOf}={}) {
+export function staffContext({payer='',planId='',year=2026,serviceId='',benefit='Medical',requestType='Initial',gelProductId='',guidance='without-ultrasound',asOf,serviceDate}={}) {
  if(!STAFF_YEARS.includes(year))throw Error('Choose a supported plan year.');
  if(payer&&!STAFF_PAYERS.some(x=>x.name===payer))throw Error('Unknown insurer.');
  if(!['Medical','Pharmacy'].includes(benefit))throw Error('Select the medical or pharmacy benefit.');
@@ -233,8 +244,10 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
    // Keep policy listings as contextual review requirements, not approval
    // determinations. MDX delegated UHC never becomes all UHC plans.
    if(plan.program!=='delegated'&&plan.payer!=='Medigap'&&!['Medicare Part D','Federal employee / postal','VA / Community Care','TRICARE'].includes(scope.line)){
-     // asOf is for tests and reports; the staff screen omits it and uses today's Hawaiʻi policy day.
-     const candidates=asOf?matchingPolicies(scope,service.id,[],asOf):matchingPolicies(scope,service.id,[]);
+     // asOf is today (tests and reports pass it). A later planned service date is the day a list must still be in
+     // force, so an edition that lapses before the service is never shown as current.
+     const today=asOf||dateToday(),day=/^\d{4}-\d{2}-\d{2}$/.test(serviceDate||'')&&serviceDate>today?serviceDate:today;
+     const candidates=matchingPolicies(scope,service.id,[],day);
      matchedPolicies=candidates.filter(x=>x.kind==='medical-policy');
      supplementaryPA=candidates.filter(x=>x.kind==='authorization-list');
      formularyEntries=candidates.filter(x=>x.kind==='formulary');
@@ -242,10 +255,11 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
      // An expired edition is never shown as current, but staff are told it lapsed instead of seeing nothing.
      else{
        const lapsed=policies.filter(p=>p.kind==='formulary'&&p.payer===scope.payer&&p.lines.includes(scope.line)&&p.benefit===benefit&&p.drugIds.includes(service.id)&&
-         (!p.planCode||p.planCode===scope.planCode)&&policyFreshness(p,asOf||dateToday())==='expired');
+         (!p.planCode||p.planCode===scope.planCode)&&policyFreshness(p,day)==='expired');
        for(const p of lapsed.filter((p,i,a)=>a.findIndex(x=>x.planCode===p.planCode)===i)){
          const list=formularyLists.find(l=>l.code===p.planCode&&l.payer===p.payer);
-         restrictions.push('The reviewed '+(list?p.payer+' '+list.label:p.title)+' list expired '+p.expires+'; no current edition is indexed. Verify on the payer\'s current list.');
+         const past=p.expires<today;
+         restrictions.push('The reviewed '+(list?p.payer+' '+list.label:p.title)+(past?' list expired '+p.expires:' list ends '+p.expires+', before the planned service date')+'; no current edition is indexed'+(past?'':' for that date')+'. Verify on the payer\'s current list.');
        }
      }
      // A delegated administrator's published PA list for this carrier and line (for example the
@@ -273,11 +287,14 @@ export function staffContext({payer='',planId='',year=2026,serviceId='',benefit=
    else criteria=extraCriteria(service);
  }
  const planLine=staffPlanProgramLine(plan);
+ // Medigap pays secondary: Original Medicare's own policies and route govern the primary claim.
+ const primaryPayer=staffPrimaryClaimPayer(plan);
+ if(primaryPayer!==plan?.payer&&service)restrictions.push('Original Medicare primary claim (Medigap pays secondary): Original Medicare (Noridian JE) policies and the CMS Medicare Coverage Database govern the primary claim; the supplement\'s own terms are not verified.');
  const sources=service?.type==='procedure'&&orthoProcedures.some(x=>x.id===service.id)&&plan
-  ?getOrthoPayerSources({procedureId:service.id,payer:plan.payer,line:planLine}):[];
+  ?getOrthoPayerSources({procedureId:service.id,payer:primaryPayer,line:planLine}):[];
  if(plan&&service?.type==='procedure'&&orthoProcedures.some(x=>x.id===service.id)&&!sources.length)restrictions.push('No payer-specific procedure policy or code-list source is cataloged for '+plan.payer+' on the '+planLine+' line. Research the payer policy manually; absence of a source is not absence of a requirement.');
  const authorizationResources=plan&&service?
-  staffAuthResources({payer:plan.payer,program:plan.program,benefit,
+  staffAuthResources({payer:primaryPayer,program:plan.program,benefit,
     serviceType:service.type}):[];
  const potentialNames=(primaryPolicy?primaryPolicy.preferred:[])||[];
  const possibleCodes=service?.type==='procedure'?
@@ -312,14 +329,15 @@ export function staffAuthorizePacket(input) {
    'TEMPLATE ONLY — NOT PATIENT-READY / NOT A CLINICIAN-SIGNED LETTER',
    'No PHI may be entered into this application. Populate identifiers and attachments only in the approved clinical system.',
    '',
-   'TO: '+plan.payer+' — exact authorization department must be verified',
+   // Original Medicare (and a Medigap supplement behind it) has no authorization department to address a request to.
+   'TO: '+(plan.program==='original-medicare'?'Original Medicare (Noridian JE) for the primary claim — no authorization department is assumed; confirm whether any service-specific prior-authorization program applies':plan.payer+' — exact authorization department must be verified'),
    'PLAN: '+plan.name+' (source '+plan.id+', year '+year+')',
    'PLAN IDENTIFICATION: '+ctx.planPrecision.label+(ctx.planPrecision.planId?' / '+ctx.planPrecision.planId:'')+'.',
    'SERVICE: '+service.name+' ('+service.type+')',
    'BENEFIT: '+benefit+' | '+ctx.planLine+' | '+setting+' | '+requestType,
    'CANDIDATE CODES: '+(ctx.possibleCodes.length?ctx.possibleCodes.map(x=>x.code+' ('+x.type+')').join(', '):'No verified code — obtain payer/device-specific coding determination'),
    '',
-   'SUBJECT: Request for authorization of '+service.name,
+   'SUBJECT: '+(plan.program==='original-medicare'?'Claim documentation worksheet for ':'Request for authorization of ')+service.name,
    'PATIENT: [To be completed ONLY within HIPAA-approved clinical workflow]',
    'DIAGNOSIS / LATERALITY: [Clinician must document from examination and chart]',
    'MEDICAL NECESSITY STATEMENT: [Clinician-authored indication and clinical rationale required]',

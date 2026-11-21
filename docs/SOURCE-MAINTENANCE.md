@@ -6,7 +6,7 @@ Coverage Desk is a **synthetic-data trial**. Everything below is about keeping t
 
 ## What the 90-day review is
 
-Every payer document the app shows has a **review-by date**:
+Most payer documents the app shows have a **review-by date** (a few, such as the monthly QUEST formulary files, have none recorded and are listed as undated):
 
 | Kind of source | Where it lives | Review-by date |
 | --- | --- | --- |

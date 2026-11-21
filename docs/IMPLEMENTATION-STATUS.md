@@ -25,11 +25,11 @@ Everything below describes a **synthetic-data trial**. No exact-plan adoption, m
 
 | Check | Result at the latest commit on this branch |
 | --- | --- |
-| `npm run check` | 84 JavaScript modules pass syntax validation; `wrangler.jsonc` keeps preview URLs disabled. |
-| `npm test` | 406 tests pass, including the server-hardening, deployment-gate, local-server, adapter, documentation-link and UHC line-isolation tests. |
+| `npm run check` | 96 JavaScript modules pass syntax validation; `wrangler.jsonc` keeps preview URLs disabled. |
+| `npm test` | 473 tests pass (also with the clock shifted into 2027), including the server-hardening, deployment-gate, local-server, adapter, documentation-link and UHC line-isolation tests. |
 | `npm run matrix:check` | Committed matrix documents match the registries for 2026-11-08 (now also run in CI). |
 | `npm run build` and its guards | Build succeeds; `PATIENT_DATA_ENABLED=true` is refused; `WORKERS_CI=1` without `SYNTHETIC_ONLY_ACK=true` is refused. |
-| `npm run test:browser` | 68 print/download/reset/mobile/lock flows pass against the local server with no external requests or data writes. |
+| `npm run test:browser` | 68 print/download/reset/mobile/lock flows pass against the local server with no external requests or data writes; CI also runs the suite with the page clock fixed about 45 and 400 days ahead (`PBJ_FAKE_NOW`). |
 | GitHub Actions "Verify trial application" | Green on every push to this branch through 3ddd75f (runs 289–293). |
 
 What the tests do **not** establish: no live AI provider or Cuptomize call was made, and the 20-case clinical validation the handoff requires before any clinical rollout has not been performed (protocol and scoring sheet: [CLINICAL-VALIDATION.md](CLINICAL-VALIDATION.md)). Payer documents were re-fetched on November 15 from www.hmsa.com (PDFs via documents.hmsa.com and global-downloads.webdamdb.com), www.uhcprovider.com and www1.radmd.com; medquest.hawaii.gov is on the network allowlist but the site itself answers automated requests with 403, and medicare.gov is not allowlisted.

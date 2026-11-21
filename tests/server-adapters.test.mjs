@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import worker from '../server/worker.mjs';
 import {handler} from '../server/lambda.mjs';
 const failing={url:'https://app.example/api/formulary/search',method:'POST',headers:{get(){throw new Error('header store failure with private detail');}}};
+// REQUIRE_ACCESS must be an explicit 'false' to serve without Access; an unset value fails closed (worker-access tests).
+const open={REQUIRE_ACCESS:'false'};
 test('worker returns a generic JSON 500 with security headers when either branch throws',async()=>{
- for(const [request,env] of [[new Request('https://app.example/'),{ASSETS:{fetch:async()=>{throw new Error('asset store private detail');}}}],[new Request('https://app.example/index.html'),{}],[failing,{}]]){
+ for(const [request,env] of [[new Request('https://app.example/'),{...open,ASSETS:{fetch:async()=>{throw new Error('asset store private detail');}}}],[new Request('https://app.example/index.html'),open],[failing,open]]){
   const response=await worker.fetch(request,env);
   assert.equal(response.status,500);
   assert.deepEqual(await response.json(),{error:'Request failed.'});
@@ -14,9 +16,9 @@ test('worker returns a generic JSON 500 with security headers when either branch
  }
 });
 test('worker still serves API and asset responses with security headers on the happy path',async()=>{
- const status=await worker.fetch(new Request('https://app.example/api/status'),{});
+ const status=await worker.fetch(new Request('https://app.example/api/status'),open);
  assert.equal(status.status,200);assert.equal((await status.json()).phiRelease,'blocked');
- const asset=await worker.fetch(new Request('https://app.example/'),{ASSETS:{fetch:async()=>new Response('<!doctype html>',{headers:{'Content-Type':'text/html'}})}});
+ const asset=await worker.fetch(new Request('https://app.example/'),{...open,ASSETS:{fetch:async()=>new Response('<!doctype html>',{headers:{'Content-Type':'text/html'}})}});
  assert.equal(asset.status,200);assert.equal(asset.headers.get('X-Frame-Options'),'DENY');
 });
 test('lambda early refusals and unexpected failures use the JSON and security-header contract',async()=>{

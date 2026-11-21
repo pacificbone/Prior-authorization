@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import worker,{createWorker,accessGate} from '../server/worker.mjs';
+import worker,{createWorker,accessGate,GATE_HEADER} from '../server/worker.mjs';
 import {verifyStaffAccess} from '../server/access.mjs';
 // Tokens are dated from the (possibly shifted) clock, so the suite never depends on today's date.
 const pair=await crypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']);
@@ -28,9 +28,9 @@ const assertJsonRefusal=async(response,status)=>{
  const body=await response.json();assert.deepEqual(Object.keys(body),['error']);assert.doesNotMatch(body.error,/ACCESS_|REQUIRE_|synthetic-worker-audience|worker-gate/);
 };
 
-test('REQUIRE_ACCESS unset, empty or "false" keeps local/test behaviour: assets and API are served without a token',async()=>{
- for(const flag of [undefined,'','false']){
-  const env=assets();if(flag!==undefined)env.REQUIRE_ACCESS=flag;
+test('only an explicit REQUIRE_ACCESS "false" (wrangler dev, tests) serves assets and API without a token',async()=>{
+ for(const flag of ['false']){
+  const env=assets();env.REQUIRE_ACCESS=flag;
   let called=0;const w=createWorker({verify:async()=>{called++;return {verified:false,configured:false};}});
   assert.equal(accessGate(env),'off');
   const page=await w.fetch(get('/'),env);assert.equal(page.status,200);assert.equal(page.headers.get('X-Frame-Options'),'DENY');
@@ -47,8 +47,21 @@ test('REQUIRE_ACCESS "true" without the Access team domain and audience answers 
   assert.equal(called,0);assert.deepEqual(env.seen,[]);
  }
 });
-test('any REQUIRE_ACCESS value other than unset, "", "false" or "true" is a misconfiguration: 503, nothing served',async()=>{
- for(const flag of ['TRUE','True','yes','1','on','false ',' true',true,1,null]){
+test('REQUIRE_ACCESS unset or empty (a dropped var, an env stanza without vars) fails closed: 503 marked as a gate reply, nothing served',async()=>{
+ for(const flag of [undefined,'']){
+  const env=assets();if(flag!==undefined)env.REQUIRE_ACCESS=flag;
+  let called=0;const w=createWorker({verify:async()=>{called++;return {verified:true,configured:true};}});
+  assert.equal(accessGate(env),'misconfigured');
+  for(const path of ['/','/index.html','/version.json','/api/status','/api/staff/rates']){
+   const response=await w.fetch(get(path),env);await assertJsonRefusal(response,503);assert.equal(response.headers.get(GATE_HEADER),'access');
+  }
+  assert.equal(called,0);assert.deepEqual(env.seen,[]);
+ }
+ // The Worker's default export behaves the same way with no env at all.
+ await assertJsonRefusal(await worker.fetch(get('/'),{}),503);
+});
+test('any REQUIRE_ACCESS value other than "false" or "true" is a misconfiguration: 503, nothing served',async()=>{
+ for(const flag of ['TRUE','True','yes','1','on','false ',' true',true,1,null,false]){
   const env={...assets(),...config,REQUIRE_ACCESS:flag};
   assert.equal(accessGate(env),'misconfigured');
   await assertJsonRefusal(await gated.fetch(get('/',{'Cf-Access-Jwt-Assertion':await token()}),env),503);
@@ -83,8 +96,10 @@ test('REQUIRE_ACCESS "true" with a valid Access JWT (header or CF_Authorization 
 test('the default export enforces the same gate without any test seam',async()=>{
  const env={...assets(),...config,REQUIRE_ACCESS:'true'};
  await assertJsonRefusal(await worker.fetch(get('/'),env),403);
+ assert.equal((await worker.fetch(get('/'),env)).headers.get(GATE_HEADER),'access');
  await assertJsonRefusal(await worker.fetch(get('/'),{...assets(),REQUIRE_ACCESS:'true'}),503);
  await assertJsonRefusal(await worker.fetch(get('/'),{...assets(),...config,REQUIRE_ACCESS:'yes'}),503);
- assert.equal((await worker.fetch(get('/'),assets())).status,200);
+ assert.equal((await worker.fetch(get('/'),{...assets(),REQUIRE_ACCESS:'false'})).status,200);
+ assert.equal((await worker.fetch(get('/'),assets())).status,503);
  assert.deepEqual(env.seen,[]);
 });

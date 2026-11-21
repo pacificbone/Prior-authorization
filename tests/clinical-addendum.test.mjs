@@ -120,7 +120,7 @@ test('the verification scope carries the selected request type into the printed 
  assert.match(initial,/HMSA Commercial\/QUEST Prolia and biosimilars — initial/);
  assert.doesNotMatch(renewal,/Prolia and biosimilars — initial/);
 });
-test('the printed addendum lists the matching payer documentation prompts with blank answer lines, never prefilled',()=>{
+test('the printed addendum lists the matching payer documentation prompts with an approved-system placeholder, never prefilled or a handwriting line',()=>{
  const asOf='2026-11-21';
  for(const requestType of ['Initial','Repeat / continuation','Reconsideration / appeal'])for(const s of [state,{...state,serviceId:'knee-gel',gelProductId:'synvisc'},{...state,clinicalTemplateId:'gel-durolane'},{...state,payer:'UnitedHealthcare',planId:'uhc-commercial',serviceId:'total-knee'},{...state,payer:'UnitedHealthcare',planId:'uhc-ma',serviceId:'total-knee'}]){
   const st={...s,requestType,docs:{diagnosis:true}},note=staffClinicalAddendum(st,asOf),lines=note.split('\n');
@@ -131,12 +131,13 @@ test('the printed addendum lists the matching payer documentation prompts with b
   assert.equal(lines[start+1],'Request type: '+requestType);
   for(const b of expected){
    assert.ok(lines.includes(b.title),b.id);
-   for(const f of b.fields){const i=lines.indexOf('- '+f.label,start);assert.ok(i>start,f.label);assert.match(lines[i+1],/^\s+_{20,}$/);}
+   for(const f of b.fields){const i=lines.indexOf('- '+f.label,start);assert.ok(i>start,f.label);assert.equal(lines[i+1],'  [COMPLETE IN APPROVED CLINICAL SYSTEM]');}
   }
   if(!expected.length)assert.match(note,/No (documentation branch matches|public payer reference matches)/);
   // Synthetic and blank labels stay; the signature line is still last.
   assert.match(note,/^SYNTHETIC ONLY — NOT FOR SUBMISSION/);assert.match(note,/\[NOT DOCUMENTED\]/);assert.match(note,/DO NOT ORDER/);
   assert.match(lines.at(-1),/^Clinician review\/signature: _+$/);
+  assert.doesNotMatch(note.slice(start),/^\s+_{20,}$/m);
   assert.doesNotMatch(note.slice(note.indexOf(ADDENDUM_PROMPTS_HEADING)),/: (true|yes|met|documented)\b/i);
  }
  // The request type changes the branch set, and the UHC Medicare Advantage knee prompt is printed under its own heading.
@@ -149,4 +150,22 @@ test('the printed addendum lists the matching payer documentation prompts with b
  assert.match(bare,/No public payer reference matches this insurer/);
  // The on-screen preview counts the prompts it appends.
  assert.match(renderClinicalAddendumPanel(state,asOf),/Preview blank clinical addendum \(\d+ fields \+ \d+ payer-policy prompts\)/);
+});
+test('a planned date the page filled in is printed as policy context, never as the planned date of service',()=>{
+ const asOf='2026-11-21',st={...state,serviceDate:asOf};
+ assert.match(staffClinicalAddendum({...st,serviceDateSource:'default'},asOf),/Planned date of service: \[DATE NOT SELECTED — policy context used 2026-11-21\]/);
+ assert.match(staffVerificationWorksheet({...st,serviceDateSource:'default'},asOf),/\/ HI \/ \[DATE NOT SELECTED — policy context used 2026-11-21\]\n/);
+ // A date staff typed is printed as is; the default still drives the evidence lookup.
+ assert.match(staffClinicalAddendum({...st,serviceDateSource:'entered'},asOf),/Planned date of service: 2026-11-21\n/);
+ assert.deepEqual(addendumDocumentationPrompts({...st,serviceDateSource:'default'},asOf).branches.map(b=>b.id),addendumDocumentationPrompts({...st,serviceDateSource:'entered'},asOf).branches.map(b=>b.id));
+ assert.match(staffClinicalAddendum({...state,serviceDate:''},asOf),/Planned date of service: \[DATE NOT SELECTED\]/);
+});
+test('a Medigap selection is documented against Original Medicare, which decides the primary claim',()=>{
+ const asOf='2026-11-21',st={payer:'Medigap',planId:'medigap',benefit:'Medical',serviceId:'total-hip',serviceDate:asOf};
+ const scope=staffVerificationScope(st);
+ assert.equal(scope.payer,'Traditional Medicare');assert.equal(scope.secondaryPayer,'Medigap');assert.equal(scope.line,'Traditional Medicare');
+ const note=staffClinicalAddendum(st,asOf);
+ assert.match(note,/Original Medicare primary claim \(Medigap pays secondary\)/);assert.match(note,/Traditional Medicare \(Noridian JE\) — total hip arthroplasty LCD L34163 documentation/);
+ assert.match(note,/Medigap \/ medigap \(member product not verified\)/);
+ assert.match(renderClinicalAddendumPanel(st,asOf),/notice amber">Original Medicare primary claim \(Medigap pays secondary\)/);
 });

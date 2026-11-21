@@ -18,6 +18,9 @@ export async function build(argv=process.argv,env=process.env){
   // Everything that can fail is resolved before dist/ is touched.
   const policyAsOf=await readPolicyAsOf(root);
   const legacy=legacyToolsRequested(argv,env);
+  // The note-paste letter builder and vault are for local builds only: a deploy build (Workers Builds or the gated
+  // workflow) never ships them, whatever a dashboard build variable says.
+  if(legacy&&(env.WORKERS_CI||env.SYNTHETIC_ONLY_ACK))throw Error('Legacy tools (--legacy-tools or PBJ_LEGACY_TOOLS=on) are refused in a deploy build (WORKERS_CI or SYNTHETIC_ONLY_ACK set); they are for local builds only.');
   let html=setLegacyToolsMeta(await readFile(new URL('public/index.html',root),'utf8'),legacy);
   if(argv.includes('--static-preview'))html=html.replace('name="pbj-api-mode" content="server"','name="pbj-api-mode" content="static-preview"');
   const version={commit:buildCommit(env,()=>gitShortSha(fileURLToPath(root))),builtAt:new Date().toISOString(),policyAsOf};

@@ -62,6 +62,10 @@ test('a build writes dist/version.json {commit, builtAt, policyAsOf} and keeps l
  const log=console.log;console.log=()=>{};
  try{await build(['node','scripts/build.mjs','--legacy-tools'],{...env,GITHUB_SHA:'0badc0de1234'});}finally{console.log=log;}
  assert.match(await readFile(new URL('dist/index.html',root),'utf8'),/<meta name="pbj-legacy-tools" content="on">/);
+ // A deploy build (Workers Builds or the gated workflow) refuses legacy tools however they are requested.
+ for(const [argv,extra] of [[['node','scripts/build.mjs','--legacy-tools'],{WORKERS_CI:'1',SYNTHETIC_ONLY_ACK:'true'}],[['node','scripts/build.mjs'],{SYNTHETIC_ONLY_ACK:'true',PBJ_LEGACY_TOOLS:'on'}],[['node','scripts/build.mjs'],{WORKERS_CI:'1',SYNTHETIC_ONLY_ACK:'true',PBJ_LEGACY_TOOLS:'on'}]])
+  await assert.rejects(build(argv,{...env,...extra}),/Legacy tools .* are refused in a deploy build/,JSON.stringify(extra));
+ assert.match(await readFile(new URL('dist/index.html',root),'utf8'),/<meta name="pbj-legacy-tools" content="on">/,'a refused build leaves dist untouched');
  assert.equal(JSON.parse(await readFile(new URL('dist/version.json',root),'utf8')).commit,'0badc0de1234');
  const result=spawnSync(process.execPath,[fileURLToPath(new URL('scripts/build.mjs',root))],{env:{...env,GITHUB_SHA:'1234567abcdef'},encoding:'utf8'});
  assert.equal(result.status,0,result.stderr);assert.match(result.stdout,/Built dist\/.*legacy tools off/);

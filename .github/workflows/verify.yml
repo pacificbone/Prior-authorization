@@ -43,3 +43,8 @@ jobs:
           node server/local.mjs --port 3088 > /tmp/pbj-browser-test.log 2>&1 &
           curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://localhost:3088/api/status
       - run: npm run test:browser
+      - name: Browser suite must not depend on today's date (page clock fixed about +45 and +400 days)
+        run: |
+          for days in 45 400; do
+            PBJ_FAKE_NOW=$(date -u -d "+$days days" +%Y-%m-%dT12:00:00Z) npm run test:browser
+          done

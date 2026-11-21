@@ -1,6 +1,6 @@
 import {renderClinicalAddendumPanel,staffVerificationScope} from './clinical-addendum-panel.mjs';
 import {STAFF_PAYERS,STAFF_YEARS,STAFF_CATEGORY_LABELS,staffPlansForPayer,staffPlanProgramLine,staffContext,staffServices} from '../shared/staff-workflow.mjs';
-import {evidenceAtAGlance} from '../shared/product-preferences.mjs';
+import {evidenceAtAGlance,PA_ANSWER_SIGNALS} from '../shared/product-preferences.mjs';
 import {policyDay,validPolicyDate} from '../shared/plan-adoption.mjs';
 import {COST_FACILITIES,COST_RATE_SOURCES,COST_METHODS,estimatePatientCost} from '../shared/patient-cost.mjs';
 import {orthoGelProducts,orthoSourceKinds} from '../shared/orthopedic-procedures.mjs';
@@ -18,39 +18,78 @@ export function staffDefaultYear(day=policyDay()){const y=Number(String(day).sli
 export const STAFF_SEARCH_NO_MATCH='No match - try a brand, procedure name or code (for example TKA, Synvisc, 27447).';
 export const STAFF_GLANCE_CAVEAT="Published policy statements - this member's plan adoption, eligibility and authorization are not verified.";
 export const STAFF_DATE_NEEDED='Enter a planned service date to see payer references.';
-// Plain-English headings for the published PA signals in shared/product-preferences.mjs. Each restates a document; none is a determination.
+export const STAFF_PRODUCT_NEEDED='Choose the gel product to see this insurer’s published references, product preferences and prior-authorization statements for that brand.';
+// Shown when no matched reference carries a prior-authorization statement. It describes what Coverage Desk recorded,
+// never what the document says: a reference with no transcribed PA statement is not a "no PA" answer.
+export const STAFF_NO_PA_STATEMENT='Prior authorization: not verified. Coverage Desk has no prior-authorization statement recorded from these references for this selection.';
+export const STAFF_NO_POLICY='No published payer reference is indexed for this plan, treatment and date. Use the authorization routes and official sources below.';
+// Plain-English headings for the published signals in shared/product-preferences.mjs. Each restates a document (or, where
+// the heading says so, a Coverage Desk note on the record); none is a determination. PA_ANSWER_SIGNALS answer the
+// prior-authorization question; the others are coverage-criteria statements and are shown under "Criteria".
 export const PA_SIGNAL_LABELS=Object.freeze({
  'precertification-required':'Published policy states prior authorization (precertification) is required',
  'pa-not-required-per-policy':'Published policy states prior authorization is not required for this product',
  'step-therapy':'Published step-therapy program lists this product as non-preferred',
  'interqual-criteria':'Published policy: medical necessity is reviewed against licensed InterQual criteria, not reproduced here',
- 'lcd-no-prior-auth':'Published LCD record: Original Medicare has no prior authorization; the LCD governs claim and record review',
+ 'lcd-no-prior-auth':'Coverage Desk note on the LCD record (not LCD text): Original Medicare has no prior-authorization program for this procedure; the LCD governs claim and record review',
  'unproven':'Published policy lists this service or device as unproven / not medically necessary',
- 'not-reasonable-and-necessary':'Published policy lists this service as not reasonable and necessary'
+ 'unproven-other-devices':'Published policy lists other devices or indications as unproven / not medically necessary',
+ 'not-reasonable-and-necessary':'Published policy lists this service as not reasonable and necessary',
+ 'refers-to-commercial-policy':'Published Medicare Advantage policy refers to the UHC commercial policy where no LCD applies; confirm on the Medicare Coverage Database'
 });
 const PREF_LABELS=Object.freeze({preferred:'Preferred','non-preferred':'Non-preferred',excluded:'Excluded per policy','covered-on-criteria':'Criteria-based per policy'});
-const PREF_TEXT=Object.freeze({preferred:'listed as preferred','non-preferred':'listed as non-preferred',excluded:'listed as typically excluded','covered-on-criteria':'listed as covered when the policy criteria are met'});
+const PREF_TEXT=Object.freeze({preferred:'listed as preferred','non-preferred':'listed as non-preferred',excluded:'listed as typically excluded','covered-on-criteria':'listed with coverage contingent on the policy’s diagnosis-specific criteria'});
+// A proposed (not in effect) LCD or a sourcing reference is indexed but is not a coverage or criteria policy.
+const isPolicyRef=r=>r.referenceType!=='sourcing'&&!r.proposed;
+export const glanceHasPolicy=glance=>!!glance?.references?.some(isPolicyRef);
 // Step 3 always reads the step-2 selection; a step-6 template override never changes this block.
 export function staffGlance(state,asOf=policyDay()){
- const scope=staffVerificationScope({...state,clinicalTemplateId:''});
- if(validPolicyDate(state.serviceDate))return {needsDate:false,glance:evidenceAtAGlance(scope,asOf)};
+ const scope=staffVerificationScope({...state,clinicalTemplateId:''}),dated=validPolicyDate(state.serviceDate),secondaryPayer=scope.secondaryPayer||null;
+ // Knee gel references are brand-specific: with no brand chosen, ask for one when any brand has references here.
+ if(state.serviceId==='knee-gel'&&!state.gelProductId){
+  const day=dated?state.serviceDate:asOf;
+  const needsProduct=orthoGelProducts.some(p=>evidenceAtAGlance({...scope,productId:'gel-'+p.id,medication:true,serviceDate:day},asOf).hasEvidence);
+  return {needsDate:!dated&&needsProduct,needsProduct,glance:null,secondaryPayer};
+ }
+ if(dated)return {needsDate:false,needsProduct:false,glance:evidenceAtAGlance(scope,asOf),secondaryPayer};
  // Evidence is empty only because no date is set when the same selection on the policy day has references.
- return {needsDate:evidenceAtAGlance({...scope,serviceDate:asOf},asOf).hasEvidence,glance:null};
+ return {needsDate:evidenceAtAGlance({...scope,serviceDate:asOf},asOf).hasEvidence,needsProduct:false,glance:null,secondaryPayer};
 }
+// One row per signal type; distinct texts from different documents are all kept (a longer text that already
+// contains a shorter one replaces it), so a caveat in one document is never dropped by de-duplication.
 export function glanceSignals(glance){
  const titles=new Map(glance.references.map(r=>[r.id,r.title])),out=new Map();
- for(const s of glance.paSignals){const row=out.get(s.signal)||{signal:s.signal,label:PA_SIGNAL_LABELS[s.signal]||s.signal,text:s.text,sources:[]};const t=titles.get(s.evidenceId);if(t&&!row.sources.includes(t))row.sources.push(t);out.set(s.signal,row);}
- return [...out.values()];
+ for(const s of glance.paSignals){
+  const row=out.get(s.signal)||{signal:s.signal,label:PA_SIGNAL_LABELS[s.signal]||s.signal,texts:[],sources:[]};
+  if(!row.texts.some(t=>t.includes(s.text)))row.texts=[...row.texts.filter(t=>!s.text.includes(t)),s.text];
+  const t=titles.get(s.evidenceId);if(t&&!row.sources.includes(t))row.sources.push(t);out.set(s.signal,row);
+ }
+ return [...out.values()].map(r=>({...r,text:r.texts.join(' ')}));
 }
-function renderGlance(glance){
- const signals=glanceSignals(glance),sel=glance.selected,titles=new Map(glance.references.map(r=>[r.id,r.title]));
- const lists=[['Preferred',glance.preferred],['Non-preferred',glance.nonPreferred],['Typically excluded',glance.excluded],['Listed as covered on policy criteria',glance.coveredOnCriteria]].filter(([,v])=>v.length);
+// Review-state notices for the matched references: overdue sources are unconfirmed until re-read.
+export function glanceReviewNotes(glance){
+ const refs=glance?.references||[],overdue=refs.filter(r=>r.reviewState==='overdue'),ends=refs.filter(r=>r.reviewState==='ends-before-service');
+ return {overdue,ends,flag:overdue.length?'Source review overdue: treat as unconfirmed until the source is re-read.':ends.length?'Source review window ends before the service date: re-check the source nearer the date.':''};
+}
+function renderGlance(glance,{secondaryPayer=null,hasRoute=false}={}){
+ const signals=glanceSignals(glance),pa=signals.filter(s=>PA_ANSWER_SIGNALS.includes(s.signal)),sel=glance.selected,titles=new Map(glance.references.map(r=>[r.id,r.title]));
+ const {overdue,ends}=glanceReviewNotes(glance);
+ const notices=`${secondaryPayer?`<p class="notice amber staff-glance-primary" role="note"><strong>Original Medicare primary claim (${h(secondaryPayer)} pays secondary).</strong> These are Original Medicare's published references; the supplement's own terms are not verified.</p>`:''}
+ ${overdue.length?`<p class="notice amber staff-glance-review" role="note"><strong>Source review overdue</strong> (${overdue.map(r=>`${h(r.title)}: review was due ${h(r.reviewDue)}`).join('; ')}). Treat these statements as unconfirmed and re-read the source before relying on them.</p>`:''}
+ ${ends.length?`<p class="notice amber staff-glance-review" role="note"><strong>Source review window ends before the service date</strong> (${ends.map(r=>`${h(r.title)}: ${h(r.reviewDue)}`).join('; ')}). Re-check the source nearer the date of service.</p>`:''}`;
+ const refs=`<p class="helper staff-glance-refs">References: ${glance.references.map(r=>`${h(r.title)} (${h(r.version)})${r.proposed?' — proposed, not in effect; not a current requirement':r.referenceType==='sourcing'?' — sourcing reference, not a coverage or criteria source':''}${r.reviewState==='overdue'?' — <strong class="warn-text">review overdue</strong>':r.reviewState==='ends-before-service'?' — review window ends before the service date':''}`).join(' · ')}. Full fingerprints and prompts are in step 6.</p>`;
+ if(!glance.references.some(isPolicyRef))return `${notices}<p class="helper">No coverage or criteria policy in effect is indexed for this plan, treatment and date. Use the authorization routes and official sources below.</p>${refs}`;
+ const lists=[['Preferred',glance.preferred],['Non-preferred',glance.nonPreferred],['Typically excluded',glance.excluded],['Coverage contingent on the policy’s diagnosis-specific criteria',glance.coveredOnCriteria]].filter(([,v])=>v.length);
  const warn=sel&&(sel.status==='non-preferred'||sel.status==='excluded');
- return `${sel?(warn?`<p class="notice amber staff-glance-warn" role="note"><strong>${h(sel.displayName)} is ${h(PREF_TEXT[sel.status])}</strong> in ${h(titles.get(sel.evidenceId)||'the published policy')}.${sel.exception?` ${sel.status==='excluded'?'Policy text':'Exception path stated'}: ${h(sel.exception)}`:''}</p>`
-   :`<p class="staff-glance-selected"><span class="pill">${h(PREF_LABELS[sel.status])}</span> <strong>${h(sel.displayName)}</strong> — ${h(PREF_TEXT[sel.status])} in ${h(titles.get(sel.evidenceId)||'the published policy')} (published policy statement).</p>`):''}
- ${signals.length?`<ul class="staff-glance-signals">${signals.map(s=>`<li><strong>${h(s.label)}</strong><span>${h(s.text)}</span><small>Source: ${h(s.sources.join(' · '))}</small></li>`).join('')}</ul>`:'<p class="helper">The matched references state no prior-authorization rule for this selection; read the source before relying on that.</p>'}
- ${lists.length?`<div class="staff-glance-lists">${lists.map(([label,names])=>`<div><span>${h(label)}</span><p>${h(names.join(', '))}</p></div>`).join('')}</div><p class="helper">Product lists are for this insurer and plan line only, as printed in the matched documents.</p>`:''}
- <p class="helper staff-glance-refs">References: ${glance.references.map(r=>`${h(r.title)} (${h(r.version)})${r.reviewState==='overdue'?' — <strong class="warn-text">review overdue</strong>':r.reviewState==='ends-before-service'?' — review window ends before the service date':''}`).join(' · ')}. Full fingerprints and prompts are in step 6.</p>`;
+ const caveat=sel?.caveat?` <span class="staff-glance-caveat-note">${h(sel.caveat)}</span>`:'';
+ return `${notices}
+ ${sel?(warn?`<p class="notice amber staff-glance-warn" role="note"><strong>${h(sel.displayName)} is ${h(PREF_TEXT[sel.status])}</strong> in ${h(titles.get(sel.evidenceId)||'the published policy')}.${sel.exception?` ${sel.status==='excluded'?'Policy summary':'Exception path stated'}: ${h(sel.exception)}`:''}${caveat}</p>`
+   :`<p class="staff-glance-selected"><span class="pill">${h(PREF_LABELS[sel.status])}</span> <strong>${h(sel.displayName)}</strong> — ${h(PREF_TEXT[sel.status])} in ${h(titles.get(sel.evidenceId)||'the published policy')} (published policy statement).${caveat}</p>`):''}
+ ${(glance.unlisted||[]).map(u=>`<p class="notice staff-glance-unlisted" role="note"><strong>${h(u.displayName)} is not listed</strong> in the product table of ${h(titles.get(u.evidenceId)||'the published policy')}. ${h(u.text)}</p>`).join('')}
+ ${signals.length?`<ul class="staff-glance-signals">${signals.map(s=>`<li><strong>${h(s.label)}</strong><span>${h(s.text)}</span><small>Source: ${h(s.sources.join(' · '))}</small></li>`).join('')}</ul>`:''}
+ ${pa.length?'':`<p class="helper staff-glance-no-pa">${h(STAFF_NO_PA_STATEMENT)} ${hasRoute?'Check with the payer’s authorization route below.':'Confirm with the payer.'}</p>`}
+ ${lists.length?`<div class="staff-glance-lists">${lists.map(([label,names])=>`<div><span>${h(label)}</span><p>${h(names.join(', '))}</p></div>`).join('')}</div>${glance.alsoNamed?.length?`<p class="helper staff-glance-also">Also named in the matched documents (not selectable here): ${h(glance.alsoNamed.join(', '))}.</p>`:''}<p class="helper">Selectable products, by their Coverage Desk names, as classified in the matched documents for this insurer and plan line only.</p>`:''}
+ ${refs}`;
 }
 function renderRateEvidence(st,ctx){
   const service=ctx.service;
@@ -92,11 +131,13 @@ function renderRateEvidence(st,ctx){
 // The planned service date input lives in step 3. Step 6 is rendered by clinical-addendum-panel.mjs, which
 // may still print its own copy: drop that label so id="staff-service-date" appears exactly once.
 const DATE_LABEL=/<label\b[^>]*>(?:(?!<\/label>)[\s\S])*?id="staff-service-date"(?:(?!<\/label>)[\s\S])*<\/label>\s*/;
-export function addendumPanel(state){return renderClinicalAddendumPanel(state).replace(DATE_LABEL,'');}
-export function renderStaffPage(state,{legacy=false}={}){
+export function addendumPanel(state,asOf=policyDay()){return renderClinicalAddendumPanel(state,asOf).replace(DATE_LABEL,'');}
+// asOf is the Hawaiʻi policy day; tests pass it so nothing depends on today's date. List expiry is judged at the
+// planned service date when that is later, so a list that lapses before the service is never shown as current.
+export function renderStaffPage(state,{legacy=false,asOf=policyDay()}={}){
  const {payer,planId,year,serviceId,benefit,requestType,setting,gelProductId,guidance,search,docs,serviceDate}=state;
  const plans=staffPlansForPayer(payer,year);
- const ctx=staffContext({payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance});
+ const ctx=staffContext({payer,planId,year,serviceId,benefit,requestType,gelProductId,guidance,asOf,serviceDate});
  const plan=ctx.plan,service=ctx.service;
  const cost=state.cost;
  const estimate=cost?estimatePatientCost(cost):null;
@@ -139,8 +180,11 @@ export function renderStaffPage(state,{legacy=false}={}){
  const sourceRows=linked.map(x=>`<div class="staff-source"><div><strong>${h(x.name)}</strong><small>${h(sourceStatusLabel(x.status))}</small></div><p>${h(x.note||'Confirm source version and plan applicability.')}</p><a href="${h(x.url)}" target="_blank" rel="noopener noreferrer">Official source</a></div>`).join('');
  const estimateWarnings=estimate?[...estimate.missingRequired.map(x=>x.label+': '+x.reason),...estimate.messages]:[];
  const rateEvidence=renderRateEvidence(state,ctx);
- const {needsDate,glance}=plan&&service?staffGlance(state):{needsDate:false,glance:null};
- const signals=glance?.hasEvidence?glanceSignals(glance):[];
+ const {needsDate,needsProduct,glance,secondaryPayer}=plan&&service?staffGlance(state,asOf):{needsDate:false,needsProduct:false,glance:null,secondaryPayer:null};
+ const hasPolicy=glanceHasPolicy(glance),signals=hasPolicy?glanceSignals(glance):[];
+ const paSignals=signals.filter(s=>PA_ANSWER_SIGNALS.includes(s.signal)),criteriaSignals=signals.filter(s=>!PA_ANSWER_SIGNALS.includes(s.signal));
+ const reviewFlag=hasPolicy?glanceReviewNotes(glance).flag:'';
+ const flagMarkup=reviewFlag?`<small class="warn-text staff-review-flag">${h(reviewFlag)}</small>`:'';
  const dateField=`<label class="staff-date-field">Planned service date <small>Policy context only; defaults to today in Hawaiʻi</small><input type="date" id="staff-service-date" value="${h(serviceDate||'')}"></label>`;
  const dateYear=validPolicyDate(serviceDate)?Number(serviceDate.slice(0,4)):null;
  const yearNote=dateYear&&dateYear!==Number(year)?`<p class="notice amber staff-year-note">The planned service date is in ${dateYear}; this plan view is for ${h(year)}.</p>`:'';
@@ -195,11 +239,13 @@ export function renderStaffPage(state,{legacy=false}={}){
  </div></section>
  <section class="panel staff-stage" id="staff-requirements"><div class="panel-title-row"><h2 class="section-title"><span class="staff-number">3</span> Formulary, coverage and PA requirements</h2></div><div class="panel-content">
  ${needPlan||needService?`<div class="staff-date-row">${dateField}</div>${yearNote}<p class="helper">Choose an insurer-owned plan and a requested treatment first. No cross-insurer policy will be shown.</p>`:`
- <section class="staff-glance" id="staff-glance" aria-labelledby="staff-glance-title"><div class="staff-glance-head"><div><h3 id="staff-glance-title">At a glance</h3>${glance?.hasEvidence?`<p class="staff-glance-caveat">${h(STAFF_GLANCE_CAVEAT)}</p>`:''}</div>${dateField}</div>${yearNote}
- ${needsDate?`<p class="staff-glance-empty">${h(STAFF_DATE_NEEDED)}</p>`:glance?.hasEvidence?renderGlance(glance):'<p class="helper">No published payer reference is indexed for this plan, treatment and date. Use the authorization routes and official sources below.</p>'}</section>
+ <section class="staff-glance" id="staff-glance" aria-labelledby="staff-glance-title"><div class="staff-glance-head"><div><h3 id="staff-glance-title">At a glance</h3>${hasPolicy?`<p class="staff-glance-caveat">${h(STAFF_GLANCE_CAVEAT)}</p>`:''}</div>${dateField}</div>${yearNote}
+ ${needsProduct?`<p class="staff-glance-empty staff-glance-product">${h(STAFF_PRODUCT_NEEDED)}</p>`:''}${needsDate?`<p class="staff-glance-empty">${h(STAFF_DATE_NEEDED)}</p>`:needsProduct?'':glance?.hasEvidence?renderGlance(glance,{secondaryPayer,hasRoute:(ctx.authorizationResources||[]).length>0}):`<p class="helper">${h(STAFF_NO_POLICY)}</p>`}</section>
  <div class="staff-answer"><strong>Formulary / coverage</strong><span>${med?(benefit==='Medical'?'Medical-benefit drug — pharmacy formulary alone is not coverage':(live?'Exact-plan public pharmacy search available':ctx.formularyEntries?.length?'Reviewed extract from a published list is shown below; plan adoption is not verified':'Drug formulary for this plan is not imported; not verified')):'Procedure medical benefit — confirm current plan coverage and any exclusions'}</span></div>
- <div class="staff-answer"><strong>Prior authorization</strong><span>${glance?.hasEvidence?`${signals.length?signals.map(x=>h(x.label)).join('; ')+'.':'Published policy reference on file; it states no prior-authorization rule for this selection. Read the source.'}<small>Member-level authorization: not verified.</small>`
+ <div class="staff-answer"><strong>Prior authorization</strong><span>${paSignals.length?`${paSignals.map(x=>h(x.label)).join('; ')}.${flagMarkup}<small>Member-level authorization: not verified.</small>`
+  :needsProduct?'Not verified — choose the gel product to see the published statements for that brand'
   :ctx.primaryPolicy?'Published medical policy may apply; review its exact plan scope and requirements':(ctx.supplementaryPA.length?'Published code PA-list record; verify exact plan and year':'Not verified for this particular plan and service')}</span></div>
+ ${criteriaSignals.length?`<div class="staff-answer staff-criteria-answer"><strong>Criteria</strong><span>${criteriaSignals.map(x=>h(x.label)).join('; ')}.${flagMarkup}<small>Read the source for the exact conditions; not a determination for this member.</small></span></div>`:''}
  ${ctx.policyConflict?'<p class="notice amber">Conflicting medical policies were found; no automatic authorization conclusion can be made.</p>':''}
  ${ctx.formularyEntries?.length?`<p class="staff-note"><strong>Reviewed extract (adoption unverified):</strong> ${ctx.formularyEntries.map(e=>h(e.title)+' — listed as '+h(e.formularyStatus)+(e.summary?'; '+h(e.summary):'')).join(' · ')}</p>`:''}
  ${paRouteMarkup}
@@ -223,7 +269,7 @@ export function renderStaffPage(state,{legacy=false}={}){
  <div class="local-buttons"><button class="button primary" data-action="staff-export-packet">Download authorization checklist / letter template</button><button class="button secondary" data-action="staff-patient-script">Copy patient explanation</button></div>
  <p class="helper">Packet includes a blank authorization cover sheet, candidate codes, source-specific criteria and labeled placeholders. It is not a completed patient letter and cannot be submitted with patient data in this trial.</p>`}
  </div></section>
- ${addendumPanel(state)}
+ ${addendumPanel(state,asOf)}
  <details class="staff-advanced"><summary>Advanced reference tools (staff administrators only)</summary><div class="local-buttons">
  <button class="button secondary" data-page="formulary">Legacy formulary explorer</button>
  <button class="button secondary" data-page="coverage">Hawaiʻi plan source directory</button>

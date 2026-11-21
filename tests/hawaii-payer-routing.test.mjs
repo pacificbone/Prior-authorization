@@ -30,8 +30,22 @@ test('clinical prompts never promote public evidence to exact-plan criteria',()=
  assert.equal(documentationBranchesFor(['hmsa-gel-clinical-2026'],'Initial').length,1);
  assert.equal(documentationBranchesFor(['hmsa-gel-clinical-2026'],'Repeat / continuation').length,1);
  assert.equal(documentationBranchesFor(['hmsa-gel-clinical-2026'],'Reconsideration / appeal').length,0);
- // Exception prompts apply at initial precertification; product-scoped branches never cross procedures.
- for(const type of ['Initial','Repeat / continuation','Reconsideration / appeal'])assert.equal(documentationBranchesFor(['hmsa-gel-preference-2026'],type).length,1,type);
+ // HMSA Commercial/QUEST gel branches restate sections B–D only: no imaging or objective-findings fields, the six-month
+ // criterion stated without an exception, the C.2 second-course switch and the D.1 no-prior-authorization rule.
+ const cqInitial=documentationBranchesFor(['hmsa-gel-clinical-2026'],'Initial')[0],cqRenewal=documentationBranchesFor(['hmsa-gel-clinical-2026'],'Repeat / continuation')[0];
+ const cqText=b=>b.fields.map(f=>f.label).join(' ')+' '+b.notes;
+ assert.doesNotMatch(cqText(cqInitial)+cqText(cqRenewal),/[Ii]maging|objective findings|applicable exception|Source summary|Current symptoms/);
+ assert.ok(cqInitial.fields.some(f=>f.label==='Inadequate response to 6 months of conservative therapy'));
+ assert.match(cqText(cqInitial),/acetaminophen, NSAIDs or tramadol/);assert.match(cqText(cqInitial),/adverse or allergic reaction/);
+ assert.match(cqText(cqRenewal),/no previous authorization\/precertification[\s\S]*must meet the initial criteria in section C/);
+ assert.match(cqText(cqRenewal),/at least 6 months after it/);
+ // The exception (including its current-course path) prints on every request type, only for table-1 non-preferred brands;
+ // a brand the table does not list gets the confirm-status branch instead. Product-scoped branches never cross procedures.
+ for(const type of ['Initial','Repeat / continuation','Reconsideration / appeal']){
+  assert.deepEqual(documentationBranchesFor(['hmsa-gel-preference-2026'],type,'gel-monovisc').map(b=>b.id),['hmsa-gel-exception'],type);
+  assert.deepEqual(documentationBranchesFor(['hmsa-gel-preference-2026'],type,'gel-synojoynt').map(b=>b.id),['hmsa-gel-unlisted'],type);
+ }
+ assert.doesNotMatch(PAYER_DOCUMENTATION_BRANCHES.find(b=>b.id==='hmsa-gel-exception').title,/initial precertification/);
  assert.deepEqual(documentationBranchesFor(['hmsa-evolent-knee-2025'],'Initial','procedure-total-knee').map(b=>b.id),['hmsa-tka']);
  assert.deepEqual(documentationBranchesFor(['hmsa-evolent-knee-2025'],'Initial','procedure-partial-knee').map(b=>b.id),['hmsa-partial-knee']);
  assert.deepEqual(documentationBranchesFor(['hmsa-evolent-knee-2025'],'Initial','procedure-revision-knee').map(b=>b.id),['hmsa-revision-knee']);
@@ -43,8 +57,8 @@ test('clinical prompts never promote public evidence to exact-plan criteria',()=
  assert.deepEqual(documentationBranchesFor(['hmsa-gel-preference-2026'],'Initial','gel-monovisc').map(b=>b.id),['hmsa-gel-exception']);
 });
 test('documentation branches written from the captured UHC and HMSA Medicare Advantage documents are scoped by request type and product',()=>{
- assert.equal(PAYER_DOCUMENTATION_BRANCHES.length,48);
- assert.equal(new Set(PAYER_DOCUMENTATION_BRANCHES.map(b=>b.id)).size,48);
+ assert.equal(PAYER_DOCUMENTATION_BRANCHES.length,52);
+ assert.equal(new Set(PAYER_DOCUMENTATION_BRANCHES.map(b=>b.id)).size,52);
  const ids=(evidenceId,type,product='')=>documentationBranchesFor([evidenceId],type,product).map(b=>b.id);
  // Every record named for new branches now has at least one.
  for(const id of ['uhc-gel-2026','uhc-cs-gel-2026','hmsa-gel-ma-2026','hmsa-gel-ma-preference-2026','uhc-denosumab-2026','uhc-cs-denosumab-2026','uhc-evenity-2026','uhc-cs-evenity-2026','uhc-ma-partb-step-2026','uhc-hip-2026','uhc-sij-2026','uhc-ma-joint-2026','uhc-omnibus-carpal-2026','uhc-cs-omnibus-carpal-2026','uhc-ma-omnibus-carpal-2026','uhc-cs-knee-2026','uhc-cs-hip-2026'])
@@ -59,13 +73,19 @@ test('documentation branches written from the captured UHC and HMSA Medicare Adv
  assert.deepEqual(ids('hmsa-gel-ma-2026','Repeat / continuation','gel-synvisc'),['hmsa-gel-ma-reauth']);
  for(const type of ['Initial','Repeat / continuation','Reconsideration / appeal'])assert.deepEqual(ids('hmsa-gel-ma-preference-2026',type,'gel-synvisc-one'),['hmsa-gel-ma-exception'],type);
  assert.deepEqual(ids('hmsa-gel-ma-preference-2026','Initial','gel-durolane'),[]);
+ // Synojoynt is in neither MA table: the confirm-review branch, never the non-preferred exception.
+ assert.deepEqual(ids('hmsa-gel-ma-preference-2026','Initial','gel-synojoynt'),['hmsa-gel-ma-unlisted']);
  const ma=documentationBranchesFor(['hmsa-gel-ma-2026'],'Initial')[0];
  assert.doesNotMatch(ma.fields.map(f=>f.label).join(' '),/six months of conservative|3 months/);assert.match(ma.notes,/do not apply the Commercial\/QUEST six-month rule/);
  // Bone health.
  assert.deepEqual(ids('uhc-denosumab-2026','Initial','bone-prolia'),['uhc-denosumab-initial']);
  assert.deepEqual(ids('uhc-denosumab-2026','Initial','bone-jubbonti'),['uhc-denosumab-initial','uhc-denosumab-nonpreferred']);
  assert.deepEqual(ids('uhc-denosumab-2026','Repeat / continuation','bone-bildyos'),['uhc-denosumab-continuation']);
- assert.deepEqual(ids('uhc-cs-denosumab-2026','Initial','bone-jubbonti'),['uhc-cs-denosumab-initial']);
+ // The glucocorticoid-induced osteoporosis branch is its own initial branch (steroid dose; FRAX without a T-score range).
+ assert.deepEqual(ids('uhc-cs-denosumab-2026','Initial','bone-jubbonti'),['uhc-cs-denosumab-initial','uhc-cs-denosumab-gio-initial']);
+ const gio=PAYER_DOCUMENTATION_BRANCHES.find(b=>b.id==='uhc-cs-denosumab-gio-initial').fields.map(f=>f.label).join(' ');
+ assert.match(gio,/prednisone or its equivalent at a dose ≥ 5 mg\/day for ≥ 3 months/);assert.match(gio,/no T-score range for the FRAX path/);
+ assert.match(PAYER_DOCUMENTATION_BRANCHES.find(b=>b.id==='uhc-cs-denosumab-initial').notes,/glucocorticoid-induced osteoporosis/);
  assert.deepEqual(ids('uhc-cs-denosumab-2026','Repeat / continuation','bone-prolia'),['uhc-cs-denosumab-continuation','uhc-cs-denosumab-nonpreferred']);
  for(const e of ['uhc-evenity-2026','uhc-cs-evenity-2026']){assert.equal(ids(e,'Initial','bone-evenity').length,1,e);assert.equal(ids(e,'Repeat / continuation','bone-evenity').length,1,e);assert.equal(ids(e,'Reconsideration / appeal','bone-evenity').length,0,e);}
  assert.match(documentationBranchesFor(['uhc-cs-evenity-2026'],'Initial')[0].fields.map(f=>f.label).join(' '),/major osteoporotic fracture at 30% or more or hip fracture at 4\.5% or more/);
@@ -77,7 +97,9 @@ test('documentation branches written from the captured UHC and HMSA Medicare Adv
  // Surgery: public definitions and InterQual pointers, never invented thresholds.
  const hip=documentationBranchesFor(['uhc-hip-2026'],'Initial','procedure-total-hip');assert.deepEqual(hip.map(b=>b.id),['uhc-hip-2026-review']);
  const hipText=hip[0].fields.map(f=>f.label).join(' ');
- assert.match(hipText,/WOMAC pain domain > 40; functional limitation domain > 40/);assert.match(hipText,/Tönnis grade 2 or 3/);assert.match(hipText,/Outerbridge grade III or IV/);
+ assert.match(hipText,/WOMAC pain domain > 40; functional limitation domain > 40/);
+ // The FAI arthroscopy criterion belongs to a different procedure and is not a prompt on an arthroplasty workup.
+ assert.doesNotMatch(hipText,/Tönnis|Outerbridge|femoroacetabular/);assert.match(hip[0].notes,/do not apply to arthroplasty/);
  assert.match(documentationBranchesFor(['uhc-sij-2026'],'Initial')[0].fields[0].label,/titanium triangular implant system/);
  assert.deepEqual(ids('uhc-ma-joint-2026','Initial','procedure-total-knee'),['uhc-ma-joint-lcd']);
  assert.deepEqual(ids('uhc-ma-joint-2026','Initial','procedure-revision-hip'),['uhc-ma-joint-lcd']);
@@ -88,6 +110,12 @@ test('documentation branches written from the captured UHC and HMSA Medicare Adv
   const b=documentationBranchesFor([e],type,'procedure-carpal-balloon');assert.equal(b.length,1,e+type);assert.equal(b[0].fields.length,1);
  }
  assert.match(documentationBranchesFor(['uhc-ma-omnibus-carpal-2026'],'Initial')[0].fields[0].label,/not reasonable and necessary/);
+ // The Medicare Advantage row is CPT 64728 with balloon dilation only: the non-balloon technique gets a coding-determination prompt instead.
+ for(const type of ['Initial','Repeat / continuation'])assert.deepEqual(ids('uhc-ma-omnibus-carpal-2026',type,'procedure-carpal-ultrasound-other'),['uhc-ma-omnibus-nonballoon-coding'],type);
+ assert.deepEqual(ids('uhc-ma-omnibus-carpal-2026','Initial','procedure-carpal-balloon'),['uhc-ma-omnibus-64728-note']);
+ // The MA arthroplasty branch carries the LCD documentation itself instead of pointing at prompts the MA path never shows.
+ const maJoint=PAYER_DOCUMENTATION_BRANCHES.find(b=>b.id==='uhc-ma-joint-lcd').fields.map(f=>f.label).join(' ');
+ assert.doesNotMatch(maJoint,/see the Traditional Medicare/);assert.match(maJoint,/Imaging modality, date and the specific findings the LCD lists/);
  assert.match(documentationBranchesFor(['uhc-omnibus-carpal-2026'],'Initial')[0].fields[0].label,/unproven/);
  // Request-type, evidence and product scoping are frozen.
  assert.ok(PAYER_DOCUMENTATION_BRANCHES.every(b=>Object.isFrozen(b)&&Object.isFrozen(b.requestTypes)&&Object.isFrozen(b.fields)));

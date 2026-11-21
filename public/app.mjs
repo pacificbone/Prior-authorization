@@ -50,14 +50,16 @@ const LEGACY_ACTIONS=new Set(['sample','authorization','ai','save','save-browser
 const nav=[['workup','Staff workup','file'],['sources','Sources due','clock'],['formulary','Formulary explorer','grid'],['coverage','Hawaiʻi coverage','book'],['procedures','Orthopedic procedures','file'],['costs','Patient costs','pill'],['authorization','Authorization letters','file'],['policies','Policy library','book'],['security','Security & connection','shield']];
 const pageAllowed=page=>nav.some(n=>n[0]===page)&&(LEGACY||!LEGACY_PAGES.has(page));
 const ERROR_TOAST='Something went wrong. Reload the page; nothing was sent anywhere.';
-const newStaff=(over={})=>({payer:'',planId:'',year:staffDefaultYear(),serviceId:'',benefit:'Medical',requestType:'Initial',setting:'Office',gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,serviceDate:'',clinicalTemplateId:'',lookup:{sourceId:null,term:'',busy:false,result:null,error:''},...over});
+const newStaff=(over={})=>({payer:'',planId:'',year:staffDefaultYear(),serviceId:'',benefit:'Medical',requestType:'Initial',setting:'Office',gelProductId:'',guidance:'without-ultrasound',search:'',docs:{},cost:null,serviceDate:'',serviceDateSource:'',clinicalTemplateId:'',lookup:{sourceId:null,term:'',busy:false,result:null,error:''},...over});
 const state={page:'workup',staff:newStaff(),version:null,costCategory:'arthroplasty',cost:newCostCase(),orthoCategory:'injections',ortho:defaultOrthoCase(),coverage:{program:'all',payer:'all',query:'',drug:''},compareVisible:false,publicLookup:{sourceId:PUBLISHED_FORMULARIES[0].id,term:'',busy:false,result:null,error:''},scope:{...defaultScope},drugId:'evenity',search:'',case:blankCase(),custom:[],events:[],draft:'',review:{facts:false,scope:false},locked:false,token:'',connection:{configured:false,provider:'none'},aiBusy:false,aiEpoch:0,vaultMode:'save',vaultEnvelope:null};
 let toastTimer,idleTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),6000);}
-// Every app fetch goes through here: a 403/503 with a JSON {error} (the Cloudflare Access gate) is shown as a toast.
+// Every app fetch goes through here. Only the Worker's Access-gate replies (marked X-PBJ-Gate) are toasted; a route's
+// own 403/503 (for example an offline public formulary) is shown inline by its caller, never twice.
+const gateToasted=new WeakSet();
 async function appFetch(url,init){
   const response=await fetch(url,init);
-  if(response.status===403||response.status===503){try{const data=await response.clone().json();if(typeof data?.error==='string'&&data.error.trim())toast(data.error.trim().slice(0,240));}catch{}}
+  if((response.status===403||response.status===503)&&response.headers.get('X-PBJ-Gate')){try{const data=await response.clone().json();if(typeof data?.error==='string'&&data.error.trim()){toast(data.error.trim().slice(0,240));gateToasted.add(response);}}catch{}}
   return response;
 }
 window.addEventListener('error',()=>toast(ERROR_TOAST));
@@ -179,7 +181,7 @@ function resetStaffPrice({keepClinical=false}={}){
   $('#print-region').textContent='';
   // The planned service date is set when a service is chosen (policy day by default) and survives plan changes.
   if(!keepClinical)st.clinicalTemplateId='';
-  if(!st.serviceId)st.serviceDate='';
+  if(!st.serviceId){st.serviceDate='';st.serviceDateSource='';}
   st.costUnavailable='';
   st.rateCode='';
   st.rateLookup={result:null,error:'',busy:false};
@@ -265,8 +267,10 @@ async function checkConnection(showToast=true){
     if(showToast)toast('This private review preview has no AI backend. Configure AI in your local or Cloudflare deployment.');
     if(state.page==='security'&&!state.locked)renderSecurity();return;
   }
-  try{const response=await appFetch('/api/status',{cache:'no-store'});if(!response.ok)throw new Error();state.connection=await response.json();if(showToast)toast(!LEGACY?'Deployment status refreshed.':state.connection.configured?'Provider configured for the synthetic trial.':'AI is not connected. Local drafting is available.');}
-  catch{state.connection={provider:'none',configured:false};if(showToast)toast(LEGACY?'Server connection unavailable. Local drafting still works.':'Server status unavailable.');}
+  let gated=false;
+  try{const response=await appFetch('/api/status',{cache:'no-store'});gated=gateToasted.has(response);if(!response.ok)throw new Error();state.connection=await response.json();if(showToast)toast(!LEGACY?'Deployment status refreshed.':state.connection.configured?'Provider configured for the synthetic trial.':'AI is not connected. Local drafting is available.');}
+  // The Access gate's own message stays on screen; it is never replaced by the generic one.
+  catch{state.connection={provider:'none',configured:false};if(showToast&&!gated)toast(LEGACY?'Server connection unavailable. Local drafting still works.':'Server status unavailable.');}
   if(state.page==='security'&&!state.locked)renderSecurity();
 }
 async function runAi(){
@@ -402,7 +406,7 @@ document.addEventListener('click',async event=>{
     try{
       const note=staffClinicalAddendum(state.staff);
       if(action==='staff-print-addendum'){$('#print-region').textContent=note;window.print();}
-      else download('pbj-synthetic-clinical-addendum-'+dateToday()+'.txt',note);
+      else{download('pbj-synthetic-clinical-addendum-'+dateToday()+'.txt',note);toast('Blank clinical addendum downloaded. Complete it only in the approved clinical system.');}
       log('Blank synthetic clinical addendum exported');
     }catch(error){toast(error.message);}
     return;
@@ -563,7 +567,7 @@ document.addEventListener('input',event=>{
 document.addEventListener('change',event=>{
   const target=event.target;
   if(target.id==='staff-clinical-template'){state.staff.clinicalTemplateId=target.value;$('#print-region').textContent='';renderStaff();return;}
-  if(target.id==='staff-service-date'){state.staff.serviceDate=target.value;$('#print-region').textContent='';renderStaff();return;}
+  if(target.id==='staff-service-date'){state.staff.serviceDate=target.value;state.staff.serviceDateSource=target.value?'entered':'';$('#print-region').textContent='';renderStaff();return;}
   if(target.id==='coverage-program'){state.coverage.program=target.value;renderCoverage();return;}
   if(target.id==='staff-rate-code'){
     state.aiEpoch++;
@@ -584,9 +588,12 @@ document.addEventListener('change',event=>{
     else if(id==='staff-year'){st.year=Number(target.value);st.planId='';}
     else if(id==='staff-plan-select'){st.planId=target.value;}
     else if(id==='staff-service-select'){
-      // A gel brand named in the search box presets the brand; the planned service date defaults to the Hawaiʻi policy day.
+      // A gel brand named in the search box presets the brand. The planned service date defaults to the Hawaiʻi policy
+      // day (policy context only, never printed as the planned date); a date staff typed survives a service change.
       const gel=target.value==='knee-gel'?gelProductForQuery(st.search):null;
-      st.serviceId=target.value;st.search='';st.gelProductId=gel||'';st.benefit=staffDefaultBenefit(staffGetService(target.value));st.serviceDate=st.serviceId?policyDay():'';}
+      st.serviceId=target.value;st.search='';st.gelProductId=gel||'';st.benefit=staffDefaultBenefit(staffGetService(target.value));
+      if(!st.serviceId){st.serviceDate='';st.serviceDateSource='';}
+      else if(st.serviceDateSource!=='entered'||!st.serviceDate){st.serviceDate=policyDay();st.serviceDateSource='default';}}
     else if(id==='staff-benefit'){st.benefit=target.value;}
     else if(id==='staff-request-type'){st.requestType=target.value;}
     else if(id==='staff-setting'){st.setting=target.value;}
@@ -713,7 +720,7 @@ document.addEventListener('keydown',event=>{
 });
 function loadStaffSample(){
   const year=staffDefaultYear();
-  state.staff=newStaff({payer:'HMSA',planId:staffPlansForPayer('HMSA',year).some(x=>x.id==='hmsa-quest')?'hmsa-quest':'',year,serviceId:'alendronate',benefit:'Pharmacy',serviceDate:policyDay()});
+  state.staff=newStaff({payer:'HMSA',planId:staffPlansForPayer('HMSA',year).some(x=>x.id==='hmsa-quest')?'hmsa-quest':'',year,serviceId:'alendronate',benefit:'Pharmacy',serviceDate:policyDay(),serviceDateSource:'default'});
   resetStaffPrice();
   setPage('workup');
   void runStaffFormularyLookup({automatic:true});

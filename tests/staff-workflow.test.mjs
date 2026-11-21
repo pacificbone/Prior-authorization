@@ -194,7 +194,12 @@ test('service search matches staff abbreviations, brand names and codes token by
  assert.deepEqual(ids('hip unicorn'),[]);
  assert.deepEqual(ids('Q5136'),['jubbonti']);assert.deepEqual(ids('q5162'),['bildyos']);assert.deepEqual(ids('J3489'),['zoledronic-acid']);
  assert.ok(ids('Reclast').includes('zoledronic-acid'));assert.ok(ids('zoledronic').includes('zoledronic-acid'));
- for(const id of ['prolia','bildyos','enoby','stoboclo','jubbonti'])assert.ok(ids('denosumab biosimilar').includes(id),id);
+ for(const id of ['bildyos','enoby','stoboclo','jubbonti'])assert.ok(ids('denosumab biosimilar').includes(id),id);
+ // Prolia is the reference product: "biosimilar" never finds it, "denosumab" does.
+ assert.ok(!ids('biosimilar').includes('prolia'));assert.ok(ids('denosumab').includes('prolia'));
+ // A code-shaped token matches only a service's own codes, never description text that names a code to rule it out.
+ assert.deepEqual(ids('64728'),['carpal-balloon']);assert.deepEqual(ids('76942'),[]);assert.deepEqual(ids('26055'),['trigger-finger']);
+ assert.deepEqual(ids('J7330'),['maci-cell-product']);assert.deepEqual(ids('J1740'),['ibandronate']);assert.deepEqual(ids('2744'),['total-knee','partial-knee']);
  for(const [q,id] of [['UKA','partial-knee'],['partial knee','partial-knee'],['THA','total-hip'],['CTR','carpal-open'],['carpal tunnel','carpal-open'],['endoscopic carpal tunnel','carpal-endo'],['trigger finger','trigger-finger'],['SI fusion','si-joint-fusion'],['MACI','maci-harvest'],['autologous chondrocyte implantation','maci-implant'],['ACL','acl-reconstruction'],['viscosupplementation','knee-gel'],['hyaluronic acid','knee-gel'],['gel','knee-gel'],['J7325','knee-gel'],['20610','knee-gel'],['DEXA','dexa'],['Fosamax','alendronate']])
   assert.equal(ids(q)[0],id,q);
  for(const p of ['durolane','gel-one','gelsyn-3','genvisc','hyalgan','hymovis','monovisc','orthovisc','supartz','synvisc','synvisc-one','trivisc','synojoynt','triluron','visco-3'])assert.ok(ids(p.replace('-',' ')).includes('knee-gel'),p);
@@ -202,6 +207,9 @@ test('service search matches staff abbreviations, brand names and codes token by
  assert.equal(gelProductForQuery('visco-3'),'visco-3');assert.equal(gelProductForQuery('gelsyn'),'gelsyn-3');
  // No brand, or two different brands, preselects nothing.
  for(const q of ['','knee gel','TKA','synvisc euflexxa','hyaluronic acid'])assert.equal(gelProductForQuery(q),null,q);
+ // A brand the policies name but Coverage Desk cannot select presets nothing (Hymovis One is not Hymovis).
+ for(const q of ['Hymovis One','hymovis one injection','hymovis-one','HYMOVIS ONE knee'])assert.equal(gelProductForQuery(q),null,q);
+ assert.equal(gelProductForQuery('Hymovis'),'hymovis');assert.deepEqual(ids('Hymovis One'),['knee-gel']);
  // Filters still apply, and an empty query keeps catalog order.
  assert.deepEqual(staffServices({type:'medication',query:'J0897'}).map(x=>x.id),['prolia']);
  assert.deepEqual(staffServices({type:'procedure',query:'J0897'}),[]);
@@ -225,6 +233,10 @@ test('documentation template contains placeholders and uncovered clinical gaps r
  assert.doesNotMatch(packet,/Authorization approved|Patient has failed therapy|meets all criteria/i);
  assert.throws(()=>staffAuthorizePacket({...query,patientName:'Joe'}),/|/); // blocked by no patient output even if supplied, schema validation follows app UI
  assert.throws(()=>staffAuthorizePacket({...query,checks:{patientName:true}}),/Only the prepared/);
+ // Original Medicare has no authorization department: the packet is a claim documentation worksheet there.
+ const om=staffAuthorizePacket({payer:'Traditional Medicare',planId:'original-b',year:2026,serviceId:'si-joint-fusion',benefit:'Medical',requestType:'Initial',setting:'ASC',checks:{}});
+ assert.match(om,/SUBJECT: Claim documentation worksheet for /);assert.match(om,/TO: Original Medicare \(Noridian JE\) for the primary claim/);
+ assert.doesNotMatch(om,/Request for authorization of|exact authorization department must be verified/);
 });
 test('patient explanation never guarantees covered service or price',()=>{
  const script=staffPatientScript({payer:'HMSA',planId:'hmsa-quest',year:2026,serviceId:'knee-gel',benefit:'Medical'});
