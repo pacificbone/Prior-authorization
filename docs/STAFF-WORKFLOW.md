@@ -1,10 +1,24 @@
 # Staff workup — one payer, one plan, one service
 
-**Pacific Bone & Joint · November 7, 2026, updated November 8, 2026 (HST) · synthetic trial / no PHI clearance**
+**Pacific Bone & Joint · November 7, 2026, updated November 21, 2026 (HST) · synthetic trial / no PHI clearance**
 
 The default app homepage is now **Staff workup**. Prior modules remain available only under **Advanced reference tools**, not as competing navigation paths.
 
+## What changed on November 21, 2026
+
+- **Defaults.** The coverage year starts at the current Hawaiʻi year (or the latest supported year), and choosing a service fills the planned service date with today in Hawaiʻi. Both stay editable. A date you did not enter prints on the addendum and worksheet as "[DATE NOT SELECTED — policy context used <day>]"; a date you typed survives a service change. An amber note appears when the service date falls in a different year from the plan year.
+- **Search.** The service box shows the match count, and a code you type matches only services that carry that code (for example 64728 finds the balloon carpal tunnel release only). Typing a gel brand while knee gel is selected, or picking knee gel after searching a brand, preselects that brand; "Hymovis One" preselects nothing because it is a different product.
+- **At a glance (top of step 3).** For the selected insurer, plan line and product, it shows the published prior-authorization statement with its source documents, the preferred / non-preferred / typically excluded / criteria-based product lists, and a status pill or amber exception notice for the chosen product. If no statement was recorded it says "Prior authorization: not verified". Criteria language (InterQual, unproven, not reasonable and necessary) appears on a separate **Criteria** row, never as a PA answer. Knee gel with no brand asks you to choose the product. A reference that is overdue, or whose review window ends before the service date, puts an amber notice at the top and a flag on the PA and Criteria rows. Every statement is a published policy statement: the member's plan adoption, eligibility and authorization are not verified.
+- **Medigap.** A Medigap plan reads Original Medicare (Noridian JE) for the primary claim and says Medigap pays secondary.
+- **Step 6 references.** Each payer reference shows its review state: current, due soon, review window ends before the service date, or overdue (amber badge visible while collapsed). The verification worksheet follows the selected request type (Initial, Renewal, …).
+- **Printed addendum.** It now ends with "Payer-policy documentation prompts (public reference; plan adoption not verified)": each matching documentation branch with its source and blank answer lines, followed by the clinician signature line. Clinical findings print as "[COMPLETE IN APPROVED CLINICAL SYSTEM]". Nothing is prefilled.
+- **Sources due page.** Lists every payer reference and formulary file as Overdue, Due in the next 30 days, Current or Undated, with a sidebar badge counting overdue plus due-soon items.
+- **Security & connection page.** Shows whether Cloudflare Access is required and configured, whether the price bridge is configured, and the build version. The footer shows the build commit and the policy-data date.
+- **Hidden tools.** The note-paste letter builder, AI extractor and encrypted vault are not in deployed builds; #authorization opens the staff workup instead.
+
 ## Five steps for front-desk / authorization staff
+
+The screen numbers six steps; step 6 (blank clinical addendum and payer verification worksheet) is described under step 5 below.
 
 1. **Insurance first:** Choose the actual carrier (e.g., HMSA, UHC, Kaiser, UHA, Curative, AlohaCare, Aetna, Cigna, Anthem, VA, TRICARE, traditional Medicare, or an administrator). Choose the year. The next dropdown shows **only source pathways belonging to that insurer**, with no payer-crossing possibilities. Aetna, Cigna, and Anthem public plan pages are official links, not full imported plan formularies. Many choices are **plan families or public source directories**, not exact member products. These now receive a dedicated "Plan family / formulary resource only" warning. A source with a validated published HIOS/plan ID gets "Exact published pharmacy plan ID", but even that does **not** establish member enrollment. Do not treat family selection as a member-specific benefit or quote.
 2. **Select the service:** Search medication, generic, orthopedic operation, imaging or injection. The service catalog includes primary/revision THA/TKA, partial knee, MACI, office carpal and trigger releases, meniscus root/BEAR/ACL, SI fusion, peripheral nerve stimulation, cryoneurolysis/genicular RFA, gel injections, PRP/BMAC/A2M, joint preservation, osseointegration, osteotomy, PT, DME, and common bone-health and postoperative drugs. Codes are candidates only. Procedures with no validated coding display a warning, not an invented CPT.

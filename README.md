@@ -56,7 +56,7 @@ npm start
 
 Open **http://localhost:3000**. The normal server binds only to `127.0.0.1` and accepts loopback Host values only. `npm run dev` (preview mode) also binds `127.0.0.1` unless you pass `--host 0.0.0.0`, and keeps Host validation, additionally accepting the bound host and any names given with `--allow-host`; do not expose it on an untrusted network. The app runs without AI credentials.
 
-Start in **Staff workup** and select the insurer, its actual plan/year and desired medication or procedure. The app keeps cost and authorization information on that one screen. The legacy **Formulary explorer** is under Advanced reference tools. **Try sample case** opens a completely fictional HMSA Evenity case with a selected qualifying pathway and linked evidence (or the UHC example when UHC is selected). Build a draft, review the facts and scope, then download text or use **Print / PDF**. Every trial export is marked synthetic and unsigned.
+Start in **Staff workup** and select the insurer, its actual plan/year and desired medication or procedure. The plan year defaults to the current Hawaiʻi year and the planned service date to today in Hawaiʻi (both editable; a defaulted date prints as "[DATE NOT SELECTED]" on the addendum and worksheet). Step 3 opens with an **At a glance** block: the published prior-authorization statement (or "not verified"), the preferred / non-preferred / typically excluded product lists from the matched payer documents, and an amber notice when a reference is overdue for review. **Try a sample workup** loads a fictional case. **Sources due** (sidebar) lists every payer reference and formulary file by review date; **Security & connection** shows the deployment status (Access required/configured, price bridge, build version). The note-paste letter builder, AI extractor and encrypted vault are hidden in every build and appear only when the local server is started with `--legacy-tools`. Every trial export is marked synthetic and unsigned.
 
 ## What is implemented
 
@@ -116,7 +116,7 @@ npx wrangler@4 login
 npx wrangler@4 deploy
 ```
 
-A manual, fictional-data-only GitHub Actions deploy workflow is included in [the Cloudflare trial runbook](docs/CLOUDFLARE-TRIAL.md). It requires Cloudflare credentials in protected GitHub secrets and explicit acknowledgment. The workflow does not configure Cloudflare Access or prevent a public `workers.dev` hostname.
+Publishing is automatic from `main` through Cloudflare Workers Builds (the build variable `SYNTHETIC_ONLY_ACK=true` is required, or the build fails closed); a manual, fictional-data-only GitHub Actions deploy workflow remains as a fallback. Both are described in [the Cloudflare trial runbook](docs/CLOUDFLARE-TRIAL.md). `wrangler.jsonc` sets `REQUIRE_ACCESS="true"`, so the Worker itself verifies the Cloudflare Access JWT on every request: **set the Worker secrets `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` before the first deploy**, or every request answers 503 (fail closed). Requests without a valid Access session get 403. Each build writes `dist/version.json` (commit, build time, policy as-of date), shown in the page footer.
 
 Deploying with the checked-in configuration leaves AI disabled. For a provider connection, set `AI_PROVIDER`, `AI_MODEL`, `AI_TRIAL_ENABLED` and the exact HTTPS `APP_ORIGIN` in the Worker environment. Set `TRIAL_ACCESS_TOKEN` and provider credentials with **Wrangler secrets** or the Cloudflare dashboard, never in tracked `vars`. All asset requests pass through the Worker for security headers. `dist/` contains public client/shared modules only; it contains no server credentials.
 
@@ -139,9 +139,14 @@ npm run check
 npm test
 npm run build
 npm run matrix:check   # coverage matrix documents match the registries
+npm run lint           # ESLint, zero warnings expected
+npm run sources:due    # payer references and formulary files by review date (offline)
+npm run sources:check  # re-download fingerprinted payer PDFs and compare digests (network; never rewrites the register)
 ```
 
-For the browser flow, start `node server/local.mjs --port 3088` in another terminal and run `npm run test:browser`; set `PBJ_PLAYWRIGHT_MODULE` to an installed Playwright entry point when the package is not resolvable from the repository (CI installs `playwright@1.62.1` for this job). Regenerate the coverage matrix with `npm run matrix -- --as-of YYYY-MM-DD` after any registry change and commit the result.
+The test suite must not depend on today's date: CI also runs it with the clock shifted (`FAKE_NOW=<iso> node --import ./tests/support/shift-clock.mjs --test tests/*.test.mjs`) and runs the browser suite with the page clock fixed about 45 and 400 days ahead (`PBJ_FAKE_NOW`). A weekly scheduled job runs `sources:due` and `sources:check` and opens an issue on failure; see [source maintenance](docs/SOURCE-MAINTENANCE.md).
+
+For the browser flow, start `node server/local.mjs --port 3088` in another terminal and run `npm run test:browser` (68 addendum print flows plus a staff-workup flow); set `PBJ_PLAYWRIGHT_MODULE` to an installed Playwright entry point when the package is not resolvable from the repository (CI installs `playwright@1.62.1` for this job). Regenerate the coverage matrix with `npm run matrix -- --as-of YYYY-MM-DD` after any registry change and commit the result.
 
 Tests cover scope isolation, unknown benefits, stale/future/expired/conflicting sources, source-note edits, missing evidence, appeal release blocking, AI quote validation, arbitrary-note rejection, token/origin checks, provider failure handling, encryption tampering, provider transport contracts and gateway identity enforcement. The GitHub Actions workflow runs the same checks without provider credentials.
 
